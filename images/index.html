@@ -269,8 +269,8 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
 .toc-link:hover{color:var(--teal);border-bottom-color:var(--teal)}
 .toc-desc{display:block;font-size:.85rem;color:var(--mid);font-style:italic;margin-top:.2em}
 .toc-img{
-  display:block;width:auto;height: auto;
-  object-fit:contain;object-position:center;
+  display:block;width:100%;height:160px;
+  object-fit:cover;object-position:center;
   margin-bottom:.9em;
   filter:sepia(20%) contrast(0.95);opacity:.88;
   transition:opacity .3s,filter .3s;
@@ -353,6 +353,7 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
   border:1px solid rgba(70,50,15,0.10);
   box-shadow:0 10px 26px rgba(70,50,15,0.08);
   transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  overflow:hidden;
 }
 .toc-card:hover{
   transform:translateY(-2px);
@@ -361,13 +362,16 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
 }
 .toc-card .toc-link{display:block;margin-bottom:.25em}
 .toc-img{
+  display:block;
+  width:calc(100% + 2rem);
   height:190px;
-  border:1px solid rgba(70,50,15,0.10);
-  box-shadow:0 8px 18px rgba(70,50,15,0.10);
-  filter:none;
+  object-fit:cover;
+  object-position:center;
+  margin:-1rem -1rem 1rem -1rem;
   opacity:0.94;
+  transition:opacity .25s ease;
 }
-.toc-img:hover{filter:none;opacity:1}
+.toc-img:hover{opacity:1}
 @media (max-width:900px){
   .toc-list{grid-template-columns:1fr}
 }
