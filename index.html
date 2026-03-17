@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GESTELL</title>
 <meta name="description" content="A Brief Experience of Enlightenment">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23f7f4ee'/><text x='16' y='24' text-anchor='middle' font-family='Georgia,serif' font-size='24' font-weight='normal' fill='%238B0000'>G</text></svg>">
 <meta property="og:title" content="GESTELL">
 <meta property="og:description" content="A Brief Experience of Enlightenment">
 <meta property="og:image" content="https://raw.githubusercontent.com/CanuteReal/gestell/main/images/p1-japanese-military-review.jpg">
@@ -13,8 +14,17 @@
 <meta name="twitter:title" content="GESTELL">
 <meta name="twitter:description" content="A Brief Experience of Enlightenment">
 <meta name="twitter:image" content="https://raw.githubusercontent.com/CanuteReal/gestell/main/images/p1-japanese-military-review.jpg">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-54BCYBQS0P"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-54BCYBQS0P');
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fjord+One&family=Lora:ital,wght@0,400;0,600;1,400&family=MedievalSharp&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap">
 <link href="https://fonts.googleapis.com/css2?family=Fjord+One&family=Lora:ital,wght@0,400;0,600;1,400&family=MedievalSharp&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 
 <style>
@@ -96,6 +106,15 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
     0 10px 35px rgba(70,50,15,0.12),
     inset 0 0 100px rgba(150,110,30,0.04);
   position:relative;
+  isolation:isolate;
+}
+.paper > *{position:relative;z-index:2}
+.paper::before{
+  content:'';position:absolute;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:0.055;
+  pointer-events:none;
+  z-index:1;
 }
 .paper::after{
   content:'';position:absolute;inset:0;
@@ -432,6 +451,11 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
 <body>
 <button id="menu-btn" onclick="go('title')">← menu</button>
 <div id="main"></div>
+<noscript>
+  <div style="max-width:500px;margin:20vh auto;text-align:center;font-family:Georgia,serif;color:#666;line-height:1.8;">
+    GESTELL requires JavaScript to run.<br>Please enable it in your browser settings.
+  </div>
+</noscript>
 
 <script>
 const S={
@@ -441,7 +465,8 @@ const S={
   playerLevel:1,
 };
 
-function go(id){
+function go(id, addHistory=true){
+  if(addHistory) history.pushState(null,'','#'+id);
   const el=document.getElementById('main');
   el.style.opacity='0';
   setTimeout(()=>{
@@ -1792,7 +1817,14 @@ p3_quit:()=>{
 
 };
 
-go('title');
+(function(){
+  const id=window.location.hash.slice(1);
+  go(id && passages[id] ? id : 'title', false);
+})();
+window.addEventListener('popstate',()=>{
+  const id=window.location.hash.slice(1);
+  go(id && passages[id] ? id : 'title', false);
+});
 </script>
 </body>
 </html>
