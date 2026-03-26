@@ -446,6 +446,58 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
   .plate--photo img{height:auto}
 }
 
+/* ── PART ONE: SIDENOTES ── */
+.fn-sn-label { display: none; }
+@media (min-width: 960px) {
+  .paper { overflow: visible; }
+  .fn-body.sidenote-active {
+    position: absolute;
+    width: 148px;
+    margin: 0;
+    border-left: none;
+    border-right: none;
+    border-top: 1px solid rgba(26,122,138,0.4);
+    padding: .4em .65em .4em .5em;
+    text-align: right;
+    background: rgba(237,226,196,0.65);
+    font-size: .76em;
+    line-height: 1.48;
+  }
+  .fn-body.sidenote-active .fn-sn-label {
+    display: block;
+    font-style: normal;
+    font-size: .7em;
+    color: var(--teal);
+    opacity: 0.65;
+    margin-bottom: .18em;
+    font-family: 'Fjord One', Georgia, serif;
+  }
+}
+@media (min-width: 1220px) {
+  .fn-body.sidenote-active {
+    width: 200px;
+    font-size: .79em;
+    line-height: 1.5;
+    border-right: 1px solid rgba(26,122,138,0.2);
+  }
+}
+
+/* ── PART ONE: FOOTNOTE PROGRESS BAR ── */
+.fn-progress-wrap {
+  height: 2px;
+  background: rgba(26,122,138,0.12);
+  margin: 0 0 2.5em;
+  position: relative;
+  overflow: hidden;
+}
+.fn-progress-fill {
+  height: 100%;
+  background: var(--teal);
+  width: 0%;
+  transition: width 0.5s ease;
+  opacity: 0.55;
+}
+
 </style>
 </head>
 <body>
@@ -459,9 +511,9 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
 
 <script>
 const S={
-  
+  footnotesOpened:new Set(),
   pressAKnight:0,waitFinalCount:0,
-  terminalPage:0, 
+  terminalPage:0,
   playerLevel:1,
 };
 
@@ -483,19 +535,72 @@ function go(id, addHistory=true){
   },300);
 }
 
+function updateFootnoteBar(){
+  document.querySelectorAll('.fn-progress-fill').forEach(el=>{
+    el.style.width=(S.footnotesOpened.size/29*100)+'%';
+  });
+}
+
+function resolveOverlaps(paper){
+  const notes=[...paper.querySelectorAll('.fn-body.sidenote-active.open')];
+  notes.sort((a,b)=>parseFloat(a.style.top||0)-parseFloat(b.style.top||0));
+  let floor=0;
+  notes.forEach(n=>{
+    let t=parseFloat(n.style.top||0);
+    if(t<floor)t=floor;
+    n.style.top=t+'px';
+    floor=t+n.offsetHeight+10;
+  });
+}
+
+function positionSidenote(fnBody,fnRef){
+  if(window.innerWidth<960||!fnBody)return;
+  const paper=fnBody.closest('.paper');
+  if(!paper)return;
+  if(!fnBody.classList.contains('open')){
+    fnBody.classList.remove('sidenote-active');
+    fnBody.style.top='';
+    fnBody.style.left='';
+    resolveOverlaps(paper);
+    return;
+  }
+  const paperRect=paper.getBoundingClientRect();
+  const refRect=fnRef.getBoundingClientRect();
+  const top=Math.max(0,refRect.top-paperRect.top);
+  fnBody.style.top=top+'px';
+  fnBody.style.left=(paperRect.width+14)+'px';
+  fnBody.classList.add('sidenote-active');
+  resolveOverlaps(paper);
+}
+
 function bind(){
   document.querySelectorAll('[data-go]').forEach(el=>{
     el.addEventListener('click',e=>{e.preventDefault();go(el.dataset.go)});
   });
   document.querySelectorAll('[data-fn]').forEach(el=>{
     el.addEventListener('click',()=>{
-      const b=document.getElementById('fn-'+el.dataset.fn);
+      const id=el.dataset.fn;
+      const b=document.getElementById('fn-'+id);
       if(b)b.classList.toggle('open');
+      if(!S.footnotesOpened.has(id)){
+        S.footnotesOpened.add(id);
+        updateFootnoteBar();
+      }
+      positionSidenote(b,el);
     });
   });
   document.querySelectorAll('[data-action]').forEach(el=>{
     el.addEventListener('click',()=>actions[el.dataset.action](el));
   });
+  // Inject progress bar into any Part One .paper page
+  const paper=document.querySelector('#main .paper');
+  if(paper&&!paper.querySelector('.fn-progress-wrap')){
+    const wrap=document.createElement('div');
+    wrap.className='fn-progress-wrap';
+    wrap.innerHTML='<div class="fn-progress-fill"></div>';
+    paper.insertBefore(wrap,paper.firstChild);
+  }
+  updateFootnoteBar();
 }
 
 function structureGame(){
@@ -530,7 +635,7 @@ const p1Footer=()=>
 const fnR=(id,n)=>
   `<sup class="fn-ref" data-fn="${id}">${n}</sup>`;
 const fnB=(id,txt)=>
-  `<div class="fn-body" id="fn-${id}">${txt}</div>`;
+  `<div class="fn-body" id="fn-${id}"><span class="fn-sn-label">${id}</span>${txt}</div>`;
 const gdiv=`<div class="g-div">———</div>`;
 const hr=`<hr class="sect">`;
 const p=(txt)=>`<p>${txt}</p>`;
@@ -578,7 +683,7 @@ const PART_ONE_FOOTNOTES=[
   {id:'4',n:'4',sec:'II',go:'p1_s2',txt:`Hegel thought that nature had a rationality of its own, but it was "cloaked under contingency". To me, the ability to recognize abstract structures or patterns is a power of man. This is reflexivity.`},
   {id:'5',n:'5',sec:'II',go:'p1_s2',txt:`Perhaps less so in the hard sciences and more so in the more subjective social sciences. Reflexivity.`},
   {id:'6',n:'6',sec:'II',go:'p1_s2',txt:`And in the long run, we are all dead. Perhaps worrying about all this is pointless. Wu Wei?`},
-  {id:'7',n:'7',sec:'IV',go:'p1_s3',txt:`Hume worked this out for himself with his "On the Standard of Taste", where good art is what persists throughout time as judged by those who have "cultivated" their taste. Perhaps there are objective Judgements on aesthetics. But the problem has always been convincing others your Judgement is right.`},
+  {id:'7',n:'7',sec:'IV',go:'p1_s3',txt:`Hume worked this out for himself with his "On the Standard of Taste", where good art is what persists throughout time as judged by those who have "cultivated" their taste. Perhaps there are objective judgments on aesthetics. But the problem has always been convincing others your judgment is right.`},
   {id:'8',n:'8',sec:'IV',go:'p1_s3',txt:`"Or as Hegel put it "What is rational is actual and what is actual is rational"`},
   {id:'9',n:'9',sec:'IV',go:'p1_s3',txt:`If applied as Marx did, Polemics. His writings are an argument about the way the world will change. Hyperstition?`},
   {id:'10',n:'10',sec:'IV',go:'p1_s3',txt:`Burroughs said something like "language is a virus from outer space," which is either an overstatement or the most accurate sentence in English.`},
@@ -593,10 +698,10 @@ const PART_ONE_FOOTNOTES=[
   {id:'19',n:'19',sec:'VI',go:'p1_s4b',txt:`Never mind that the Emperor had been sidelined by the Shogun during the great period of peace when the foreigners were completely restricted.`},
   {id:'20',n:'20',sec:'VI',go:'p1_s4b',txt:`The Charter Oath of 1868 was a self-conscious attempt to become modern. It promised: democracy, equality, progress. In reality: oligarchy, stratification, progress.`},
   {id:'21',n:'21',sec:'VI',go:'p1_s4b',txt:`Flattening a bit again: the real moment was at Tsushima and Mukden in 1905 but with hindsight the turning point is clear. Asia had been successfully "Thrown off".`},
-  {id:'22',n:'22',sec:'VII',go:'p1_s5',txt:`Of course, the African kingdoms were also complicit, but it was a rational complicity. They were making judgements too. Those who did not participate in slave taking would become slaves of their neighbors who did.`},
+  {id:'22',n:'22',sec:'VII',go:'p1_s5',txt:`Of course, the African kingdoms were also complicit, but it was a rational complicity. They were making judgments too. Those who did not participate in slave taking would become slaves of their neighbors who did.`},
   {id:'23',n:'23',sec:'VIII',go:'p1_s6',txt:`Don't feel too bad for the slaveowners: they received a healthy recompense from the British treasury. The freed slaves got nothing.`},
   {id:'24',n:'24',sec:'VIII',go:'p1_s6',txt:`Except the Congolese whose hands had been chopped off by Leopold's Force Publique. La plus ça change…`},
-  {id:'25',n:'25',sec:'VIII',go:'p1_s6',txt:`In other words: if the case was rightly decided, then there is no need to validate it. Decisions only need stare decisis if they are wrong in some way. If interpretation relies on induction, but the deductive principles can be changed, then induction-based judgements are unstable. Consider a piece of precedent the court will overrule: Congress assumes it is constitutional and writes a bill in accordance with it. How could it determine the law is unconstitutional before the Court ruled it so?`},
+  {id:'25',n:'25',sec:'VIII',go:'p1_s6',txt:`In other words: if the case was rightly decided, then there is no need to validate it. Decisions only need stare decisis if they are wrong in some way. If interpretation relies on induction, but the deductive principles can be changed, then induction-based judgments are unstable. Consider a piece of precedent the court will overrule: Congress assumes it is constitutional and writes a bill in accordance with it. How could it determine the law is unconstitutional before the Court ruled it so?`},
   {id:'26',n:'26',sec:'IX',go:'p1_s7',txt:`This was known as the Haitōrei. Of course, the Daimyos were allowed to keep their swords. No proper European Aristocrat would be caught dead without one.`},
   {id:'27',n:'27',sec:'IX',go:'p1_s7',txt:`The peasants transcended their footnote status. Now the turn of samurai.`},
   {id:'28',n:'28',sec:'IX',go:'p1_s7',txt:`And then the Meiji oligarchs used him as a great example of Japanese honor and determination.`},
@@ -609,7 +714,7 @@ const PART_ONE_SECTIONS={p1_s1:'I',p1_s2:'II',p1_s3:'III–IV',p1_s4:'V',p1_s4b:
 // Curated term list (index anchors are sections, not page numbers)
 const PART_ONE_INDEX_TERMS=[
   'Aufhebung','Sublation','Hegel','Hegelian Dialectic','Dialectic','Rationality','Reason','Freedom',
-  'Induction','Deduction','Judgement','Reflexivity','Contingency','Nature','Hume','Nietzsche',
+  'Induction','Deduction','Judgment','Reflexivity','Contingency','Nature','Hume','Nietzsche',
   'Law','Institutions','Ideas','Tools','Metrics','History','Enlightenment',
   'Tokugawa','Japan','Shogunate','Peace','Commoners','Foreigners',
   'Opium Wars','China','Europe','Fiscal-Military','Dutch King','Admiral Perry','Black Ships','Tokyo Bay',
@@ -986,9 +1091,9 @@ p1_s2:`<div class="essay paper">
   <p class="section-label">II.</p>
   <p>Hegel believes that this process continues towards true freedom. As time goes on, people rationally want to be freer. Ideas (especially those embodied through us in institutions and tools) themselves approach "perfection". Since they are not as bound by physical laws, over time our constructions approach the idealized versions in our heads. They gradually incorporate and integrate lessons from the past, just as we do. Perhaps, eventually, true freedom will be achieved.${fnR('3','3')}</p>
   ${fnB('3','I think it\'s probably more asymptotic: not sure we will ever get there. More importantly, perhaps, would we like the experience of perfection? I worry it would be like Jyggalag: pure frozen order. Lifeless and grey. The Coldest Iron Cage.')}
-  <p>Hegel might be right, but again, I'm not sure. In this moment, I see it a little differently: what Hegel describes could also be read as rationality building on itself through induction. If you take a higher-level view, rationality is the process of looking at the world and discovering the patterns that matter (induction) and then constructing reasons for why they matter (deduction). Because the universe is filled with a near infinite number of patterns, the difficulty has always been figuring out which patterns are significant and which are just noise.  In a word: Judgement. The moment of the Dialectic. If one Judgement proves superior, its effect will be felt in the world and change the world. On average, more rational ideas survive and spread. The assembly line, liberal capitalism, women's suffrage.${fnR('4','4')}</p>
+  <p>Hegel might be right, but again, I'm not sure. In this moment, I see it a little differently: what Hegel describes could also be read as rationality building on itself through induction. If you take a higher-level view, rationality appears to be the process of looking at the world and discovering patterns of causality (induction) and then constructing accounts of why specific causes matter (deduction). Because the universe is filled with a near infinite number of patterns and causes, the difficulty has always been figuring out which ones are significant and which are just noise. In a word: Judgment. The moment of the Dialectic. If one Judgment proves superior, its effects reshape the world around it. Because of this, more rational ideas survive, spread, and eventually become habitual. The assembly line, liberal capitalism, and women's suffrage all seem to be "just the way things are" now, despite strong opposition when they first emerged.${fnR('4','4')}</p>
   ${fnB('4','Hegel thought that nature had a rationality of its own, but it was "cloaked under contingency". To me, the ability to recognize abstract structures or patterns is a power of man. This is reflexivity.')}
-  <p>Since every Judgement is based on induction, many Judgements are, at best, temporary.${fnR('5','5')} Eventually, the world will shift, perhaps breaking down the chain of induction that binds the Judgement to the real world. A new Judgement will take its place. If it hasn't, then congrats: history has ended. Spirit has seen itself, if only for a moment.${fnR('6','6')}</p>
+  <p>Since every Judgment is based on induction, many Judgments are, at best, temporary.${fnR('5','5')} Eventually, the world will shift, perhaps breaking down the chain of induction that binds the Judgment to the real world. A new Judgment will take its place. If it hasn't, then congrats: history has ended. Spirit has seen itself, if only for a moment.${fnR('6','6')}</p>
   ${fnB('5','Perhaps less so in the hard sciences and more so in the more subjective social sciences. Reflexivity.')}
   ${fnB('6','And in the long run, we are all dead. Perhaps worrying about all this is pointless. Wu Wei?')}
   ${p1Footer()}
@@ -1001,17 +1106,17 @@ p1_s2:`<div class="essay paper">
 p1_s3:`<div class="essay paper">
   <p class="section-label">III.</p>
   <p>The problem is that I think Hume is right: we are imperfect, temporary beings. Our ability to know things is profoundly limited. Unlike Hegel's grand spirit, we individuals don't have the luxury of an objective vantage point out of time. We are thrown into the world and embodied in our context. As a result, we must bite the bullet on induction: we almost always accept that what was true before will be true in the future.</p>
-  <p>For the most part, this works. The sun rises every morning, after all. The real problem is that for a lot of other Judgements, we forget that the underlying facts can change. Every moment we have new sensations, more data to synthesize. Thus, what is rational evolves along with the world: stability is always an illusion in the long term. Any Judgements we construct will inevitably be confronted by a world that no longer fits its baseline inductive assumptions.</p>
-  <p>Unfortunately, this means that we can only ever be sure of the right answer retroactively: our Judgement must influence the world to be evaluated. There is a constant tension between objective reality and our interpretation of it. An endless confrontation.</p>
+  <p>For the most part, this works. The sun rises every morning, after all. The real problem is that for a lot of other Judgments, we forget that the underlying facts can change. Every moment we have new sensations, more data to synthesize. Thus, what is rational evolves along with the world: stability is always an illusion in the long term. Any Judgments we construct will inevitably be confronted by a world that no longer fits its baseline inductive assumptions.</p>
+  <p>Unfortunately, this means that we can only ever be sure of the right answer retroactively: our Judgment must influence the world to be evaluated. There is a constant tension between objective reality and our interpretation of it. An endless confrontation.</p>
   <p>The next question is clear: Does this ever end? Will reason ever become perfectly stable, unable to evolve further, or is it an endless struggle, as Nietzsche saw? Can the Enlightenment project of perfect, all-seeing reason be completed?</p>
   <p class="section-label">IV.</p>
-  <p>If we can alter reality through thought, then tracing the Dialectic is a sort of guide to the history of reality. Human rationality picks whatever helps it survive. Judgements that survive over the long term must have succeeded at something.${fnR('7','7')} Our existing institutions have survived their contact with reality; otherwise, they would not exist.${fnR('8','8')} Thus, if we look at the ideas now embodied in laws and institutions, we are really tracing a history of rationality.</p>
-  ${fnB('7','Hume worked this out for himself with his "On the Standard of Taste", where good art is what persists throughout time as judged by those who have "cultivated" their taste. Perhaps there are objective Judgements on aesthetics. But the problem has always been convincing others your Judgement is right.')}
+  <p>If we can alter reality through thought, then tracing the Dialectic is a sort of guide to the history of reality. Human rationality picks whatever helps it survive. Judgments that survive over the long term must have succeeded at something.${fnR('7','7')} Our existing institutions have survived their contact with reality; otherwise, they would not exist.${fnR('8','8')} Thus, if we look at the ideas now embodied in laws and institutions, we are really tracing a history of rationality.</p>
+  ${fnB('7','Hume worked this out for himself with his "On the Standard of Taste", where good art is what persists throughout time as judged by those who have "cultivated" their taste. Perhaps there are objective Judgments on aesthetics. But the problem has always been convincing others your Judgment is right.')}
   ${fnB('8','"Or as Hegel put it "What is rational is actual and what is actual is rational"')}
-  <p>In those terms, the history of ideas and institutions becomes a pattern of change and advancement.${fnR('9','9')} Of course, this is not a neutral process: these institutions "learn" as we do. They incorporate new knowledge, prior Judgements, then rationalize themselves further. When ideas embody themselves in language, tools, and organizations, they influence how and what we think. Ideas can be transmitted around the world through words, objects, or force.${fnR('10','10')}</p>
+  <p>In those terms, the history of ideas and institutions becomes a pattern of change and advancement.${fnR('9','9')} Of course, this is not a neutral process: these institutions "learn" as we do. They incorporate new knowledge, prior Judgments, then rationalize themselves further. When ideas embody themselves in language, tools, and organizations, they influence how and what we think. Ideas can be transmitted around the world through words, objects, or force.${fnR('10','10')}</p>
   ${fnB('9','If applied as Marx did, Polemics. His writings are an argument about the way the world will change. Hyperstition?')}
   ${fnB('10','Burroughs said something like "language is a virus from outer space," which is either an overstatement or the most accurate sentence in English.')}
-  <p>Back in college, I took a class on the history of the future. It was really a history of how people have conceived of the future. The course began with an exploration of how medieval Europe thought of the future: time was something created and understood by God. This would culminate in Judgement Day, and the world would end. They built calendars and tracked time with this in mind. Ritual and habit are feedback loops: their beliefs were reinforced by the rituals they practiced. To them, Revelation was the rational end to all things. How distinct are Humean habit and Hegelian reason?${fnR('11','11')}</p>
+  <p>Back in college, I took a class on the history of the future. It was really a history of how people have conceived of the future. The course began with an exploration of how medieval Europe thought of the future: time was something created and understood by God. This would culminate in Judgment Day, and the world would end. They built calendars and tracked time with this in mind. Ritual and habit are feedback loops: their beliefs were reinforced by the rituals they practiced. To them, Revelation was the rational end to all things. How distinct are Humean habit and Hegelian reason?${fnR('11','11')}</p>
   ${fnB('11','This power is why thinkers from Confucius to Machiavelli to Weber have treated religion as a tool for structuring political life: it forces people into habit. And habit becomes reason.')}
   ${fig(IMG.mars,'March, from the Très Riches Heures du Duc de Berry (c. 1412–1416). Peasants plow beneath the Château de Lusignan while the zodiac marks the season above.','March, from the <em>Très Riches Heures du Duc de Berry</em> (c. 1412–1416). The seasons do not operate on mankind\'s time. The castle looms; the peasant plows; the zodiac turns. Ritual and habit as rational order.','plate--narrow')}
   ${p1Footer()}
@@ -1029,7 +1134,7 @@ p1_s4:`<div class="essay paper">
   <p>Japan wasn't blind to the changing outside reality. Far from it: it felt the storm coming. It saw what happened to China: its craftsmen depicted the Opium Wars in woodblock prints of battle and death. It knew the Europeans were about to arrive: the Shogun had received warnings from the Dutch King himself.${fnR('13','13')} Japan and its people began to understand the world had changed. The heat was building. When Admiral Perry and his Black Ships appeared in Tokyo Bay, the Shogun and many Daimyos deduced Japan would burn next. That deduction bred fear. And that fear bred action.</p>
   ${fnB('13','Of course, the Dutch King\'s letter wasn\'t some sort of generous gift: it was a rational act to try and resolve the tension brewing between Japan\'s isolationism and Britain\'s gunboat free trade in Asia. Reasoning is fractal.')}
   ${fig(IMG.perry,'A Japanese print portrait of Commodore Perry in dark naval uniform.','A Japanese print portrait of Commodore Perry in dark naval uniform. This is more respectful than some of the portraits made by other contemporary Japanese artists.','plate--narrow')}
-  <p>Japan was thus confronted by a contradiction the existing system could not solve: its old rational way of structuring life turned out to be just a moment, not eternity. Confronted by this contradiction, Japan made a new Judgement.</p>
+  <p>Japan was thus confronted by a contradiction the existing system could not solve: its old rational way of structuring life turned out to be just a moment, not eternity. Confronted by this contradiction, Japan made a new Judgment.</p>
   <p>The result was something novel. Japan was modern <em>but on its own terms</em>. By maintaining a form of their own culture while adopting European ideas, they became different from both their past and contemporary Europeans.${fnR('14','14')}</p>
   ${fnB('14','Japan was recognized as "Western" when it defeated Russia in 1905. But then it was different again in 1945. You get my drift. All this just because they saw Perry come across the horizon with a few black ships.')}
   <p>This isn't the full story, however. Zoom in for a second and you'll notice something uncanny: the same dynamic that happened <em>to</em> Japan happened <em>within</em> Japan. The actors in Japan had the experience of Japan, miniaturized.</p>
@@ -1078,7 +1183,7 @@ p1_s5:`<div class="essay paper">
   <p class="section-label">VII.</p>
   <p>The mask drops: the dialectic is value-neutral. It explains how to survive, but nothing inherently “good" guides the process. It is power manifest. Gravity. Force.</p>
   <p>Spin the globe and zoom in on the Caribbean of the 1700s. The Atlantic Enlightenment is in full swing, fueled by coffee and sugar. Both become almost as valuable as gold. Not enough free men would willingly do the back-breaking labor required to make the plantations profitable. The Portuguese had already found the solution: import slaves from West Africa. Many of the same rational Europeans who decried slavery had no such problems when the slaves were taken in “just wars" by African statelets. That is what Rome did, said Grotius. Thus, the Middle Passage is born.${fnR('22','22')}</p>
-  ${fnB('22',"Of course, the African kingdoms were also complicit, but it was a rational complicity. They were making judgements too. Those who did not participate in slave taking would become slaves of their neighbors who did.")}
+  ${fnB('22',"Of course, the African kingdoms were also complicit, but it was a rational complicity. They were making judgments too. Those who did not participate in slave taking would become slaves of their neighbors who did.")}
   <p>The British Empire learns: they make a killing off the Asiento, supplying slaves to New Spain. They set up their own versions of the <em>encomienda</em> on the islands they seized through war.</p>
   <p>The <em>Zong</em>, a British slave ship, misjudges how far away Jamaica is and spends some extra time at sea. A pleasant 60 day journey instead becomes an unbearable 108. But these transports are rationalized and economized: they carry only as much supply as they need for the journey. Every ounce of water is one less pound of cargo and one less pound of profit. Unfortunately, the value of a slave diminishes when they get sick. See, the lifespan of a slave is “priced in": plantation foremen are unlikely to buy the unhealthy slaves when the ship finally docks at Black River. Unfortunate.</p>
   <p>All hope is not yet lost. In the coffeehouses of London, the underwriters at Lloyd's have discovered maritime insurance and risk mitigation. They offer an economic life vest, the “Law of the General Average": cargo sacrificed to save the ship will be compensated by the insurers. It pushes the captain to save the ship when the vessel itself is at stake without worrying about the voyage's patron back home.</p>
@@ -1105,7 +1210,7 @@ p1_s6:`<div class="essay paper">
   ${fnB('24',"Except the Congolese whose hands had been chopped off by Leopold's Force Publique. Plus ça change…")}
   <p>The drowned slaves couldn't really take comfort in this historical justice, as they had already died. To deal with this problem, Hegel and his disciples (like Marx) pull a powerful move: inject teleology. This horror is fine because it needed to happen. Without the <em>Zong</em>, Spirit would have learned nothing. In fact, it validates the dialectic: by allowing hundreds of people to be thrown overboard, Reason “learned" that there is more to life than mere economics.</p>
   <p>To me, this reasoning too closely resembles theodicy: evil exists so that good can vanquish it. Will it? Eventually. My problem remains induction: we can only know in retrospect, so therefore anything existing now can easily be overturned later. It's like <em>stare decisis</em>: binding precedent until we decide it isn't.${fnR('25','25')} There is no immutable law that results in reason learning moral lessons from annihilation. It is a story we tell ourselves to make sense of it all. The Dialectic continues no matter how much we want it to stop.</p>
-  ${fnB('25',"In other words: if the case was rightly decided, then there is no need to validate it. Decisions only need stare decisis if they are wrong in some way. If interpretation relies on induction, but the deductive principles can be changed, then induction-based judgements are unstable. Consider a piece of precedent the court will overrule: Congress assumes it is constitutional and writes a bill in accordance with it. How could it determine the law is unconstitutional before the Court ruled it so?")}
+  ${fnB('25',"In other words: if the case was rightly decided, then there is no need to validate it. Decisions only need stare decisis if they are wrong in some way. If interpretation relies on induction, but the deductive principles can be changed, then induction-based judgments are unstable. Consider a piece of precedent the court will overrule: Congress assumes it is constitutional and writes a bill in accordance with it. How could it determine the law is unconstitutional before the Court ruled it so?")}
   ${fig(IMG.diagram,'A schematic drawing of the slaveship Brooks demonstrating the cramped conditions of a Middle Passage journey.','A schematic drawing of the ship Brooks demonstrating the conditions of ships undergoing the Middle Passage. The <em>Zong</em> case spurred reform here: both planters and abolitionists supported the Slave Trade Act 1788, which limited the number of slaves per ship. The number of slaves transported aboard the Brooks decreased from 609 to 454.','plate--mid')}
   ${p1Footer()}
   <div class="p1-page-nav">
@@ -1129,7 +1234,7 @@ p1_s7:`<div class="essay paper">
   ${fnB('27',"The peasants transcended their footnote status. Now the turn of samurai.")}
   ${fnB('28',"And then the Meiji oligarchs used him as a great example of Japanese honor and determination.")}
   ${fig(IMG.armies,'A triptych showing Japanese and foreign military uniforms assembled in comparative display.','A triptych showing Japanese and foreign military uniforms assembled in comparative display. The Japanese portray themselves as indistinguishable from their Russian opponents outside of their uniforms.')}
-  <p>That's the cold hard truth of the dialectic: Geist (as Hegel calls Spirit) is not focused on an individual nerve cell. All the samurai retainers acted rationally and made the right judgements. But when the world judged them incomplete, the guns were turned on them. The Owl of Minerva only appears at dusk: we can only see the pattern in retrospect. The samurai built the very boot that would snap their necks. Would they have destroyed the Shogunate if they had known the result?${fnR('29','29')}</p>
+  <p>That's the cold hard truth of the dialectic: Geist (as Hegel calls Spirit) is not focused on an individual nerve cell. All the samurai retainers acted rationally and made the right judgments. But when the world judged them incomplete, the guns were turned on them. The Owl of Minerva only appears at dusk: we can only see the pattern in retrospect. The samurai built the very boot that would snap their necks. Would they have destroyed the Shogunate if they had known the result?${fnR('29','29')}</p>
   ${fnB('29',"How could I be sure that I am not doing the same? Can I even see the unfolding well enough to, if not stop it, steer it?")}
   ${p1Footer()}
   <div class="p1-page-nav">
@@ -1827,6 +1932,23 @@ p3_quit:()=>{
 window.addEventListener('popstate',()=>{
   const id=window.location.hash.slice(1);
   go(id && passages[id] ? id : 'title', false);
+});
+window.addEventListener('resize',()=>{
+  const narrow=window.innerWidth<960;
+  document.querySelectorAll('.fn-body.sidenote-active').forEach(b=>{
+    if(narrow){
+      b.classList.remove('sidenote-active');
+      b.style.top='';
+      b.style.left='';
+    }
+  });
+  if(!narrow){
+    document.querySelectorAll('#main .paper .fn-body.open').forEach(b=>{
+      const id=b.id.replace('fn-','');
+      const ref=document.querySelector(`[data-fn="${id}"]`);
+      if(ref) positionSidenote(b,ref);
+    });
+  }
 });
 </script>
 </body>
