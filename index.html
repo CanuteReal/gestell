@@ -230,6 +230,7 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
 .choice-btn.dead{color:#bbb;cursor:default;pointer-events:none}
 .feedback{font-style:italic;color:#aaa;font-size:.9em;margin-top:.25em;display:none}
 .feedback.show{display:block}
+.nav-locked{opacity:0.3;pointer-events:none;transition:opacity 0.5s ease}
 .grind-log p{margin-bottom:.3em}
 /* ── IN-GAME vs OUT-OF-GAME ── */
 .in-game {
@@ -544,7 +545,7 @@ function go(id, addHistory=true){
 function updateFootnoteBar(){
   const opened=S.footnotesOpened.size;
   document.querySelectorAll('.fn-progress-fill').forEach(el=>{
-    el.style.width=(opened/30*100)+'%';
+    el.style.width=(opened/28*100)+'%';
   });
   Object.entries(SECRET_THRESHOLDS).forEach(([id,threshold])=>{
     if(opened>=threshold){
@@ -692,36 +693,34 @@ const figPair=(items,cls='two')=>
   `<div class="plate-grid ${cls}">${items.map(it=>fig(it.src,it.alt,it.caption,it.cls||'')).join('')}</div>`;
 
 const PART_ONE_FOOTNOTES=[
-  {id:'1',n:'1',sec:'I',go:'p1_s1',txt:`Does Darwin mimic Hegel or vice versa? Is our reasoning imposing on reality or reality imposing on us? Do material conditions shape reality, or does reality shape material conditions?`},
+  {id:'1',n:'1',sec:'I',go:'p1_s1',txt:`Does Darwin mimic Hegel or vice versa? Is our reasoning imposing on reality or does reality shape our reasoning?`},
   {id:'2',n:'2',sec:'I',go:'p1_s1',txt:`The stove comparison is a little imprecise and hokey. But it is really hard to come up with something that doesn't exist and explore its conceptual history.`},
   {id:'3',n:'3',sec:'II',go:'p1_s2',txt:`I think it's probably more asymptotic: not sure we will ever get there. More importantly, perhaps, would we like the experience of perfection? I worry it would be like Jyggalag: pure frozen order. Lifeless and grey. The Coldest Iron Cage.`},
   {id:'4',n:'4',sec:'II',go:'p1_s2',txt:`Hegel thought that nature had a rationality of its own, but it was "cloaked under contingency". To me, the ability to recognize abstract structures or patterns is a power of man. This is reflexivity.`},
-  {id:'5',n:'5',sec:'II',go:'p1_s2',txt:`Perhaps less so in the hard sciences and more so in the more subjective social sciences. Reflexivity.`},
-  {id:'6',n:'6',sec:'II',go:'p1_s2',txt:`And in the long run, we are all dead. Perhaps worrying about all this is pointless. Wu Wei?`},
-  {id:'7',n:'7',sec:'IV',go:'p1_s3',txt:`Hume worked this out for himself with his "On the Standard of Taste", where good art is what persists throughout time as judged by those who have "cultivated" their taste. Perhaps there are objective judgments on aesthetics. But the problem has always been convincing others your judgment is right.`},
-  {id:'8',n:'8',sec:'IV',go:'p1_s3',txt:`"Or as Hegel put it "What is rational is actual and what is actual is rational"`},
-  {id:'9',n:'9',sec:'IV',go:'p1_s3',txt:`If applied as Marx did, Polemics. His writings are an argument about the way the world will change. Hyperstition?`},
-  {id:'10',n:'10',sec:'IV',go:'p1_s3',txt:`Burroughs said something like "language is a virus from outer space," which is either an overstatement or the most accurate sentence in English.`},
-  {id:'11',n:'11',sec:'IV',go:'p1_s3',txt:`This power is why thinkers from Confucius to Machiavelli to Weber have treated religion as a tool for structuring political life: it forces people into habit. And habit becomes reason.`},
-  {id:'12',n:'12',sec:'V',go:'p1_s4',txt:`There were plenty of peasants who didn't think so. But they didn't win. Mere footnotes.`},
-  {id:'13',n:'13',sec:'V',go:'p1_s4',txt:`Of course, the Dutch King's letter wasn't some sort of generous gift: it was a rational act to try and resolve the tension brewing between Japan's isolationism and Britain's gunboat free trade in Asia. Reasoning is fractal.`},
-  {id:'14',n:'14',sec:'V',go:'p1_s4',txt:`Japan was recognized as "Western" when it defeated Russia in 1905. But then it was different again in 1945. You get my drift. All this just because they saw Perry come across the horizon with a few black ships.`},
-  {id:'15',n:'15',sec:'V',go:'p1_s4',txt:`Today's Okinawa. Funny how the Americans ended up there eh?`},
-  {id:'16',n:'16',sec:'V',go:'p1_s4',txt:`Some scholars attribute the infamous Imperial Japanese army/navy interservice rivalry to this split. You could also argue that this represents the dual consciousness of Meiji Japan: British naval-liberal constitutionalism juxtaposed with Prussian army-junker militarism.`},
-  {id:'17',n:'17',sec:'V',go:'p1_s4',txt:`Of course, this flattens things a little. The Shogunate understood the stakes but were more constrained by tradition and less desperate. There is a great picture of a bunch of traditionally dressed Shogunate samurai hanging out in DC during the American Civil War. The Satsuma youth, for their part, cut their hair and wore the suits.`},
-  {id:'18',n:'18',sec:'V',go:'p1_s4',txt:`In their official portraits. Traditional Japanese culture persisted of course. But even that would be challenged and altered. The emergence of State Shinto and the suppression of Buddhism (Haibutsu kishaku) demonstrates this.`},
-  {id:'19',n:'19',sec:'VI',go:'p1_s4b',txt:`Never mind that the Emperor had been sidelined by the Shogun during the great period of peace when the foreigners were completely restricted.`},
-  {id:'20',n:'20',sec:'VI',go:'p1_s4b',txt:`The Charter Oath of 1868 was a self-conscious attempt to become modern. It promised: democracy, equality, progress. In reality: oligarchy, stratification, progress.`},
-  {id:'21',n:'21',sec:'VI',go:'p1_s4b',txt:`Flattening a bit again: the real moment was at Tsushima and Mukden in 1905 but with hindsight the turning point is clear. Asia had been successfully "Thrown off".`},
-  {id:'22',n:'22',sec:'VII',go:'p1_s5',txt:`Of course, the African kingdoms were also complicit, but it was a rational complicity. They were making judgments too. Those who did not participate in slave taking would become slaves of their neighbors who did.`},
-  {id:'23',n:'23',sec:'VII',go:'p1_s5',txt:`Never mind that it was the Norman Conquest that finished off slavery. Perhaps the Norman Yoke was not all that much of a yoke. As much as I like Tolkien, I can't help but feel his romantic English Nationalism is a more palatable version of Heidegger's Black Forest Naziism.`},
-  {id:'24',n:'24',sec:'VIII',go:'p1_s6',txt:`Don't feel too bad for the slaveowners: they received a healthy recompense from the British treasury. The freed slaves got nothing.`},
-  {id:'25',n:'25',sec:'VIII',go:'p1_s6',txt:`Except the Congolese whose hands had been chopped off by Leopold's Force Publique. La plus ça change…`},
-  {id:'26',n:'26',sec:'VIII',go:'p1_s6',txt:`In other words: if the case was rightly decided, then there is no need to validate it. Decisions only need stare decisis if they are wrong in some way. If interpretation relies on induction, but the deductive principles can be changed, then induction-based judgments are unstable. Consider a piece of precedent the court will overrule: Congress assumes it is constitutional and writes a bill in accordance with it. How could it determine the law is unconstitutional before the Court ruled it so?`},
-  {id:'27',n:'27',sec:'IX',go:'p1_s7',txt:`This was known as the Haitōrei. Of course, the Daimyos were allowed to keep their swords. No proper European Aristocrat would be caught dead without one.`},
-  {id:'28',n:'28',sec:'IX',go:'p1_s7',txt:`The peasants transcended their footnote status. Now the turn of samurai.`},
-  {id:'29',n:'29',sec:'IX',go:'p1_s7',txt:`And then the Meiji oligarchs used him as a great example of Japanese honor and determination.`},
-  {id:'30',n:'30',sec:'IX',go:'p1_s7',txt:`How could I be sure that I am not doing the same? Can I even see the unfolding well enough to, if not stop it, steer it?`},
+  {id:'5',n:'5',sec:'II',go:'p1_s2',txt:`Perhaps less so in the hard sciences and more so in the more subjective social sciences. A cannonball dropped from a leaning tower does not analyze its own trajectory down but a human certainly does. Goodhart captured this problem with his eponymous law.`},
+  {id:'6',n:'6',sec:'II',go:'p1_s2',txt:`And in the long run, we are all dead. Perhaps worrying about all this is pointless. Just let things unfold and enjoy the ride. Wu Wei?`},
+  {id:'7',n:'7',sec:'III',go:'p1_s3',txt:`If applied as Marx did, Polemics. His writings are an argument about the way the world will change. Hyperstition?`},
+  {id:'8',n:'8',sec:'III',go:'p1_s3',txt:`Burroughs said something like "language is a virus from outer space," which is either an overstatement or the most accurate sentence in English.`},
+  {id:'9',n:'9',sec:'III',go:'p1_s3',txt:`This power is why thinkers from Confucius to Machiavelli to Weber have treated religion as a tool for structuring political life: it forces people into habit. And habit becomes reason.`},
+  {id:'10',n:'10',sec:'IV',go:'p1_s4',txt:`There were plenty of peasants who didn't think so. But they didn't win. Mere footnotes.`},
+  {id:'11',n:'11',sec:'IV',go:'p1_s4',txt:`Of course, the Dutch King's letter wasn't some sort of generous gift: it was a rational act to try and resolve the tension brewing between Japan's isolationism and Britain's gunboat free trade in Asia. Reasoning is fractal.`},
+  {id:'12',n:'12',sec:'IV',go:'p1_s4',txt:`Japan was recognized as "Western" when it defeated Russia in 1905. But then it was different again in 1945. You get my drift. All this just because they saw Perry come across the horizon with a few black ships.`},
+  {id:'13',n:'13',sec:'IV',go:'p1_s4',txt:`Today's Okinawa. Funny how the Americans ended up there eh?`},
+  {id:'14',n:'14',sec:'IV',go:'p1_s4',txt:`Some scholars attribute the infamous Imperial Japanese army/navy interservice rivalry to this split. You could also argue that this represents the dual consciousness of Meiji Japan: British naval-liberal constitutionalism juxtaposed with Prussian army-junker militarism.`},
+  {id:'15',n:'15',sec:'IV',go:'p1_s4',txt:`Of course, this flattens things a little. The Shogunate understood the stakes but were more constrained by tradition and less desperate. There is a great picture of a bunch of traditionally dressed Shogunate samurai hanging out in DC during the American Civil War. The Satsuma youth, for their part, cut their hair and wore the suits.`},
+  {id:'16',n:'16',sec:'IV',go:'p1_s4',txt:`In their official portraits. Traditional Japanese culture persisted of course. But even that would be challenged and altered. The emergence of State Shinto and the suppression of Buddhism (Haibutsu kishaku) demonstrates this.`},
+  {id:'17',n:'17',sec:'V',go:'p1_s4b',txt:`Never mind that the Emperor had been sidelined by the Shogun during the great period of peace when the foreigners were completely restricted.`},
+  {id:'18',n:'18',sec:'V',go:'p1_s4b',txt:`The Charter Oath of 1868 was a self-conscious attempt to become modern. It promised: democracy, equality, progress. In reality: oligarchy, stratification, progress.`},
+  {id:'19',n:'19',sec:'V',go:'p1_s4b',txt:`Flattening a bit again: the real moment was at Tsushima and Mukden in 1905 but with hindsight the turning point is clear. Asia had been successfully "Thrown off".`},
+  {id:'20',n:'20',sec:'VI',go:'p1_s5',txt:`Of course, the African kingdoms were also complicit, but it was a rational complicity. They were making judgments too. Those who did not participate in slave taking would become slaves of their neighbors who did.`},
+  {id:'21',n:'21',sec:'VI',go:'p1_s5',txt:`Never mind that it was the Norman Conquest that finished off slavery. Perhaps the Norman Yoke was not all that much of a yoke. As much as I like Tolkien, I can't help but feel his romantic English Nationalism is a more palatable version of Heidegger's Black Forest Naziism.`},
+  {id:'22',n:'22',sec:'VII',go:'p1_s6',txt:`Don't feel too bad for the slaveowners: they received a healthy recompense from the British treasury. The freed slaves got nothing.`},
+  {id:'23',n:'23',sec:'VII',go:'p1_s6',txt:`Except the Congolese whose hands had been chopped off by Leopold's Force Publique. La plus ça change…`},
+  {id:'24',n:'24',sec:'VII',go:'p1_s6',txt:`In other words: if the case was rightly decided, then there is no need to validate it. Decisions only need stare decisis if they are wrong in some way. If interpretation relies on induction, but the deductive principles can be changed, then induction-based judgments are unstable. Consider a piece of precedent the court will overrule: Congress assumes it is constitutional and writes a bill in accordance with it. How could it determine the law is unconstitutional before the Court ruled it so?`},
+  {id:'25',n:'25',sec:'VIII',go:'p1_s7',txt:`This was known as the Haitōrei. Of course, the Daimyos were allowed to keep their swords. No proper European Aristocrat would be caught dead without one.`},
+  {id:'26',n:'26',sec:'VIII',go:'p1_s7',txt:`The peasants transcended their footnote status. Now the turn of samurai.`},
+  {id:'27',n:'27',sec:'VIII',go:'p1_s7',txt:`And then the Meiji oligarchs used him as a great example of Japanese honor and determination.`},
+  {id:'28',n:'28',sec:'VIII',go:'p1_s7',txt:`How could I be sure that I am not doing the same? Can I even see the unfolding well enough to, if not stop it, steer it?`},
 ]
 
 const SECRET_THRESHOLDS={
@@ -741,19 +740,19 @@ const SECRET_THRESHOLDS={
 const PART_ONE_SECRET_FOOTNOTES=[
   {id:'s1',sec:'I',go:'p1_s1',txt:`I wish I had understood the value of her creative mindset during our time together. I only realized how rare it was when she had finally left. Spending so much time with her made it seem so natural, almost quotidian. I took it for granted. I've been paying for this mistake for years.`},
   {id:'s2',sec:'I',go:'p1_s1',txt:`A classic meme from a more innocent time. I try to slip this in to most of the things I write. Its also generally true, which makes it better. We really do live in a society!`},
-  {id:'s3',sec:'IV',go:'p1_s3',txt:`The realization that people in the past likely experienced the world in ways that we cannot comprehend stuck with me for years. It made me a lot more humble about my place in the world. That should be what college gives you: the ability to see beyond your time and place. Maybe that perspective is Geist.`},
-  {id:'s4',sec:'V',go:'p1_s4',txt:`I found the MIT visualizing cultures website while living with my parents during the covid years. By that point, the website was more than 10 years old. In many ways, it was deprecated: the webdesign was primitive and didn't always work great. But the content was unparalleled. The essays were clear and cogent. The accompanying images grounded the claims in real art history. It proved its point intellectually and visually. History at its best.`},
-  {id:'s5',sec:'VI',go:'p1_s4b',txt:`My friends and I played a lot of Victoria II in college. Mostly modded with HPM or PDM. No game has captured the rational trap of the 19th century better. You need to become stronger to survive against rival countries. But the cost is not just abstract: your troops and pops actually die in battle and are removed from the game. When the world wars start up, Piketty's point becomes clear: the welfare states of Europe were paid for in blood.`},
+  {id:'s3',sec:'III',go:'p1_s3',txt:`The realization that people in the past likely experienced the world in ways that we cannot comprehend stuck with me for years. It made me a lot more humble about my place in the world. That should be what college gives you: the ability to see beyond your time and place. Maybe that perspective is Geist.`},
+  {id:'s4',sec:'IV',go:'p1_s4',txt:`I found the MIT visualizing cultures website while living with my parents during the covid years. By that point, the website was more than 10 years old. In many ways, it was deprecated: the webdesign was primitive and didn't always work great. But the content was unparalleled. The essays were clear and cogent. The accompanying images grounded the claims in real art history. It proved its point intellectually and visually. History at its best.`},
+  {id:'s5',sec:'V',go:'p1_s4b',txt:`My friends and I played a lot of Victoria II in college. Mostly modded with HPM or PDM. No game has captured the rational trap of the 19th century better. You need to become stronger to survive against rival countries. But the cost is not just abstract: your troops and pops actually die in battle and are removed from the game. When the world wars start up, Piketty's point becomes clear: the welfare states of Europe were paid for in blood.`},
   {id:'s6',sec:'II',go:'p1_s2',txt:`I keep forcing myself to believe that I am learning from my mistakes. Considering how things have gone, I'm not sure I should. But that doesn't relieve me of the burden of striving.`},
   {id:'s7',sec:'III',go:'p1_s3',txt:`The hardest thing about life is looking forward and realizing that every future day is likely more of the same boring grind. At a certain point it feels pointless. A pie eating contest where the prize is more pie. And I've eaten a lot of pie.`},
-  {id:'s8',sec:'VII',go:'p1_s5',txt:`[Weil quote TBD + link]`},
-  {id:'s9',sec:'VII',go:'p1_s5',txt:`Reason is scary because it can justify almost anything as long as the priors are set up right. And humans are very good at setting up the board. I still eat meat despite knowing the actual moral cost.`},
-  {id:'s10',sec:'IX',go:'p1_s7',txt:`Prophecy, modeling, hyperstition. All are ways to try and make the pattern legible and impose it on reality. But we don't know what we don't know. Unknown unknowns and black swans. Its why I feel the need to verify everything for myself. I feel like I'm the only person I can really trust.`},
-  {id:'s11',sec:'VIII',go:'p1_s6',txt:`We try to avoid the fact that the world is fundamentally unstructured chaos. We try to organize our lives to make it bearable. If we fail, we are forced to confront our own mortality and how little control we have. I always end up thinking back to Snowden's secret in Catch 22. Man is just matter. Push him off a bridge and he will fall. Light him on fire and he will burn. There is nothing sacred about meat. We can die at any moment for any reason. But sometimes you just need to hang out with friends and play some backgammon.`},
+  {id:'s8',sec:'VI',go:'p1_s5',txt:`[Weil quote TBD + link]`},
+  {id:'s9',sec:'VI',go:'p1_s5',txt:`Reason is scary because it can justify almost anything as long as the priors are set up right. And humans are very good at setting up the board. I still eat meat despite knowing the actual moral cost.`},
+  {id:'s10',sec:'VIII',go:'p1_s7',txt:`Prophecy, modeling, hyperstition. All are ways to try and make the pattern legible and impose it on reality. But we don't know what we don't know. Unknown unknowns and black swans. Its why I feel the need to verify everything for myself. I feel like I'm the only person I can really trust.`},
+  {id:'s11',sec:'VII',go:'p1_s6',txt:`We try to avoid the fact that the world is fundamentally unstructured chaos. We try to organize our lives to make it bearable. If we fail, we are forced to confront our own mortality and how little control we have. I always end up thinking back to Snowden's secret in Catch 22. Man is just matter. Push him off a bridge and he will fall. Light him on fire and he will burn. There is nothing sacred about meat. We can die at any moment for any reason. But sometimes you just need to hang out with friends and play some backgammon.`},
 ];
 
 const PART_ONE_PASSAGES=['p1_s1','p1_s2','p1_s3','p1_s4','p1_s4b','p1_s5','p1_s6','p1_s7','p1_s8'];
-const PART_ONE_SECTIONS={p1_s1:'I',p1_s2:'II',p1_s3:'III–IV',p1_s4:'V',p1_s4b:'VI',p1_s5:'VII',p1_s6:'VIII',p1_s7:'IX',p1_s8:'X'};
+const PART_ONE_SECTIONS={p1_s1:'I',p1_s2:'II',p1_s3:'III',p1_s4:'IV',p1_s4b:'V',p1_s5:'VI',p1_s6:'VII',p1_s7:'VIII',p1_s8:'IX'};
 
 // Curated term list (index anchors are sections, not page numbers)
 const PART_ONE_INDEX_TERMS=[
@@ -789,7 +788,7 @@ const actions={
     if(fb){fb.textContent='Nothing happens.';fb.classList.add('show');}
     if(S.pressAKnight>=2){
       const b=document.getElementById('bonfire-opt1');
-      if(b)b.style.display='block';
+      if(b)b.classList.remove('nav-locked');
     }
   },
 
@@ -797,7 +796,7 @@ const actions={
     const fb=document.getElementById('fb-a');
     if(fb){fb.textContent='Your character swings. No health bar appears. No stagger occurs. He stands there.';fb.classList.add('show');}
     const b=document.getElementById('bonfire-opt1');
-    if(b)b.style.display='block';
+    if(b)b.classList.remove('nav-locked');
   },
 
   waitKnight2(btn){
@@ -820,7 +819,7 @@ const actions={
     const fb=document.getElementById('fb-speech');
     if(fb){fb.textContent='Nothing happens. No text box appears. She does not react.';fb.classList.add('show');}
     const b=document.getElementById('bonfire-opt2');
-    if(b)b.style.display='block';
+    if(b)b.classList.remove('nav-locked');
     btn.style.display='none';
   },
 
@@ -829,7 +828,7 @@ const actions={
     if(fb){fb.textContent='She does not react.';fb.classList.add('show');}
     document.querySelectorAll('[data-action="answerKnight"]').forEach(b=>b.classList.add('dead'));
     const bonfire=document.getElementById('bonfire-opt3');
-    if(bonfire)bonfire.style.display='block';
+    if(bonfire)bonfire.classList.remove('nav-locked');
   },
 
   waitFinal(btn){
@@ -1042,13 +1041,13 @@ p1_intro:`<div class="essay paper">
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.35em .9em;">
       <a class="p1-footer-link" data-go="p1_s1" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">I. The Stove</a>
       <a class="p1-footer-link" data-go="p1_s2" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">II. Induction</a>
-      <a class="p1-footer-link" data-go="p1_s3" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">III–IV. History of Ideas</a>
-      <a class="p1-footer-link" data-go="p1_s4" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">V. Black Ships</a>
-      <a class="p1-footer-link" data-go="p1_s4b" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">VI. Meiji</a>
-      <a class="p1-footer-link" data-go="p1_s5" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">VII. The Zong</a>
-      <a class="p1-footer-link" data-go="p1_s6" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">VIII. Abolition</a>
-      <a class="p1-footer-link" data-go="p1_s7" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">IX. Shiroyama</a>
-      <a class="p1-footer-link" data-go="p1_s8" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">X. Conclusion</a>
+      <a class="p1-footer-link" data-go="p1_s3" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">III. History of Ideas</a>
+      <a class="p1-footer-link" data-go="p1_s4" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">IV. Black Ships</a>
+      <a class="p1-footer-link" data-go="p1_s4b" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">V. Meiji</a>
+      <a class="p1-footer-link" data-go="p1_s5" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">VI. The Zong</a>
+      <a class="p1-footer-link" data-go="p1_s6" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">VII. Abolition</a>
+      <a class="p1-footer-link" data-go="p1_s7" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">VIII. Shiroyama</a>
+      <a class="p1-footer-link" data-go="p1_s8" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">IX. Conclusion</a>
     </div>
   </div>
   ${p1Footer()}
@@ -1100,7 +1099,7 @@ p1_index:()=>{
   return `<div class="essay paper">
     <p class="part-label">Part One</p>
     <p class="section-label">Index</p>
-    <p class="index-note">Links jump to the section(s) where the term appears (I–IX).</p>
+    <p class="index-note">Links jump to the section(s) where the term appears (I–VIII).</p>
     <div class="index-list">${items}</div>
     <div class="p1-end-tools">
       ${nav('p1_intro','← Part One')}
@@ -1115,16 +1114,17 @@ p1_s1:`<div class="essay paper">
   <p>I think I finally understand the Hegelian Dialectic. Well, at least a part of it. In a sense, it is something primitive in our brains. A pattern of reality, perhaps. The way that human reason sees and changes the world.</p>
   <p>Think of a hand on a hot stove. You feel it burn. It hurts you. You pull the hand away.</p>
   <p>This is natural. This is the tendency of most living organisms. Rationality embodied in the act: self-preservation. Living things seek to continue themselves. Does this mean rationality is instinctual, or are instincts some form of rationality?${fnR('1','1')}</p>
-  ${fnB('1','Does Darwin mimic Hegel or vice versa? Is our reasoning imposing on reality or reality imposing on us? Do material conditions shape reality, or does reality shape material conditions?')}
-  <p>Think back to the stove. Imagine for a second that everyone has forgotten what a stove is. You touch it, you pull your hand away when it burns you. You understand not to do it again: Pain is felt, lessons are learned. You tell others not to touch it for fear of being burned. Soon, no one touches the stove at all. Everyone goes back to campfires.</p>
+  ${fnB('1','Does Darwin mimic Hegel or vice versa? Is our reasoning imposing on reality or does reality shape our reasoning?')}
+  <p>Think back to the stove. Imagine for a second that everyone has forgotten what a stove is. You touch it, you pull your hand away when it burns you. You understand not to do it again: Pain is felt, lessons are learned. You tell others not to touch it for fear of being burned. Soon, no one touches the stove at all. Everyone goes back to campfires and microwaves.</p>
   <p>Then one day, you accidentally touch a stove again, and it doesn't burn you. You refine your previous rule: the stove only hurts you if it is on. You realize that it can only burn you if you touch it directly, so you make mitts to protect your hands from the heat.</p>
   <p>You tell your friend about the stove. ${fnS('s1','She thinks about it, then invents a light that shows the stove is on.')} You both start telling others about this wonderful innovation. Eventually, the public becomes aware of the problem, and legislation is passed requiring your friend's light to be installed on every stove.</p>
   ${fnB('s1',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s1').txt,'fn-secret')}
   <p>Your initial sensation of pain has morphed into something else completely: your thought manifested in the world, directly impacting how others think and experience reality. People don't see stoves the same way: the idea of one without a warning light is erased from conceptual existence.${fnR('2','2')}</p>
   ${fnB('2','The stove comparison is a little imprecise and hokey. But it is really hard to come up with something that doesn\'t exist and explore its conceptual history.')}
-  <p>Our beliefs about the world influence how the world itself works. Law demonstrates this most clearly: we create law, law enforces itself on everyone, law updates as people respond to law. We build physical reality around what we believe, in the tools we imagine, then create, and in the metrics we choose to measure and value. The process continues.</p>
+  <p>Our beliefs about the world influence how the world itself works. Law demonstrates this most clearly: we create law, law enforces itself on everyone, law updates as people respond to law. We shape reality around what we believe through the tools we create and the metrics we measure. The process continues and builds on itself.</p>
   <p>That's it. That's "rational unfolding" or whatever Hegel calls it. He would perhaps define it more narrowly and more beautifully. "Freedom seeing itself" or something like that. I'm a little colder and more skeptical. Hegel and I mostly agree on the practical short-term outcomes, though: we learn to avoid hot stoves. Rationality works.</p>
-  <p>Any construction of human thought has this structure: ${fnS('s2','we live in a society, after all.')} However, it is not just one person doing this. Think back to the stove example, but instead of only you having that experience, everyone else is too, everywhere and all the time. Each human becomes a nerve cell in the greater whole. The process scales up, then feeds back down. Ideas build on ideas. People challenge the world. Nations challenge Nations. Ideas challenge ideas. We challenge ourselves. Eventually, some ideas triumph and some fail: winners continue, and losers cease to exist. The world shifts around us.</p>
+  <p>Any construction of human thought has this structure: ${fnS('s2','we live in a society, after all.')} However, it is not just one person doing this. Think back to the stove example, but instead of only you having that experience, everyone else is too, everywhere and all the time. Each human, a nerve cell in the greater whole. The process scales up then feeds back down. Ideas build on ideas. Nations challenge Nations. Systems adapt or collapse. Winners continue and losers cease to exist. The world continues to shift underfoot. 
+</p>
   ${fnB('s2',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s2').txt,'fn-secret')}
   <p>Of course, categorizing everything into winners and losers is much too simple: in reality, ideas generally contain good and bad subparts. The Hegelian process is incorporating the best of both and then forming something new. Sublation or <em>Aufhebung</em>.</p>
   ${p1Footer()}
@@ -1136,109 +1136,106 @@ p1_s1:`<div class="essay paper">
 
 p1_s2:`<div class="essay paper">
   <p class="section-label">II.</p>
-  <p>Hegel believes that this process continues towards true freedom. As time goes on, people rationally want to be freer. Ideas (especially those embodied through us in institutions and tools) themselves approach "perfection". Since they are not as bound by physical laws, over time our constructions approach the idealized versions in our heads. ${fnS('s6','They gradually incorporate and integrate lessons from the past, just as we do.')} Perhaps, eventually, true freedom will be achieved.${fnR('3','3')}</p>
+  <p>Hegel believes that this tends towards true freedom. Ideas approach their "perfected" form as we mold them to match the version in our heads. ${fnS('s6','They gradually incorporate and integrate lessons from the past, just as we do.')} Eventually, this process will liberate us all.${fnR('3','3')}</p>
   ${fnB('s6',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s6').txt,'fn-secret')}
   ${fnB('3','I think it\'s probably more asymptotic: not sure we will ever get there. More importantly, perhaps, would we like the experience of perfection? I worry it would be like Jyggalag: pure frozen order. Lifeless and grey. The Coldest Iron Cage.')}
-  <p>Hegel might be right, but again, I'm not sure. In this moment, I see it a little differently: what Hegel describes could also be read as rationality building on itself through induction. If you take a higher-level view, rationality appears to be the process of looking at the world and discovering patterns of causality (induction) and then constructing accounts of why specific causes matter (deduction). Because the universe is filled with a near infinite number of patterns and causes, the difficulty has always been figuring out which ones are significant and which are just noise. In a word: Judgment. The moment of the Dialectic. If one Judgment proves superior, its effects reshape the world around it. Because of this, more rational ideas survive, spread, and eventually become habitual. The assembly line, liberal capitalism, and women's suffrage all seem to be "just the way things are" now, despite strong opposition when they first emerged.${fnR('4','4')}</p>
+  <p>Hegel might be right, but I see the situation a little differently: what Hegel describes could also be read as rationality building on itself through induction. If you take a higher-level view, it is a process of revision. We look at the world to discern patterns of causality (induction) and then construct accounts of which specific causes matter (deduction). However, in a universe filled with a near infinite number of events, it has always been difficult to separate signal from noise. In the moment of decision, all we can do is make a Judgment on which is which and hope we are correct. The world provides validation: if we judge correctly, the Judgment reshapes the world. The most rational ideas survive, spread, and eventually become habitual. It is not an instant process. The assembly line, liberal capitalism, and women's suffrage have all become natural, yet were strongly opposed when they first emerged.${fnR('4','4')}</p>
   ${fnB('4','Hegel thought that nature had a rationality of its own, but it was "cloaked under contingency". To me, the ability to recognize abstract structures or patterns is a power of man. This is reflexivity.')}
-  <p>Since every Judgment is based on induction, many Judgments are, at best, temporary.${fnR('5','5')} Eventually, the world will shift, perhaps breaking down the chain of induction that binds the Judgment to the real world. A new Judgment will take its place. If it hasn't, then congrats: history has ended. Spirit has seen itself, if only for a moment.${fnR('6','6')}</p>
-  ${fnB('5','Perhaps less so in the hard sciences and more so in the more subjective social sciences. Reflexivity.')}
-  ${fnB('6','And in the long run, we are all dead. Perhaps worrying about all this is pointless. Wu Wei?')}
+  <p> However, these Judgments are often temporary at best. If a Judgment shifts the world, humans learn and alter their behavior accordingly, thereby shattering the very assumptions that undergirded the Judgment in the first place. ${fnR('5','5')} From the wreckage, a new Judgment emerges. If that Judgment proves eternal, then congrats: history has ended. Spirit has seen itself, if only for a moment.${fnR('6','6')}</p>
+  ${fnB('5','Perhaps less so in the hard sciences and more so in the more subjective social sciences. A cannonball dropped from a leaning tower does not analyze its own trajectory down but a human certainly does. Goodhart captured this problem with his eponymous law.')}
+  ${fnB('6','And in the long run, we are all dead. Perhaps worrying about all this is pointless. Just let things unfold and enjoy the ride. Wu Wei?')}
   ${p1Footer()}
   <div class="p1-page-nav">
     ${nav('p1_s1','← I')}
-    ${nav('p1_s3','→ III–IV')}
+    ${nav('p1_s3','→ III')}
   </div>
 </div>`,
 
 p1_s3:`<div class="essay paper">
   <p class="section-label">III.</p>
   <p>The problem is that I think Hume is right: we are imperfect, temporary beings. Our ability to know things is profoundly limited. Unlike Hegel's grand spirit, we individuals don't have the luxury of an objective vantage point out of time. We are thrown into the world and embodied in our context. As a result, we must bite the bullet on induction: we almost always accept that what was true before will be true in the future.</p>
-  <p>For the most part, this works. The sun rises every morning, after all. The real problem is that for a lot of other Judgments, we forget that the underlying facts can change. Every moment we have new sensations, more data to synthesize. Thus, what is rational evolves along with the world: stability is always an illusion in the long term. Any Judgments we construct will inevitably be confronted by a world that no longer fits its baseline inductive assumptions.</p>
-  <p>Unfortunately, this means that we can only ever be sure of the right answer retroactively: our Judgment must influence the world to be evaluated. There is a constant tension between objective reality and our interpretation of it. ${fnS('s7','An endless confrontation.')}</p>
+  <p>For the most part, this works. The sun rises every morning, after all. The real problem is that for a lot of other Judgments, we forget that the underlying facts can change. Every moment we have new sensations, more data to synthesize. Thus, the rational choice in any one moment evolves in parallel with the world itself. Over the long term, stability is always an illusion, for our Judgments rely on premises that can be washed away by flux. Unfortunately, this results in a constant tension between objective reality and our temporally bound Judgments. ${fnS('s7','An endless confrontation.')}</p>
   ${fnB('s7',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s7').txt,'fn-secret')}
-  <p>The next question is clear: Does this ever end? Will reason ever become perfectly stable, unable to evolve further, or is it an endless struggle, as Nietzsche saw? Can the Enlightenment project of perfect, all-seeing reason be completed?</p>
-  <p class="section-label">IV.</p>
-  <p>If we can alter reality through thought, then tracing the Dialectic is a sort of guide to the history of reality. Human rationality picks whatever helps it survive. Judgments that survive over the long term must have succeeded at something.${fnR('7','7')} Our existing institutions have survived their contact with reality; otherwise, they would not exist.${fnR('8','8')} Thus, if we look at the ideas now embodied in laws and institutions, we are really tracing a history of rationality.</p>
-  ${fnB('7','Hume worked this out for himself with his "On the Standard of Taste", where good art is what persists throughout time as judged by those who have "cultivated" their taste. Perhaps there are objective Judgments on aesthetics. But the problem has always been convincing others your Judgment is right.')}
-  ${fnB('8','"Or as Hegel put it "What is rational is actual and what is actual is rational"')}
-  <p>In those terms, the history of ideas and institutions becomes a pattern of change and advancement.${fnR('9','9')} Of course, this is not a neutral process: these institutions "learn" as we do. They incorporate new knowledge, prior Judgments, then rationalize themselves further. When ideas embody themselves in language, tools, and organizations, they influence how and what we think. Ideas can be transmitted around the world through words, objects, or force.${fnR('10','10')}</p>
-  ${fnB('9','If applied as Marx did, Polemics. His writings are an argument about the way the world will change. Hyperstition?')}
-  ${fnB('10','Burroughs said something like "language is a virus from outer space," which is either an overstatement or the most accurate sentence in English.')}
-  <p>${fnS('s3','Back in college, I took a class on the history of the future.')} It was really a history of how people have conceived of the future. The course began with an exploration of how medieval Europe thought of the future: time was something created and understood by God. This would culminate in Judgment Day, and the world would end. They built calendars and tracked time with this in mind. Ritual and habit are feedback loops: their beliefs were reinforced by the rituals they practiced. To them, Revelation was the rational end to all things. How distinct are Humean habit and Hegelian reason?${fnR('11','11')}</p>
-  ${fnB('11','This power is why thinkers from Confucius to Machiavelli to Weber have treated religion as a tool for structuring political life: it forces people into habit. And habit becomes reason.')}
+  <p> Perhaps the dialectic is merely the pattern humans follow to deal with this instability. Successful Judgments encode themselves into reality, altering the world accordingly. In this light, intellectual history traces the process unfolding. It is reflexive, as institutions "learn" by incorporating new knowledge about what works and what does not. It is active, as humans have agency to choose what to encode.${fnR('7','7')} It is materialist, as the most successful ideas persist, embodied in human language, tools, and organizations. Finally, it is transmissible, spreading through words, objects, or force.${fnR('8','8')}</p>
+  ${fnB('7','This is part of why many people are scared of Marx. He intended his writings to change the world by convincing people to act according to his predictions. Accelerationist Nick Land termed this "Hyperstition".')}
+  ${fnB('8','Burroughs said something like "language is a virus from outer space," which is either an overstatement or the most accurate sentence in English.')}
+  <p>${fnS('s3','Back in college, I took a class on the history of the future.')} It was really a history of how people have conceived of the future. The course began with an exploration of how medieval Europe thought of the future: time was something created and understood by God. This would culminate in Judgment Day, and the world would end. They built calendars and tracked time with this in mind. To them, Revelation was the rational end to all things. Ritual and habit anchored their world, as belief mandated practice and practice reinforced belief.  As long as the two reinforced each other, visible flux was suppressed and the world appeared stable. Persistence served as the ultimate proxy for success.${fnR('9','9')}</p> 
+  ${fnB('9','This power is why thinkers from Confucius to Machiavelli to Weber have treated religion as a tool for structuring political life: it forces people into habit. And habit becomes reason.')}
   ${fnB('s3',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s3').txt,'fn-secret')}
   ${fig(IMG.mars,'March, from the Très Riches Heures du Duc de Berry (c. 1412–1416). Peasants plow beneath the Château de Lusignan while the zodiac marks the season above.','March, from the <em>Très Riches Heures du Duc de Berry</em> (c. 1412–1416). The seasons do not operate on mankind\'s time. The castle looms; the peasant plows; the zodiac turns. Ritual and habit as rational order.','plate--narrow')}
+
+  <p> Hume worked this out in "On the Standard of Taste". He believed that it was possible to "objectively" rank the quality of art. I put objective in scare quotes because it is more probabilistic than certain. To him, good art is what persists over time and across cultures. But the problem is that it is impossible to determine the durability of a Judgment in the moment it is made. Hume himself demonstrates this problem. He says that it would be foolish to equate Milton to Ogilby and this Judgment remains uncontroversial even today. Yet, in the same sentence he seems to equate Addison and Milton, something almost no one today would concede. As his own standard implies, his Judgment remained inextricably bound to its era even though he traced the process. In the end, the judge cannot know in the moment if they will be vindicated. All this leads me to wonder about the distinction between Humean habit and Hegelian reason if neither can provide certainty in the moment.</p>
+
   ${p1Footer()}
   <div class="p1-page-nav">
     ${nav('p1_s2','← II')}
-    ${nav('p1_s4','→ V')}
+    ${nav('p1_s4','→ IV')}
   </div>
 </div>`,
 
 p1_s4:`<div class="essay paper">
-  <p class="section-label">V.</p>
+  <p class="section-label">IV.</p>
   <p>This does raise a problem: if we start to perceive our own structures as unchangeable because they are stable, we are caught flat-footed when the world reveals its changes, destroying our priors and fracturing our inductive chain. Don't believe me? Look at history.</p>
-  <p>Tokugawa Japan was closed off from the rest of the world. ${fnS('s4','High literacy and a well-developed mass market visual culture.')} A Shogunate structured around ritual journeys to and from the capital that kept elites on a tight leash. Very effective repression of commoners and foreigners. Result? Centuries of what most would call peace.${fnR('12','12')} Since it persisted for so long, it appeared to those inside as the most rational system. Alas, it did not last: Europe's Fiscal-Military states were about to teach the rest of the world a deadly lesson.</p>
-  ${fnB('12','There were plenty of peasants who didn\'t think so. But they didn\'t win. Mere footnotes.')}
+  <p>Tokugawa Japan was closed off from the rest of the world. ${fnS('s4','High literacy and a well-developed mass market visual culture.')} A Shogunate structured around ritual journeys to and from the capital that kept elites on a tight leash. Very effective repression of commoners and foreigners. Result? Centuries of what most would call peace.${fnR('10','10')} Since it persisted for so long, it appeared to those inside as the most rational system. Alas, it did not last: Europe's Fiscal-Military states were about to teach the rest of the world a deadly lesson.</p>
+  ${fnB('10','There were plenty of peasants who didn\'t think so. But they didn\'t win. Mere footnotes.')}
   ${fnB('s4',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s4').txt,'fn-secret')}
-  <p>Japan wasn't blind to the changing outside reality. Far from it: it felt the storm coming. It saw what happened to China: its craftsmen depicted the Opium Wars in woodblock prints of battle and death. It knew the Europeans were about to arrive: the Shogun had received warnings from the Dutch King himself.${fnR('13','13')} Japan and its people began to understand the world had changed. The heat was building. When Admiral Perry and his Black Ships appeared in Tokyo Bay, the Shogun and many Daimyos deduced Japan would burn next. That deduction bred fear. And that fear bred action.</p>
-  ${fnB('13','Of course, the Dutch King\'s letter wasn\'t some sort of generous gift: it was a rational act to try and resolve the tension brewing between Japan\'s isolationism and Britain\'s gunboat free trade in Asia. Reasoning is fractal.')}
+  <p>Japan wasn't blind to the changing outside reality. Far from it: it felt the storm coming. It saw what happened to China: its craftsmen depicted the Opium Wars in woodblock prints of battle and death. It knew the Europeans were about to arrive: the Shogun had received warnings from the Dutch King himself.${fnR('11','11')} Japan and its people began to understand the world had changed. The heat was building. When Admiral Perry and his Black Ships appeared in Tokyo Bay, the Shogun and many Daimyos deduced Japan would burn next. That deduction bred fear. And that fear bred action.</p>
+  ${fnB('11','Of course, the Dutch King\'s letter wasn\'t some sort of generous gift: it was a rational act to try and resolve the tension brewing between Japan\'s isolationism and Britain\'s gunboat free trade in Asia. Reasoning is fractal.')}
   ${fig(IMG.perry,'A Japanese print portrait of Commodore Perry in dark naval uniform.','A Japanese print portrait of Commodore Perry in dark naval uniform. This is more respectful than some of the portraits made by other contemporary Japanese artists.','plate--narrow')}
   <p>Japan was thus confronted by a contradiction the existing system could not solve: its old rational way of structuring life turned out to be just a moment, not eternity. Confronted by this contradiction, Japan made a new Judgment.</p>
-  <p>The result was something novel. Japan was modern <em>but on its own terms</em>. By maintaining a form of their own culture while adopting European ideas, they became different from both their past and contemporary Europeans.${fnR('14','14')}</p>
-  ${fnB('14','Japan was recognized as "Western" when it defeated Russia in 1905. But then it was different again in 1945. You get my drift. All this just because they saw Perry come across the horizon with a few black ships.')}
+  <p>The result was something novel. Japan was modern <em>but on its own terms</em>. By maintaining a form of their own culture while adopting European ideas, they became different from both their past and contemporary Europeans.${fnR('12','12')}</p>
+  ${fnB('12','Japan was recognized as "Western" when it defeated Russia in 1905. But then it was different again in 1945. You get my drift. All this just because they saw Perry come across the horizon with a few black ships.')}
   <p>This isn't the full story, however. Zoom in for a second and you'll notice something uncanny: the same dynamic that happened <em>to</em> Japan happened <em>within</em> Japan. The actors in Japan had the experience of Japan, miniaturized.</p>
-  <p>Choshu and Satsuma, the modernizing Japanese Domains, chafed under the tight leash of the Shogunate. Satsuma controlled Ryukyu,${fnR('15','15')} one of Japan's limited traditional gateways to the outside world. Both had already fought the British navy and lost. They understood the threat and promise of the foreigners better than any other Domain. They experienced the Dialectic most directly: the old structure dying, but the new one has not yet been built. Soon, Japan would have no choice in the matter. They decided to act.</p>
-  ${fnB('15','Today\'s Okinawa. Funny how the Americans ended up there eh?')}
-  <p>In what became known retroactively as the Sat-Cho alliance, the two Domains aligned to destroy the old world. Choshu forged a European-style conscript army to oppose the traditional forces of the shogunate. They armed commoners, defying the 250-year tradition restricting weapons to only samurai. Satsuma, for its part, sent its youth to Britain to learn modern shipbuilding and industrialization, in direct opposition to the laws of the shogunate and their own stated ideals.${fnR('16','16')} On arrival, the Satsuma students visited dockyards and wore English three-piece suits.${fnR('17','17')} On return, these youth would go on to create the Meiji state, and guess what? They all kept the suits.${fnR('18','18')}</p>
-  ${fnB('16','Some scholars attribute the infamous Imperial Japanese army/navy interservice rivalry to this split. You could also argue that this represents the dual consciousness of Meiji Japan: British naval-liberal constitutionalism juxtaposed with Prussian army-junker militarism.')}
-  ${fnB('17','Of course, this flattens things a little. The Shogunate understood the stakes but were more constrained by tradition and less desperate. There is a great picture of a bunch of traditionally dressed Shogunate samurai hanging out in DC during the American Civil War. The Satsuma youth, for their part, cut their hair and wore the suits.')}
-  ${fnB('18','In their official portraits. Traditional Japanese culture persisted of course. But even that would be challenged and altered. The emergence of State Shinto and the suppression of Buddhism (Haibutsu kishaku) demonstrates this.')}
+  <p>Choshu and Satsuma, the modernizing Japanese Domains, chafed under the tight leash of the Shogunate. Satsuma controlled Ryukyu,${fnR('13','13')} one of Japan's limited traditional gateways to the outside world. Both had already fought the British navy and lost. They understood the threat and promise of the foreigners better than any other Domain. They experienced the Dialectic most directly: the old structure dying, but the new one has not yet been built. Soon, Japan would have no choice in the matter. They decided to act.</p>
+  ${fnB('13','Today\'s Okinawa. Funny how the Americans ended up there eh?')}
+  <p>In what became known retroactively as the Sat-Cho alliance, the two Domains aligned to destroy the old world. Choshu forged a European-style conscript army to oppose the traditional forces of the shogunate. They armed commoners, defying the 250-year tradition restricting weapons to only samurai. Satsuma, for its part, sent its youth to Britain to learn modern shipbuilding and industrialization, in direct opposition to the laws of the shogunate and their own stated ideals.${fnR('14','14')} On arrival, the Satsuma students visited dockyards and wore English three-piece suits.${fnR('15','15')} On return, these youth would go on to create the Meiji state, and guess what? They all kept the suits.${fnR('16','16')}</p>
+  ${fnB('14','Some scholars attribute the infamous Imperial Japanese army/navy interservice rivalry to this split. You could also argue that this represents the dual consciousness of Meiji Japan: British naval-liberal constitutionalism juxtaposed with Prussian army-junker militarism.')}
+  ${fnB('15','Of course, this flattens things a little. The Shogunate understood the stakes but were more constrained by tradition and less desperate. There is a great picture of a bunch of traditionally dressed Shogunate samurai hanging out in DC during the American Civil War. The Satsuma youth, for their part, cut their hair and wore the suits.')}
+  ${fnB('16','In their official portraits. Traditional Japanese culture persisted of course. But even that would be challenged and altered. The emergence of State Shinto and the suppression of Buddhism (Haibutsu kishaku) demonstrates this.')}
   ${figPair([
     {src:IMG.ambassadors,alt:'Members of the 1860 Japanese mission to the United States in traditional dress.',caption:'Members of the 1860 Japanese mission to the United States in traditional dress. The old order meets the future bosses.',cls:'plate--photo'},
     {src:IMG.satsuma,alt:'Young Satsuma students in Western suits pose for a studio portrait.',caption: 'Young Satsuma students in Western suits pose for a studio portrait. The new order teaches the old.', cls:'plate--photo'}
   ])}
   ${p1Footer()}
   <div class="p1-page-nav">
-    ${nav('p1_s3','← III–IV')}
-    ${nav('p1_s4b','→ VI')}
+    ${nav('p1_s3','← III')}
+    ${nav('p1_s4b','→ V')}
   </div>
 </div>`,
 
 p1_s4b:`<div class="essay paper">
-  <p class="section-label">VI.</p>
+  <p class="section-label">V.</p>
   <p>Can you argue with the results? Sat-Cho's modern military repeatedly routed the antiquated Shogunate forces, who then embarked on their own program of modernization. ${fnS('s5','It was an arms race, but the Shogunate had started too late.')} The early competitive advantage meant that the Shogunate was effectively playing catch-up to the Domains.</p>
   ${fnB('s5',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s5').txt,'fn-secret')}
   ${fig(IMG.drill,'A woodblock print of soldiers drilling and charging through smoke and open ground.','A woodblock print of soldiers drilling and charging through smoke and open ground. What space is there for the samurai in this new world?')}
-  <p>Sat-Cho did not abandon the past but instead recontextualized it. They said, “Shogun, you are illegitimate because you cannot expel the barbarians. Thus, we must return to tradition and get the emperor back in power to expel the barbarians." Sonno-Joi.${fnR('19','19')}</p>
-  ${fnB('19','Never mind that the Emperor had been sidelined by the Shogun during the great period of peace when the foreigners were completely restricted.')}
+  <p>Sat-Cho did not abandon the past but instead recontextualized it. They said, “Shogun, you are illegitimate because you cannot expel the barbarians. Thus, we must return to tradition and get the emperor back in power to expel the barbarians." Sonno-Joi.${fnR('17','17')}</p>
+  ${fnB('17','Never mind that the Emperor had been sidelined by the Shogun during the great period of peace when the foreigners were completely restricted.')}
   <p>Do you see it? The Contradiction? To restore tradition, they had to become modern. To become modern, they had to restore tradition. The premise required the conclusion that required the premise. Inductively and deductively, this chain of reasoning makes sense as a pattern, but there is an uncomfortable circularity. The founding document of the Meiji order itself makes this tension explicit:</p>
-  <p class="pullquote">Knowledge shall be sought throughout the world so as to strengthen the foundations of imperial rule.${fnR('20','20')}</p>
-  ${fnB('20','The Charter Oath of 1868 was a self-conscious attempt to become modern. It promised: democracy, equality, progress. In reality: oligarchy, stratification, progress.')}
+  <p class="pullquote">Knowledge shall be sought throughout the world so as to strengthen the foundations of imperial rule.${fnR('18','18')}</p>
+  ${fnB('18','The Charter Oath of 1868 was a self-conscious attempt to become modern. It promised: democracy, equality, progress. In reality: oligarchy, stratification, progress.')}
   <p>The Satsuma-Choshu Alliance came out on top of what became known as the Boshin War. In victory, the two domains remade Japan in their own image: a modernized traditionalism. Railways, Zaibatsu megacorporations, and imperial conquests, all with an “Eternal Emperor" who had reigned uninterrupted for thousands of years at its head. The Shogun himself abdicated but was eventually incorporated into the Meiji oligarchy. Things changed but they also stayed the same.</p>
   <p>That's the dialectic in action: Adapt or die. Fuse the outside world with yourself. Reconcile yourself with change and claim it as your own. Schumpeterian creative destruction applied to the state and society and the individual.</p>
   ${fig(IMG.boxers,'A Japanese woodblock print of an Imperial officer protecting a Chinese child from Chinese fire during the Boxer War.','A Japanese woodblock print of an Imperial officer protecting a Chinese child from Chinese fire during the Boxer War.')}
   <p>Japan would then go on to help Korea and China learn this lesson. It started with good intentions. A kind older brother who wants to protect the rest of Asia from rapacious Europeans. Unsurprisingly, this generosity was ephemeral. In Korea, cultural genocide and comfort women. In China, Nanjing and Unit 731. But hey, at least it wasn't the damn Europeans doing it.</p>
-  <p> But of course Japan had become European in a way. The Eight-Nation Alliance was a collaboration between Japan and European powers to suppress the Boxers. Japan took concessions from China, just like the rest of the Europeans. They dressed like the Europeans and listened to European classical music. The Japanese had become equal to the Europeans and were recognized as such. Given this, what difference does the nationality of the boot make?${fnR('21','21')}</p>
-  ${fnB('21','Flattening a bit again: the real moment was at Tsushima and Mukden in 1905 but with hindsight the turning point is clear. Asia had been successfully "Thrown off".')}
+  <p> But of course Japan had become European in a way. The Eight-Nation Alliance was a collaboration between Japan and European powers to suppress the Boxers. Japan took concessions from China, just like the rest of the Europeans. They dressed like the Europeans and listened to European classical music. The Japanese had become equal to the Europeans and were recognized as such. Given this, what difference does the nationality of the boot make?${fnR('19','19')}</p>
+  ${fnB('19','Flattening a bit again: the real moment was at Tsushima and Mukden in 1905 but with hindsight the turning point is clear. Asia had been successfully "Thrown off".')}
   ${fig(IMG.courtesan,'A woodblock print of a Western man and Japanese woman sharing an interior scene.','A woodblock print of a Western man and Japanese woman sharing an interior scene. Madame Butterfly had a long history in Japan before Puccini wrote the Opera.','plate--narrow')}
   ${p1Footer()}
   <div class="p1-page-nav">
-    ${nav('p1_s4','← V')}
-    ${nav('p1_s5','→ VII')}
+    ${nav('p1_s4','← IV')}
+    ${nav('p1_s5','→ VI')}
   </div>
 </div>`,
 
 
 p1_s5:`<div class="essay paper">
-  <p class="section-label">VII.</p>
+  <p class="section-label">VI.</p>
   <p>The mask drops: the dialectic is value-neutral. It explains how to survive, but nothing inherently “good” guides the process. It is power manifest. ${fnS('s8','Gravity. Force.')}</p>
   ${fnB('s8',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s8').txt,'fn-secret')}
-  <p>Spin the globe and zoom in on the Caribbean of the 1700s. The Atlantic Enlightenment is in full swing, fueled by coffee and sugar. Both become almost as valuable as gold. Not enough free men would willingly do the back-breaking labor required to make the plantations profitable. The Portuguese had already found the solution: import slaves from West Africa. Many of the same rational Europeans who decried slavery had no such problems when the slaves were taken in “just wars" by African statelets. That is what Rome did, said Grotius. Thus, the Middle Passage is born.${fnR('22','22')}</p>
-  ${fnB('22',"Of course, the African kingdoms were also complicit, but it was a rational complicity. They were making judgments too. Those who did not participate in slave taking would become slaves of their neighbors who did.")}
-  <p>England had experimented with the plantation system during their colonization of Ireland. English adventurers exported plantations to the Antilles, specifically Barbados. Initially, these Caribbean plantations were staffed by indentured servants from England and Ireland. However, the transition to sugar cultivation created a near-endless need for labor. The supply of indentured servants could never meet the demand. Out of necessity, they too turned towards African Slavery. The Royal African Company was formed and given royal imprimatur. Although the English took pride in their opposition to slavery within England's borders,${fnR('23','23')} the siren call of profit proved too hard to ignore.</p>
-  ${fnB('23','Never mind that it was the Norman Conquest that finished off slavery. Perhaps the Norman Yoke was not all that much of a yoke. As much as I like Tolkien, I can\'t help but feel his romantic English Nationalism is a more palatable version of Heidegger\'s Black Forest Naziism.')}
+  <p>Spin the globe and zoom in on the Caribbean of the 1700s. The Atlantic Enlightenment is in full swing, fueled by coffee and sugar. Both become almost as valuable as gold. Not enough free men would willingly do the back-breaking labor required to make the plantations profitable. The Portuguese had already found the solution: import slaves from West Africa. Many of the same rational Europeans who decried slavery had no such problems when the slaves were taken in “just wars" by African statelets. That is what Rome did, said Grotius. Thus, the Middle Passage is born.${fnR('20','20')}</p>
+  ${fnB('20',"Of course, the African kingdoms were also complicit, but it was a rational complicity. They were making judgments too. Those who did not participate in slave taking would become slaves of their neighbors who did.")}
+  <p>England had experimented with the plantation system during their colonization of Ireland. English adventurers exported plantations to the Antilles, specifically Barbados. Initially, these Caribbean plantations were staffed by indentured servants from England and Ireland. However, the transition to sugar cultivation created a near-endless need for labor. The supply of indentured servants could never meet the demand. Out of necessity, they too turned towards African Slavery. The Royal African Company was formed and given royal imprimatur. Although the English took pride in their opposition to slavery within England's borders,${fnR('21','21')} the siren call of profit proved too hard to ignore.</p>
+  ${fnB('21','Never mind that it was the Norman Conquest that finished off slavery. Perhaps the Norman Yoke was not all that much of a yoke. As much as I like Tolkien, I can\'t help but feel his romantic English Nationalism is a more palatable version of Heidegger\'s Black Forest Naziism.')}
   <p>The <em>Zong</em>, a British slave ship, misjudges how far away Jamaica is and spends some extra time at sea. A pleasant 60 day journey instead becomes an unbearable 108. But these transports are rationalized and economized: they carry only as much supply as they need for the journey. Every ounce of water is one less pound of cargo and one less pound of profit. Unfortunately, the value of a slave diminishes when they get sick. See, the lifespan of a slave is “priced in": plantation foremen are unlikely to buy the unhealthy slaves when the ship finally docks at Black River. Unfortunate.</p>
   <p>All hope is not yet lost. In the coffeehouses of London, the underwriters at Lloyd's have discovered maritime insurance and risk mitigation. They offer an economic life vest, the “Law of the General Average": cargo sacrificed to save the ship will be compensated by the insurers. It pushes the captain to save the ship when the vessel itself is at stake without worrying about the voyage's patron back home.</p>
   <p>One hiccup in the fine print: insurance covers only accidents, not natural deaths. Thus, the Captain is faced by a time bound decision: if he does not act quickly, the slaves will die natural deaths and insurance will not pay out. The captains of these expeditions are consummate businessmen: they are hired to protect the returns of the investors back in London. So, of course, they understand the law. The rational solution is clear. The captain on the <em>Zong</em> judges. He acts.</p>
@@ -1249,65 +1246,65 @@ p1_s5:`<div class="essay paper">
   ${fnB('s9',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s9').txt,'fn-secret')}
   ${p1Footer()}
   <div class="p1-page-nav">
-    ${nav('p1_s4b','← VI')}
-    ${nav('p1_s6','→ VIII')}
+    ${nav('p1_s4b','← V')}
+    ${nav('p1_s6','→ VII')}
   </div>
 </div>`,
 
 p1_s6:`<div class="essay paper">
-  <p class="section-label">VIII.</p>
+  <p class="section-label">VII.</p>
   <p>Unsurprisingly, the Zong ruling helped kickstart the anti-slavery movement. Olaudah Equiano, a formerly enslaved African who endured the Middle Passage, informed abolitionist Granville Sharp of the case's outcome.</p>
   <p>Granville then helped found the British “Society for Effecting the Abolition of the Slave Trade", thereby concretizing the moral horror of the <em>Zong</em> into a social movement.</p>
   <p>Josiah Wedgwood, a prominent Unitarian Dissenter and industrialist famous for his fine porcelain, was disgusted by slavery generally and the <em>Zong</em> specifically. He used his skills to create a cameo depicting a kneeling African begging for relief with the text of “Am I Not a Man And A Brother?” above. It became a meme: people attached it to their clothes and their snuffboxes, fanning the anti-slavery flames across Britain. An idea literally embodied in physical reality.</p>
   ${fig(IMG.cameo,'The Wedgwood anti-slavery cameo: a kneeling enslaved man in profile with the inscription “Am I Not a Man And A Brother?”','An example of the Wedgwood Cameo. Although it is sometimes seen as problematic with its depiction of a supplicant African, I think it represents the reality of the situation accurately. Sometimes the truth is painful.','plate--narrow')}
-  <p>Eventually, Parliament abolished the slave trade, then later slavery itself.${fnR('24','24')} Much of Europe soon followed suit, and shortly after Europe would end “formal slavery” across the world through imperialism. At the Berlin Conference of 1884, the European powers gave Belgian King Leopold II a huge swath of Central Africa to bring civilization and end slavery. He established the Congo Free State, which brought modern Christianity, science, and freedom to the people of the basin. Rationality unfolded; freedom triumphed. Everyone clapped.${fnR('25','25')}</p>
-  ${fnB('24','Don\'t feel too bad for the slaveowners: they received a healthy recompense from the British treasury. The freed slaves got nothing.')}
-  ${fnB('25','Except the Congolese whose hands had been chopped off by Leopold\'s Force Publique. Plus ça change…')}
+  <p>Eventually, Parliament abolished the slave trade, then later slavery itself.${fnR('22','22')} Much of Europe soon followed suit, and shortly after Europe would end “formal slavery” across the world through imperialism. At the Berlin Conference of 1884, the European powers gave Belgian King Leopold II a huge swath of Central Africa to bring civilization and end slavery. He established the Congo Free State, which brought modern Christianity, science, and freedom to the people of the basin. Rationality unfolded; freedom triumphed. Everyone clapped.${fnR('23','23')}</p>
+  ${fnB('22','Don\'t feel too bad for the slaveowners: they received a healthy recompense from the British treasury. The freed slaves got nothing.')}
+  ${fnB('23','Except the Congolese whose hands had been chopped off by Leopold\'s Force Publique. Plus ça change…')}
   <p>The drowned slaves couldn\'t really take comfort in this historical justice, as they had already died. To deal with this problem, Hegel and his disciples (like Marx) pull a powerful move: inject teleology. This horror is fine because it needed to happen. Without the <em>Zong</em>, Spirit would have learned nothing. In fact, it validates the dialectic: by allowing hundreds of people to be thrown overboard, Reason “learned” that there is more to life than mere economics.</p>
-  <p>To me, this reasoning too closely resembles theodicy: evil exists so that good can vanquish it. Will it? Eventually. My problem remains induction: we can only know in retrospect, so therefore anything existing now can easily be overturned later. It's like <em>stare decisis</em>: binding precedent until we decide it isn't.${fnR('26','26')} There is no immutable law that results in reason learning moral lessons from annihilation. ${fnS('s11','It is a story we tell ourselves to make sense of it all.')} The Dialectic continues no matter how much we want it to stop.</p>
+  <p>To me, this reasoning too closely resembles theodicy: evil exists so that good can vanquish it. Will it? Eventually. My problem remains induction: we can only know in retrospect, so therefore anything existing now can easily be overturned later. It's like <em>stare decisis</em>: binding precedent until we decide it isn't.${fnR('24','24')} There is no immutable law that results in reason learning moral lessons from annihilation. ${fnS('s11','It is a story we tell ourselves to make sense of it all.')} The Dialectic continues no matter how much we want it to stop.</p>
   ${fnB('s11',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s11').txt,'fn-secret')}
-  ${fnB('26','In other words: if the case was rightly decided, then there is no need to validate it. Decisions only need stare decisis if they are wrong in some way. If interpretation relies on induction, but the deductive principles can be changed, then induction-based judgments are unstable. Consider a piece of precedent the court will overrule: Congress assumes it is constitutional and writes a bill in accordance with it. How could it determine the law is unconstitutional before the Court ruled it so?')}
+  ${fnB('24','In other words: if the case was rightly decided, then there is no need to validate it. Decisions only need stare decisis if they are wrong in some way. If interpretation relies on induction, but the deductive principles can be changed, then induction-based judgments are unstable. Consider a piece of precedent the court will overrule: Congress assumes it is constitutional and writes a bill in accordance with it. How could it determine the law is unconstitutional before the Court ruled it so?')}
   ${fig(IMG.diagram,'A schematic drawing of the slaveship Brooks demonstrating the cramped conditions of a Middle Passage journey.','A schematic drawing of the ship Brooks demonstrating the conditions of ships undergoing the Middle Passage. The <em>Zong</em> case spurred reform here: both planters and abolitionists supported the Slave Trade Act 1788, which limited the number of slaves per ship. The number of slaves transported aboard the Brooks decreased from 609 to 454.','plate--mid')}
   ${p1Footer()}
   <div class="p1-page-nav">
-    ${nav('p1_s5','← VII')}
-    ${nav('p1_s7','→ IX')}
+    ${nav('p1_s5','← VI')}
+    ${nav('p1_s7','→ VIII')}
   </div>
 </div>`,
 
 p1_s7:`<div class="essay paper">
-  <p class="section-label">IX.</p>
+  <p class="section-label">VIII.</p>
   <p>I left out a bit of crucial Japanese history earlier.</p>
   <p>Satsuma and Choshu Domains hated the Shogunate because of a deep historical grudge stemming from the Battle of Sekigahara back in 1600, the conclusion of the Sengoku Period of violent civil war between clans. The two domains were originally Toyotomi loyalists and part of the “Western Army" opposed to the upstart Tokugawa Ieyasu. However, both bent the knee when the victory of Tokugawa's “Eastern Army" became inevitable. Both were spared by the triumphant now-Shogun Tokugawa Ieyasu, who made the calculation that more open conflict would be counterproductive to the country's stability.</p>
   <p>However, the Toyotomi lords were forever stained as “Tozama" or “Outsider Lords". The Tokugawa Shogunate judged them dangerous, so it set up a system to cage these lords of suspect loyalty: drain them of wealth by requiring the construction of elaborate public works and require the distant domains to make expensive bi-yearly journeys to the capital of Edo (<em>sankin-kōtai</em>). Thus, the Shogunate “bought" stability by forcing the Daimyos into poverty, effectively avoiding a protracted guerrilla war against the losing daimyos. Looking back from 1800, the Shogunate would say it was the right rational decision, as it achieved 200 years of relative peace. Vindication.</p>
   <p>Of course, the Tozama never forgot or forgave their defeat at Sekigahara, in part because the system never stopped reminding them of their defeat. The Mori Clan, who became the Choshu Domain, suffered heavily from the burden imposed. Under Hideyoshi, the Mori had been one of the “Five Regent" clans that controlled much of Western Honshu, the main island. Following Sekigahara, they were stripped of nearly three quarters of their land and shoved into two of the poorest provinces distant from Edo. Satsuma kept its lands but was in perennial financial difficulties due to the huge number of samurai retainers it maintained.</p>
   <p class="pullquote">Every New Year's Day for 250 years, Choshu samurai would approach the Daimyo and ask:<br><br>“Has the time come to begin the subjugation of the Shogunate?"<br><br>And for 250 years, the Daimyo would reply:<br><br>“No. The time is not yet ripe."</p>
   <p>Satsuma and Choshu were rational. They bided their time, as they knew there was little they could do as long as the Shogunate remained stable. However, when the Black Ships arrived, the Tozama were ready and able to strike back. The result was the previously mentioned Boshin War and Meiji Restoration. Many of the leaders of these movements came from the samurai class, including the man who helped spearhead the entire victory, Saigo Takamori.</p>
-  <p>Following the Meiji victory, many of these samurai found a place in the new order and became very successful. However, nearly as many were rendered obsolete by European modernity. The literati virtues that had sustained the samurai as a class during the Shogunate were useful, but no longer unique. A modern bureaucratic state does not need a bunch of warrior-poet wannabes: it needs clerks and conscripts. Shorn of purpose and use, many samurai fell into penury. In the end, the Meiji oligarchy only fulfilled half the promise of sonno-joi: they restored the emperor but invited the barbarians directly into the house for tea. A final twist of the knife: the Meiji elite banned anyone from carrying swords, effectively abolishing and reversing the traditional symbol of samurai class distinction.${fnR('27','27')}</p>
-  ${fnB('27','This was known as the Haitōrei. Of course, the Daimyos were allowed to keep their swords. No proper European Aristocrat would be caught dead without one.')}
+  <p>Following the Meiji victory, many of these samurai found a place in the new order and became very successful. However, nearly as many were rendered obsolete by European modernity. The literati virtues that had sustained the samurai as a class during the Shogunate were useful, but no longer unique. A modern bureaucratic state does not need a bunch of warrior-poet wannabes: it needs clerks and conscripts. Shorn of purpose and use, many samurai fell into penury. In the end, the Meiji oligarchy only fulfilled half the promise of sonno-joi: they restored the emperor but invited the barbarians directly into the house for tea. A final twist of the knife: the Meiji elite banned anyone from carrying swords, effectively abolishing and reversing the traditional symbol of samurai class distinction.${fnR('25','25')}</p>
+  ${fnB('25','This was known as the Haitōrei. Of course, the Daimyos were allowed to keep their swords. No proper European Aristocrat would be caught dead without one.')}
   ${fig(IMG.shiroyama,'A woodblock print of the Battle of Shiroyama.','The Battle of Shiroyama, 1877. The last stand of the samurai. Krupp artillery against katanas.','plate--mid')}
-  <p>No surprise then that the samurai rose in rebellion against the very government they had created. The new Meiji order was led by many of the samurai's former leaders. Choshu leaders headed the conscript army that the samurai had helped forge.${fnR('28','28')} The navy forged by Satsuma blockaded the coast, penning the samurai in. Together, the Meiji army and navy obliterated the samurai at Shiroyama. Saigo Takamori killed himself.${fnR('29','29')} The samurai who provided much of the alliance's original strength and brought it to power were liquidated by their creation. Popular history fixates on the arquebus ending European honor culture, but the Krupp cannons manned by former peasants cut down the flowers of Japanese chivalry more effectively.</p>
-  ${fnB('28','The peasants transcended their footnote status. Now the turn of samurai.')}
-  ${fnB('29','And then the Meiji oligarchs used him as a great example of Japanese honor and determination.')}
+  <p>No surprise then that the samurai rose in rebellion against the very government they had created. The new Meiji order was led by many of the samurai's former leaders. Choshu leaders headed the conscript army that the samurai had helped forge.${fnR('26','26')} The navy forged by Satsuma blockaded the coast, penning the samurai in. Together, the Meiji army and navy obliterated the samurai at Shiroyama. Saigo Takamori killed himself.${fnR('27','27')} The samurai who provided much of the alliance's original strength and brought it to power were liquidated by their creation. Popular history fixates on the arquebus ending European honor culture, but the Krupp cannons manned by former peasants cut down the flowers of Japanese chivalry more effectively.</p>
+  ${fnB('26','The peasants transcended their footnote status. Now the turn of samurai.')}
+  ${fnB('27','And then the Meiji oligarchs used him as a great example of Japanese honor and determination.')}
   ${fig(IMG.armies,'A triptych showing Japanese and foreign military uniforms assembled in comparative display.','A triptych showing Japanese and foreign military uniforms assembled in comparative display. The Japanese portray themselves as indistinguishable from their Russian opponents outside of their uniforms.')}
-  <p>That's the cold hard truth of the dialectic: Geist (as Hegel calls Spirit) is not focused on an individual nerve cell. All the samurai retainers acted rationally and made the right judgments. But when the world judged them incomplete, the guns were turned on them. The Owl of Minerva only appears at dusk: ${fnS('s10','we can only see the pattern in retrospect.')} The samurai built the very boot that would snap their necks. Would they have destroyed the Shogunate if they had known the result?${fnR('30','30')}</p>
+  <p>That's the cold hard truth of the dialectic: Geist (as Hegel calls Spirit) is not focused on an individual nerve cell. All the samurai retainers acted rationally and made the right judgments. But when the world judged them incomplete, the guns were turned on them. The Owl of Minerva only appears at dusk: ${fnS('s10','we can only see the pattern in retrospect.')} The samurai built the very boot that would snap their necks. Would they have destroyed the Shogunate if they had known the result?${fnR('28','28')}</p>
   ${fnB('s10',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s10').txt,'fn-secret')}
-  ${fnB('30','How could I be sure that I am not doing the same? Can I even see the unfolding well enough to, if not stop it, steer it?')}
+  ${fnB('28','How could I be sure that I am not doing the same? Can I even see the unfolding well enough to, if not stop it, steer it?')}
   ${p1Footer()}
   <div class="p1-page-nav">
-    ${nav('p1_s6','← VIII')}
-    ${nav('p1_s8','→ X')}
+    ${nav('p1_s6','← VII')}
+    ${nav('p1_s8','→ IX')}
   </div>
 </div>`,
 
 p1_s8:`<div class="essay paper">
-  <p class="section-label">X.</p>
+  <p class="section-label">IX.</p>
   <p>The problem with thinking is that you can't unthink. Theories feel less like something you hold and more something that has begun to hold you. If ideas really do become tools, then somewhere the tools <em>must</em> exist, continuing to do what they were built to do, whether anyone remembers the reason that built them or not.</p>
   <p>And once you suspect that, you start wanting to see them for yourself. To see the theory in action. To see its process. To see it continue.</p>
   <p>I worry that it is too late for me. That I already built the boot. But not knowing is worse. I want to know. I have to know.</p>
   ${p1Footer()}
   <div class="p1-page-nav">
-    ${nav('p1_s7','← IX')}
+    ${nav('p1_s7','← VIII')}
     ${nav('p2_intro','→ Part Two')}
   </div>
 </div>`,
@@ -1411,32 +1408,40 @@ p2_apartmentreveal2:`<div class="essay part2">
 /* ══ PART THREE ══ */
 p3_title:()=>{
   S.pressAKnight=0;S.waitFinalCount=0;
-  return `<div class="game">
+  return `<div class="game out-game">
   <p style="text-align:center;font-size:1.35rem;margin-bottom:.4em"><strong>Part Three</strong></p>
   <p style="text-align:center;font-style:italic;color:#999;margin-bottom:3em">[PROTOTYPE — working draft]</p>
-  <div class="game in-game">
-  ${nav('p3_boot1','→ Boot up your save')}
+  <div style="text-align:center">${nav('p3_boot1','→ Boot up your save')}</div>
 </div>`;},
 
 p3_boot1:()=>{
   S.playerLevel=2;
-  return `<div class="game in-game">
-${hud('SAVE FILE 1 &nbsp;|&nbsp; Chimera Cave')}
-${p('You try to remember where you left off. You need experience. You want to optimize your character. To win? To enjoy? To escape?')}
-  ${p('You think about the last thing you did in game. Farming chimeras in a cave.')}
-  ${p('Discord optimizers have run the numbers: it is the most efficient early game farm.')}
-  ${p('You stand in front of the cave.')}
-      ${nav('p3_grind1','→ Enter the cave')}
+  return `<div class="game in-game reveal-click"
+  data-labels="→ Remember">
+${hud('SAVE FILE 1 &nbsp;|&nbsp; The Drift')}
+${p('You awaken by a bonfire outside a cave. You try to remember what you were doing.')}
+  <div class="hidden">
+    <p>You were farming experience. To win? To enjoy? To escape?</p>
+    <p>Your time is limited. You need to optimize.</p>
+    <p>Luckily, the Discord theorycrafters already ran the numbers: killing chimeras in the cave is 32% more efficient than the next best farm at your level.</p>
+    </div>
+  <div class="choices">
+    <button class="choice-btn" data-action="revealNext">→ Remember</button>
+  </div>
+  <div class="after-reveal">
+    ${nav('p3_grind1','→ Enter the cave')}
+  </div>
   </div>`;},
 
 p3_grind1:()=>{
   S.playerLevel=2;
   return `<div class="game in-game reveal-click" 
-  data-labels="→ Swing|→ Swing|→ Sip|→ Swing|→ Swing">
-    ${hud('SAVE FILE 1 &nbsp;|&nbsp; Chimera Cave')}
+  data-labels="→ Swing|→ Swing|→ Swing|→ Sip|→ Swing">
+    ${hud('SAVE FILE 1 &nbsp;|&nbsp; Chimera Grotto')}
   ${p('You enter a rhythm. You become the game.')}
-  ${ph('Every button press is a slash with your greatsword. A roll. A swing. Experience. A shriek.')}
-  ${ph('The shrieks are drowned out by the soundtrack. Which is drowned out by your music. Which is drowned out by the podcast you are watching on your second monitor. Something about looksmaxxing? You barely notice it. You are lost in the game.')}
+  ${ph('Every button press is a slash with your greatsword. A roll. A swing. Experience.')}
+  ${ph('A shriek.')}
+  ${ph('Which is drowned out by the soundtrack. Which is drowned out by your music. Which is drowned out by the podcast you are watching on your second monitor. Something about looksmaxxing? You barely notice it. You are lost in the game.')}
   ${ph('You take a sip of Mountain Dew.')}
   ${ph('You kill another enemy.')}
   ${phl('You gain another level.')}
@@ -1451,7 +1456,7 @@ p3_timepasses1:()=>{
   S.playerLevel=6;
   return `<div class="game in-game reveal-click" 
   data-labels="→ Swing|→ Sip|→ Swing">
-    ${hud('SAVE FILE 1 &nbsp;|&nbsp; Chimera Cave')}
+    ${hud('SAVE FILE 1 &nbsp;|&nbsp; Chimera Grotto')}
   ${p('Another scream.')}
   ${phl('Another level.')} 
   ${ph('Another sip.')}
@@ -1468,7 +1473,7 @@ p3_timepasses2:()=>{
   S.playerLevel=10; 
   return `<div class="game in-game reveal-click"
    data-labels="→ Save|→ Sigh">
-      ${hud('SAVE FILE 1 &nbsp;|&nbsp; Chimera Cave')}
+      ${hud('SAVE FILE 1 &nbsp;|&nbsp; Chimera Grotto')}
 ${p('You hit level 10.  You leave the cave for the final time. You hope. Your character is optimized. You go to the Bonfire.')} 
 ${ph('You save the game. The clock reads 6:03.')}
 ${ph('You sigh.')} 
@@ -1532,16 +1537,19 @@ p3_work10:
 p3_boot_game1:()=>{ 
   S.playerLevel=10; 
   return`<div class="game in-game">
-  ${hud('SAVE FILE 1 &nbsp;|&nbsp; Bonfire')}
-  ${p('You awaken at the Bonfire.')}
-  ${nav('p3_feasthall1','→ Enter the Feast Hall')}
+  ${hud('SAVE FILE 1 &nbsp;|&nbsp; The Drift')}
+  ${p('You awaken at the Bonfire outside the cave.')}
+  ${p('You have leveled enough.')}
+    ${p('Its time to take on the boss.')}
+  ${nav('p3_feasthall1','→ Journey to the Feast Hall')}
 </div>`},
 
 p3_feasthall1:()=>{ 
   return `<div class="game in-game reveal-click" 
   data-labels="→ Swing">
   ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
-  ${p('Inside, you see tables overturned, food scattered, drinks spilled. Remnants of a hedonistic night you are left to imagine. The Countless Count stands, waiting.')}
+  ${p('Inside, you see tables overturned, food scattered, drinks spilled. Remnants of a hedonistic night you are left to imagine.')}
+  ${p('The Countless Count stands, waiting for your approach.')}
   ${ph('You swing.')}
     <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Swing</button>
@@ -1555,19 +1563,22 @@ p3_die1:()=>{
   S.playerLevel=10; 
   return`<div class="game in-game">
       ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
-      ${p('You die. You don\'t know the Count\'s attack pattern.')}${p('You are progressing.')}${nav('p3_die2','→ Respawn')}</div>`},
+      ${p('You die. You don\'t know the Count\'s attack pattern.')}
+      ${p('You hope you are progressing.')}${nav('p3_die2','→ Respawn')}</div>`},
   
 p3_die2:()=>{ 
   S.playerLevel=10; 
   return `<div class="game in-game">
       ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
-  ${p('You die. You don\'t understand the Count\'s attack pattern.')}${p('You are progressing.')}${nav('p3_die3','→ Respawn')}</div>`},
+  ${p('You die. You don\'t understand the Count\'s attack pattern.')}
+  ${p('You feel you are progressing.')}${nav('p3_die3','→ Respawn')}</div>`},
 
   p3_die3:()=>{ 
   S.playerLevel=10; 
   return `<div class="game in-game">
       ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
-  ${p('You die. At least you got to see the Count\'s second phase.')}${p('You are progressing.')}${nav('p3_count_dies','→ Respawn')}</div>`},
+  ${p('You die. At least you got to see the Count\'s second phase.')}
+  ${p('You know you are progressing.')}${nav('p3_count_dies','→ Respawn')}</div>`},
   
   
 p3_count_dies:()=>{ 
@@ -1606,7 +1617,7 @@ ${p('The knight does not react. He stands before you.')}
     <button class="choice-btn" data-action="pressAKnight1">[Interact]</button>
     <button class="choice-btn" data-action="pressRTKnight1">[Swing]</button>
     <p class="feedback" id="fb-a"></p>
-    <div id="bonfire-opt1" style="display:none;margin-top:1.2em">
+    <div id="bonfire-opt1" class="nav-locked" style="margin-top:1.2em">
       ${nav('p3_bonfire1','→ Enter Feast Hall')}
     </div>
   </div>
@@ -1614,12 +1625,14 @@ ${p('The knight does not react. He stands before you.')}
 
 p3_bonfire1:()=>`<div class="game in-game">
            ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
-  <p> Inside, the detritus of a party remains. You approach the Bonfire.</p>
+  <p> The party's detritus  remains strewn across the floor. There is no trace of the Count. </p>
+  <p> You approach the Bonfire. </p>
   ${nav('p3_daybreak','→  Save the Game')}</div>`,
 
 p3_daybreak:`<div class="game out-game">
-  <p> The workday passes in a blink of an eye. Subway. Work. Work. Work. Subway. Home.</p>
-  ${nav('p3_courtyard2','→ Boot up your save')}
+  <p> The workday passes in a blink of an eye.</p> 
+   <p> Subway. Work. Work. Work. Subway. Home.</p>
+  ${nav('p3_boot2','→ Boot up your save')}
 </div>`,
 
 p3_boot2:()=>{
@@ -1627,8 +1640,8 @@ p3_boot2:()=>{
   return `<div class="game in-game reveal-click"
   data-labels="→ Remember">
          ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
-  ${p('You try to remember where you left off. You need experience. You want to optimize your character. To win? To enjoy? To escape?')}
-  ${ph('You think about the last thing you did in game: killed the Count in the Feast Hall. The guides say that you should exit through the courtyard and into the Elysian Fields.')}
+  ${p('You awaken in a trashed feast hall. You try to remember what you were doing')}
+  ${ph('You killed the Count in the Feast Hall. The guides say that you should exit the Courtyard and enter the Elysian Fields.')}
         <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Remember</button>
   </div>
@@ -1655,7 +1668,7 @@ p3_ghost_knights:()=>{ return `<div class="game in-game reveal-click"
   data-labels="→ Die|→ Accept">
            ${hud('SAVE FILE 1 &nbsp;|&nbsp; Courtyard (Day)')}
  ${p('You pull some ghost knights from elsewhere in the courtyard towards her. They do not attack him. They do not see her. They focus on you instead.')}
- ${ph('You respawn back at the Feast Hall bonfire')}
+ ${ph('You respawn back at the Feast Hall Bonfire.')}
 ${ph('You are stuck.')}
   <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Die</button>
@@ -1679,7 +1692,7 @@ p3_wait1:()=>{
     <div id="after-speech-1" style="display:none">
       <button class="choice-btn" data-action="pressAAfterSpeech">[Interact]</button>
       <p class="feedback" id="fb-speech"></p>
-      <div id="bonfire-opt2" style="display:none;margin-top:1.2em">
+      <div id="bonfire-opt2" class="nav-locked" style="margin-top:1.2em">
         ${nav('p3_bonfire2','→ Enter Feast Hall')}
       </div>
     </div>
@@ -1702,16 +1715,30 @@ ${nav('p3_search1','→ Catch Subway')}
 p3_search1:`<div class="game out-game">
   <p>You spend your time at work searching online for solutions. No guide mentions her. The forums ask you what mods you are running. Your favorite AI model affirms that <em>you are so right</em>. It says <em>Go to a different zone. That should despawn her. Trust me.</em></p>
   <p>You do.</p>
-  ${nav('p3_grind2','→ Boot up your save')}
+  ${nav('p3_boot3','→ Boot up your save')}
 </div>`,
+
+p3_boot3:()=>{
+  return `<div class="game in-game reveal-click"
+  data-labels="→ Remember">
+  ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
+  ${p('You awaken in the Feast Hall. You try to remember what you were doing.')}
+  ${ph('A knight stood in your way. You are stuck. You feel helpless. You want to return to the comfort of the grind.')}
+    <div class="choices">
+    <button class="choice-btn" data-action="revealNext">→ Remember</button>
+  </div>
+  <div class="after-reveal">
+    ${nav('p3_grind2','→ Warp to the Grotto Bonfire')}
+  </div>
+</div>`;},
 
 p3_grind2:()=>{
   return `<div class="game in-game reveal-click"
   data-labels="→ Swing|→ Swing|→ Swing">
-  ${hud('SAVE FILE 1 &nbsp;|&nbsp; Chimera Cave')}
-  ${p('You are back at the cave. The chimeras have respawned, like they always do.')}
-  ${ph('You continue to grind. Gradually, the loop gets boring. Each kill gives less XP.')}
-  ${ph('Each kill becomes less satisfying. You continue anyways. This is what you\'ve been trained for.')}
+  ${hud('SAVE FILE 1 &nbsp;|&nbsp; Chimera Grotto')}
+  ${p('You warp to the Chimera grotto.')}
+  ${ph('You continue to grind. The loop gradually becomes unsatisfying as each kill gives less XP.')}
+  ${ph('You continue anyways. This is what you\'ve been trained for.')}
   ${phl('Another level. It means less than it used to.')}
   <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Swing</button>
@@ -1725,8 +1752,8 @@ p3_courtyard3:()=>{
   return `<div class="game in-game reveal-click"
   data-labels="→ Plead|→ Wait">
   ${hud('SAVE FILE 1 &nbsp;|&nbsp; Courtyard (Day)')}
-  ${p('You return to the Courtyard. She remains standing there, dressed in red and white and black. You sit before him.')}
-  <div class="hidden"><p>You plead with him to move. She stands there.</p><p>Tall. Faceless. Immovable.</p><p>You accept that you are stuck.</p></div>
+  ${p('You return to the Courtyard. The Knight remains, dressed in red and white and black.')}
+  <div class="hidden"><p>You plead with him to move. She stands there.</p><p>Tall. Faceless. Immovable.</p><p>You accept that you are stuck.</p><p>You sit before her.</p></div>
   ${ph('You wait.')}
   <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Plead</button>
@@ -1747,7 +1774,7 @@ p3_knight2:()=>{
     <button class="choice-btn" data-action="answerKnight">"To escape."</button>
     <button class="choice-btn" data-action="answerKnight">"I don't know."</button>
     <p class="feedback" id="fb-answer"></p>
-    <div id="bonfire-opt3" style="display:none;margin-top:1.2em">
+    <div id="bonfire-opt3" class="nav-locked" style="margin-top:1.2em">
       ${nav('p3_bonfire3','→ Enter Feast Hall')}
     </div>
   </div>
@@ -1798,7 +1825,7 @@ p3_grind3:()=>{
   S.playerLevel=1;
   return `<div class="game in-game reveal-click"
   data-labels="→ Smash">
-  ${hud('SAVE FILE 2 &nbsp;|&nbsp; Chimera Cave')}
+  ${hud('SAVE FILE 2 &nbsp;|&nbsp; Chimera Grotto')}
   ${p('You enter a rhythm. You become the game. Every button press is a swipe with your greatmace. A roll. A swing. Each chimera death grants experience. Its screams are drowned out by the soundtrack. Which is drowned out by your music. Which is drowned out by the video essay you are watching on your second monitor. Something about looksmaxxing? You barely notice it.')}
   ${phl('You are thinking about her.')}
   <div class="choices">
@@ -1871,7 +1898,7 @@ p3_life:()=>{
   ${fade('You get promoted and the only reward is more work.',4.0)}
   ${fade('The holidays. Family. Celebration.',5.6)}
   ${fade('You forget about the game.',7.2)}
-  ${fade('Life moved on.',8.6)}
+  ${fade('Life moves on.',8.6)}
   <a class="nav-link" data-go="p3_return" style="opacity:0;animation:fadeIn 1.0s ease 10.5s forwards;">→ Boot up Save</a>
 </div>`},
 
@@ -1880,14 +1907,15 @@ p3_return:()=>{
   return `<div class="game in-game reveal-click"
    data-labels="→ Think|→ Remember">
     ${hud('SAVE FILE 2 &nbsp;|&nbsp; Feast Hall')}
-${p('You try to remember where you left off. You need experience. You want to optimize your character. To win? To enjoy? To escape?')} 
+${p('You try to remember where you left off. You need experience. To win? To enjoy? To escape? To be satisfied?')} 
 ${ph('You try to remember the last thing you did in game.')}  
 ${ph('You can\'t. It has been too long.')}
         <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Think</button>
   </div>
   <div class="after-reveal">
-  ${nav('p3_courtyard5','Exit Feast Hall')}
+    ${nav('p3_courtyard5','Exit Feast Hall')}
+  </div>
 </div>`},
 
 p3_courtyard5:()=>{
