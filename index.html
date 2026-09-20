@@ -138,6 +138,9 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
   font-family:Georgia,serif;border-bottom:none;transition:opacity .2s;
 }
 .fn-ref:hover{opacity:.6}
+/* The postscript mark on the contents page: red, its own glyph, no box around the note. */
+.toc-dagger{color:var(--red)}
+.toc-card .fn-body{background:none;border:none;padding:0;margin:.75em 0 0;font-style:normal;font-size:.85rem;line-height:1.75;color:var(--dark)}
 .fn-body{
   display:none;background:#ede8dc;
   border-left:3px solid var(--teal);
@@ -197,9 +200,9 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
 }
 .t-btn:hover{background:var(--red);color:white}
 .t-btn:disabled{opacity:.3;cursor:default}
+.t-nav .nav-link{margin-top:0;margin-left:auto}
 
 /* ── GAME ── */
-.g-div{text-align:center;color:#bbb;margin:2em 0;letter-spacing:.25em;font-size:.8em}
 .hud{
   font-family:'Courier New',monospace;
   font-size:.78em;color:#aaa;
@@ -228,10 +231,14 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
 }
 .choice-btn:hover{opacity:.7}
 .choice-btn.dead{color:#bbb;cursor:default;pointer-events:none}
-.feedback{font-style:italic;color:#aaa;font-size:.9em;margin-top:.25em;display:none}
-.feedback.show{display:block}
+/* Reply lines hold their space while hidden (visibility, not display), so showing one never shifts the page */
+.feedback{font-style:italic;color:#aaa;font-size:.9em;margin-top:.25em;visibility:hidden}
+.feedback.show{visibility:visible}
+.feedback-line{font-style:italic;color:#aaa;font-size:.9em}
+.in-game .feedback-line{color:#887a56}
+.after-reveal .choices{margin-top:0}
+.toc-section-link{font-family:'Fjord One',Georgia,serif;font-size:.93rem}
 .nav-locked{opacity:0.3;pointer-events:none;transition:opacity 0.5s ease}
-.grind-log p{margin-bottom:.3em}
 /* ── IN-GAME vs OUT-OF-GAME ── */
 .in-game {
   font-family: 'Cormorant Garamond', serif;
@@ -240,7 +247,6 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
   border-radius: 4px;
   color: #d4c8a8;
 }
-.in-game .g-div { color: #665a3a; }
 .in-game .hud {
   font-family: 'MedievalSharp', serif;
   color: #887a56;
@@ -262,6 +268,10 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
   border-bottom-color: #b89e5a;
 }
 .in-game .feedback { color: #887a56; }
+/* .choice-btn.dead alone loses to the skins' own .choice-btn colours (same specificity, declared later),
+   so a spent button stayed gold while pointer-events:none quietly disabled it */
+.in-game .choice-btn.dead { color: #665a3a; border-bottom-color: #665a3a; }
+.out-game .choice-btn.dead { color: #bbb; border-bottom-color: #ddd; }
 
 .out-game {
   font-family: 'Times New Roman', Times, serif;
@@ -270,7 +280,6 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
   border-radius: 2px;
   color: #333;
 }
-.out-game .g-div { display: none; }
 .out-game .nav-link {
   color: #555;
   border-bottom-color: #aaa;
@@ -337,6 +346,8 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
 .fn-num{color:var(--teal);font-family:'Fjord One',Georgia,serif;margin-right:.35em}
 .fn-back{margin-left:.6em;color:var(--teal);text-decoration:none;border-bottom:1px solid transparent;cursor:pointer;font-size:.92em}
 .fn-back:hover{border-bottom-color:var(--teal);opacity:.85}
+.fn-compilation a[href]{color:var(--teal);text-decoration:none;border-bottom:1px solid transparent}
+.fn-compilation a[href]:hover{border-bottom-color:var(--teal);opacity:.85}
 
 .index-note{font-size:.92em;color:var(--mid);font-style:italic;margin:-.2em 0 1.4em}
 .index-list{column-count:2;column-gap:2.6em}
@@ -347,18 +358,6 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
 .index-refs a:hover{border-bottom-color:var(--teal);opacity:.85}
 
 /* ── END / QUIT SCREENS ── */
-.endscreen{
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;min-height:100vh;gap:.1em;
-}
-.end-choice{
-  font-family:'Courier New',Courier,monospace;
-  font-size:1.4rem;letter-spacing:.15em;
-  color:var(--red);background:none;border:none;
-  cursor:pointer;padding:.5em 1.5em;transition:opacity .3s;
-}
-.end-choice:hover{opacity:.55}
-.end-div{color:#ccc;font-size:1.1rem;margin:.15em 0;letter-spacing:.3em}
 .quit-screen{
   min-height:100vh;background:#000;
   display:flex;align-items:center;justify-content:center;
@@ -425,6 +424,13 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
   text-align:center;
   font-style:italic;
 }
+.plate figcaption a{color:var(--teal);text-decoration:none;border-bottom:1px solid transparent}
+.plate figcaption a:hover{border-bottom-color:var(--teal);opacity:.85}
+.plate figcaption a.plate-label{display:block;color:inherit;font-style:normal;font-variant:small-caps;letter-spacing:.08em;margin-bottom:.15em;border-bottom:none;cursor:pointer}
+.plate figcaption a.plate-label:hover{opacity:.7}
+.plate img[data-go]{cursor:pointer}
+.scroll-flash{animation:scrollFlash 1.8s ease}
+@keyframes scrollFlash{0%{background:rgba(26,122,138,.16)}100%{background:transparent}}
 .plate--narrow{
   max-width:360px;
   margin-left:auto;
@@ -434,10 +440,6 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
   max-width:520px;
   margin-left:auto;
   margin-right:auto;
-}
-.plate--photo img{
-  height:220px;
-  object-fit:cover;
 }
 .plate-grid{
   display:grid;
@@ -450,8 +452,17 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
 .plate-grid .plate{margin:0}
 @media (max-width:760px){
   .plate-grid.two{grid-template-columns:1fr}
-  .plate--photo img{height:auto}
 }
+
+/* ── PART TWO PLATES — photographic, uncaptioned ── */
+.plate--p2{margin:2.4em 0 2.7em}
+.plate--p2 img{
+  border:none;
+  box-shadow:0 14px 32px rgba(18,26,44,0.28);
+  background:#0d1118;
+}
+.plate--p2 figcaption{display:none}
+.plate--tall{max-width:440px;margin-left:auto;margin-right:auto}
 
 /* ── PART ONE: SIDENOTES ── */
 .fn-sn-label { display: none; }
@@ -489,6 +500,59 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
   }
 }
 
+/* ── SECRET SIDENOTES (left margin, red) ── */
+@media (min-width: 960px) {
+  .fn-body.fn-secret.sidenote-active {
+    text-align: left;
+    border-top: 1px solid rgba(139,0,0,0.45);
+    background: rgba(245,237,237,0.82);
+    color: #5e3535;
+  }
+  .fn-body.fn-secret.sidenote-active .fn-sn-label {
+    display: block;
+    color: var(--red);
+    font-style: italic;
+    opacity: .75;
+    font-size: .72em;
+    margin-bottom: .25em;
+  }
+}
+
+/* ── PART TWO: SIDENOTES ── */
+@media (min-width: 1040px) {
+  .essay.part2 { position: relative; overflow: visible; }
+  .part2 .fn-body.sidenote-active {
+    position: absolute;
+    width: 170px;
+    margin: 0;
+    border-left: none;
+    border-top: 1px solid rgba(154,122,106,0.55);
+    padding: .45em .7em .45em .55em;
+    text-align: right;
+    background: rgba(245,240,232,0.72);
+    font-size: .78em;
+    line-height: 1.5;
+  }
+  .part2 .fn-body.sidenote-active .fn-sn-label {
+    display: block;
+    font-style: normal;
+    font-size: .72em;
+    color: #9a7a6a;
+    opacity: .85;
+    margin-bottom: .2em;
+    font-family: 'Lora', Georgia, serif;
+  }
+}
+
+@media (min-width: 1220px) {
+  .part2 .fn-body.sidenote-active {
+    width: 200px;
+    font-size: .8em;
+    line-height: 1.52;
+    border-right: 1px solid rgba(154,122,106,0.28);
+  }
+}
+
 /* ── PART ONE: FOOTNOTE PROGRESS BAR ── */
 .fn-progress-wrap {
   height: 2px;
@@ -519,10 +583,152 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
 <script>
 const S={
   footnotesOpened:new Set(),
-  pressAKnight:0,waitFinalCount:0,
+  quit:false,                 // set by the QUIT ending; the contents page then grows a footnote
+  pressAKnight:0,
   terminalPage:0,
   playerLevel:1,
 };
+
+/* Reading-order registry of every non-secret footnote, built from the passages.
+   PART_TWO_PASSAGES lists Part Two's pages in reading order; Part One reuses the
+   PART_ONE_PASSAGES / PART_ONE_SECTIONS tables that already exist above. */
+const PART_TWO_PASSAGES=['p2_bar','p2_bar2','p2_descent1','p2_descent1b','p2_descent1c','p2_descent2',
+  'p2_descent2b','p2_descent2c','p2_terminal','p2_aftermath1','p2_return','p2_aftermath1b','p2_aftermath2',
+  'p2_leaving','p2_apartment','p2_girlfriend','p2_apartmentreveal1','p2_apartmentreveal2','p2_apartmentreveal3'];
+
+function buildNoteIndex(pages){
+  const out=[];
+  pages.forEach(go=>{
+    const raw=passages[go];
+    if(!raw)return;
+    const d=document.createElement('div');
+    d.innerHTML=(typeof raw==='function'?raw():raw);
+    const secEl=d.querySelector('.section-label');
+    const sec=PART_ONE_SECTIONS[go]||(secEl?secEl.textContent.replace(/\.$/,'').trim():'');
+    d.querySelectorAll('.fn-ref').forEach(ref=>{
+      const id=ref.dataset.fn;
+      if(id.startsWith('s'))return;                       // secrets are not indexed
+      const body=d.querySelector('#fn-'+id);
+      out.push({id,go,sec,txt:body?body.innerHTML.replace(/<span class="fn-sn-label">.*?<\/span>/,''):''});
+    });
+  });
+  out.forEach((f,i)=>f.n=i+1);
+  return out;
+}
+
+let P1_NOTES=null, P2_NOTES=null, NOTE_NUMBER=null;
+
+/* Built on first use: `passages` and PART_ONE_SECTIONS are declared later in the file. */
+/* Which footnotes the reader has opened, kept across visits. Wrapped in try/catch
+   because localStorage throws in private mode and on some file:// origins -- the
+   piece still works without it, it just forgets. */
+const PROGRESS_KEY='gestell.footnotesOpened.v1';
+
+/* Whether the reader has ever chosen QUIT. Its own key on purpose: the progress
+   payload is a bare array of note ids, so adding a field to it would break a
+   returning reader's save. */
+const QUIT_KEY='gestell.quit.v1';
+
+/* Footnote ids were numeric until the 2026-09 rename. Saved progress stores raw
+   ids and ensureNotes() prunes anything it no longer recognises, so a returning
+   reader's opened notes -- and any secrets their percentage had already
+   unlocked -- would silently reset without this translation. */
+const FN_ALIASES={
+  '1':'darwin','2':'hokey','3':'asymptote','4':'contingency','5':'cannonball',
+  '6':'wuwei','7':'marx','8':'virus','9':'religion','10':'peasants',
+  '11':'dutch','12':'tsushima','13':'okinawa','14':'rivalry','17':'emperor',
+  '18':'charter','19':'choiseul','20':'complicity','21':'norman',
+  '22':'recompense','23':'hands','24':'decisis','25':'haitorei',
+  '26':'transcended','27':'takamori','28':'unfolding'
+};
+
+function loadProgress(){
+  try{
+    const ids=JSON.parse(localStorage.getItem(PROGRESS_KEY)||'[]');
+    if(Array.isArray(ids))ids.forEach(id=>{
+      const k=String(id);
+      S.footnotesOpened.add(FN_ALIASES[k]||k);
+    });
+  }catch(e){}
+  try{S.quit=localStorage.getItem(QUIT_KEY)==='1';}catch(e){}
+}
+
+function saveProgress(){
+  try{
+    localStorage.setItem(PROGRESS_KEY,JSON.stringify([...S.footnotesOpened]));
+  }catch(e){}
+}
+
+/* Console helper: resetProgress() clears a saved run. */
+function resetProgress(){
+  try{localStorage.removeItem(PROGRESS_KEY);localStorage.removeItem(QUIT_KEY);}catch(e){}
+  S.quit=false;
+  S.footnotesOpened.clear();
+  document.querySelectorAll('.secret-ref.fn-revealed').forEach(r=>r.classList.remove('fn-revealed'));
+  updateFootnoteBar();
+}
+
+function ensureNotes(){
+  if(NOTE_NUMBER)return;
+  P1_NOTES=buildNoteIndex(PART_ONE_PASSAGES);
+  P2_NOTES=buildNoteIndex(PART_TWO_PASSAGES);
+  NOTE_NUMBER={};
+  [...P1_NOTES,...P2_NOTES].forEach(f=>{NOTE_NUMBER[f.id]=f.n;});
+  loadProgress();
+  // drop anything saved that is no longer a Part One footnote, so a deleted
+  // note can't keep counting toward the percentages
+  const valid=new Set(P1_NOTES.map(f=>f.id));
+  [...S.footnotesOpened].forEach(id=>{if(!valid.has(id))S.footnotesOpened.delete(id);});
+}
+
+function numberNotes(root){
+  ensureNotes();
+  root.querySelectorAll('.fn-ref').forEach(ref=>{
+    if(ref.classList.contains('fn-mark'))return;   // carries its own glyph and sits outside the numbering
+    const n=NOTE_NUMBER[ref.dataset.fn];
+    ref.textContent = n===undefined ? '?' : n;
+  });
+}
+
+/* Plate numbers work like footnote numbers: derived from reading order when a
+   page renders, never written into the essay. Moving, adding or replacing a
+   plate renumbers every caption and the Plates page by itself. */
+let P1_PLATES=null, PLATE_NUMBER=null;
+
+function ensurePlates(){
+  if(P1_PLATES)return;
+  P1_PLATES=[]; PLATE_NUMBER={};
+  PART_ONE_PASSAGES.forEach(go=>{
+    const raw=passages[go];
+    if(!raw)return;
+    const d=document.createElement('div');
+    d.innerHTML=(typeof raw==='function'?raw():raw);
+    d.querySelectorAll('figure.plate img').forEach(img=>{
+      const src=img.getAttribute('src'), n=P1_PLATES.length+1;
+      P1_PLATES.push({n,src,go,sec:PART_ONE_SECTIONS[go],
+        alt:img.getAttribute('alt')||'',credit:PLATE_CREDITS[IMG_KEY[src]]||''});
+      PLATE_NUMBER[src]=n;
+    });
+  });
+}
+
+function numberPlates(root){
+  ensurePlates();
+  root.querySelectorAll('figure.plate img').forEach(img=>{
+    const n=PLATE_NUMBER[img.getAttribute('src')];
+    if(n===undefined)return;                        // not a Part One plate
+    const fig=img.closest('figure');
+    let cap=fig.querySelector('figcaption');
+    if(!cap){cap=document.createElement('figcaption');fig.appendChild(cap);}   // bare plate
+    if(cap.querySelector('.plate-label'))return;
+    fig.id='plate-'+n;                              // "↩" on the Plates page scrolls back here
+    img.dataset.go='p1_plates';                     // the image, like its label, opens its entry
+    img.dataset.scroll='plate-entry-'+n;
+    cap.insertAdjacentHTML('afterbegin',`<a class="plate-label" data-go="p1_plates" data-scroll="plate-entry-${n}">Plate ${n}</a>`);
+  });
+}
+
+let PENDING_SCROLL=null;   // set by a link carrying data-scroll, consumed by go()
 
 function go(id, addHistory=true){
   if(addHistory) history.pushState(null,'','#'+id);
@@ -531,10 +737,17 @@ function go(id, addHistory=true){
   setTimeout(()=>{
     const p=passages[id];
     el.innerHTML=typeof p==='function'?p():p;
-    window.scrollTo(0,0);
+    numberNotes(el);
+    numberPlates(el);
+    window.scrollTo({top:0,behavior:'instant'});   // a new page starts at the top; html{scroll-behavior:smooth} would glide
     setTimeout(()=>{el.style.opacity='1'},20);
     bind();
     structureGame();
+    if(PENDING_SCROLL){                              // a plate link: land on its counterpart
+      const t=document.getElementById(PENDING_SCROLL);
+      PENDING_SCROLL=null;
+      if(t){t.scrollIntoView({block:'center',behavior:'instant'});t.classList.add('scroll-flash');}   // instant: html{scroll-behavior:smooth} would otherwise glide
+    }
     const mb=document.getElementById('menu-btn');
     if(mb) mb.style.display=(id==='title')?'none':'block';
     if(id==='p3_quit') document.body.style.background='#000';
@@ -543,12 +756,14 @@ function go(id, addHistory=true){
 }
 
 function updateFootnoteBar(){
-  const opened=S.footnotesOpened.size;
+  ensureNotes();
+  const total=P1_NOTES.length||1;
+  const pct=S.footnotesOpened.size/total*100;
   document.querySelectorAll('.fn-progress-fill').forEach(el=>{
-    el.style.width=(opened/28*100)+'%';
+    el.style.width=Math.min(100,pct)+'%';
   });
   Object.entries(SECRET_THRESHOLDS).forEach(([id,threshold])=>{
-    if(opened>=threshold){
+    if(pct>=threshold){
       const ref=document.querySelector(`.secret-ref[data-fn="${id}"]`);
       if(ref&&!ref.classList.contains('fn-revealed'))ref.classList.add('fn-revealed');
     }
@@ -556,54 +771,79 @@ function updateFootnoteBar(){
 }
 
 function resolveOverlaps(paper){
-  const notes=[...paper.querySelectorAll('.fn-body.sidenote-active.open')];
-  notes.sort((a,b)=>parseFloat(a.style.top||0)-parseFloat(b.style.top||0));
-  let floor=0;
-  notes.forEach(n=>{
-    let t=parseFloat(n.style.top||0);
-    if(t<floor)t=floor;
-    n.style.top=t+'px';
-    floor=t+n.offsetHeight+10;
+  // each margin stacks independently, or a left note would dodge a right one
+  ['sidenote-left','right'].forEach(side=>{
+    const notes=[...paper.querySelectorAll('.fn-body.sidenote-active.open')]
+      .filter(n=>side==='sidenote-left'
+        ? n.classList.contains('sidenote-left')
+        : !n.classList.contains('sidenote-left'));
+    // stack from each note's own anchor: a note pushed down keeps its place in the order
+    notes.sort((a,b)=>parseFloat(a.dataset.snTop||0)-parseFloat(b.dataset.snTop||0));
+    let floor=0;
+    notes.forEach(n=>{
+      let t=parseFloat(n.dataset.snTop||0);
+      if(t<floor)t=floor;
+      n.style.top=t+'px';
+      floor=t+n.offsetHeight+10;
+    });
   });
 }
 
+function sidenoteHost(el){
+  const host=el.closest('.paper, .essay.part2');
+  if(!host)return null;
+  const min=host.classList.contains('part2')?1040:960;
+  return window.innerWidth<min?null:host;
+}
+
 function positionSidenote(fnBody,fnRef){
-  if(window.innerWidth<960||!fnBody)return;
-  const paper=fnBody.closest('.paper');
+  if(!fnBody)return;
+  const paper=sidenoteHost(fnBody);
   if(!paper)return;
+  const lbl=fnBody.querySelector('.fn-sn-label');
+  if(lbl&&fnRef)lbl.textContent=fnRef.textContent;
   if(!fnBody.classList.contains('open')){
-    fnBody.classList.remove('sidenote-active');
+    fnBody.classList.remove('sidenote-active','sidenote-left');
     fnBody.style.top='';
     fnBody.style.left='';
+    delete fnBody.dataset.snTop;
     resolveOverlaps(paper);
     return;
   }
   const paperRect=paper.getBoundingClientRect();
   const refRect=fnRef.getBoundingClientRect();
-  const top=Math.max(0,refRect.top-paperRect.top);
-  fnBody.style.top=top+'px';
-  fnBody.style.left=(paperRect.width+14)+'px';
+  fnBody.dataset.snTop=Math.max(0,refRect.top-paperRect.top);   // the anchor; resolveOverlaps sets style.top
+  // secret notes hang in the left margin, ordinary ones in the right
+  const left=fnRef.classList.contains('secret-ref');
+  fnBody.classList.toggle('sidenote-left',left);
   fnBody.classList.add('sidenote-active');
+  fnBody.style.left = left
+    ? (-fnBody.offsetWidth-14)+'px'      // measured after the class is applied
+    : (paperRect.width+14)+'px';
   resolveOverlaps(paper);
 }
 
 function bind(){
   document.querySelectorAll('[data-go]').forEach(el=>{
-    el.addEventListener('click',e=>{e.preventDefault();go(el.dataset.go)});
+    if(el._boundGo)return; el._boundGo=true;       // bind() runs again after a reveal
+    el.addEventListener('click',e=>{e.preventDefault();PENDING_SCROLL=el.dataset.scroll||null;go(el.dataset.go)});
   });
   document.querySelectorAll('[data-fn]').forEach(el=>{
+    if(el._boundFn)return; el._boundFn=true;
     el.addEventListener('click',()=>{
       const id=el.dataset.fn;
       const b=document.getElementById('fn-'+id);
       if(b)b.classList.toggle('open');
-      if(!S.footnotesOpened.has(id)&&!id.startsWith('s')){
+      if(!S.footnotesOpened.has(id)&&!id.startsWith('s')&&!id.startsWith('b')){
         S.footnotesOpened.add(id);
+        saveProgress();
         updateFootnoteBar();
       }
       positionSidenote(b,el);
     });
   });
   document.querySelectorAll('[data-action]').forEach(el=>{
+    if(el._boundAct)return; el._boundAct=true;
     el.addEventListener('click',()=>actions[el.dataset.action](el));
   });
   // Inject progress bar into any Part One .paper page
@@ -645,14 +885,21 @@ const p1Footer=()=>
     <a class="p1-footer-link" data-go="p1_footnotes">Footnotes</a>
     <span class="p1-footer-sep">·</span>
     <a class="p1-footer-link" data-go="p1_index">Index</a>
+    <span class="p1-footer-sep">·</span>
+    <a class="p1-footer-link" data-go="p1_plates">Plates</a>
   </div>`;
-const fnR=(id,n)=>
-  `<sup class="fn-ref" data-fn="${id}">${n}</sup>`;
+/* Footnote markers carry no number in the source. Numbers, section labels and
+   back-links are all derived from the essay itself by buildNoteIndex() once the
+   passages exist -- so the compiled footnote page can never disagree with the
+   text, and inserting or deleting a note renumbers everything automatically. */
+const fnR=(id)=>`<sup class="fn-ref" data-fn="${id}"></sup>`;
+/* The label is filled in by positionSidenote() with the derived number; it is
+   display:none until then. Emitting the raw id here would print it verbatim
+   ("darwin") if that ever failed, so it starts empty. */
 const fnB=(id,txt,extra='')=>
-  `<div class="fn-body${extra?' '+extra:''}" id="fn-${id}"><span class="fn-sn-label">${id}</span>${txt}</div>`;
+  `<div class="fn-body${extra?' '+extra:''}" id="fn-${id}"><span class="fn-sn-label"></span>${txt}</div>`;
 const fnS=(id,txt)=>
   `<span class="secret-ref" data-fn="${id}">${txt}</span>`;
-const gdiv=`<div class="g-div">———</div>`;
 const hr=`<hr class="sect">`;
 const p=(txt)=>`<p>${txt}</p>`;
 const ph=(txt)=>`<p class="hidden">${txt}</p>`;
@@ -675,6 +922,10 @@ const IMG={
   cybersynCard:'images/landing-part2-cybersyn-card.jpg',
   knightCard:'images/landing-part3-knight-card.jpg',
   perry:'images/p1-perry.jpg',
+  velazquez:      'images/p1-velazquez-eggs.jpg',
+  davidAlps:      'images/p1-david-alps.jpg',
+  kingston:       'images/p1-hakewill-kingston.jpg',
+  lascaux:        'images/p1-lascaux.jpg',
   armies:'images/p1-japanese-military-review.jpg',
   ambassadors:'images/p1-japanese-mission-1860.jpg',
   mars: 'images/p1-tres-riches-heures-mars.jpg',
@@ -685,70 +936,105 @@ const IMG={
   courtesan:'images/p1-american-courtesan.jpg',
   diagram: 'images/slaveshipdiagram.jpg',
   shiroyama:'images/ShiroyamaBattle.jpg',
-  cameo: 'images/manandbrother.jpg'
+  cameo: 'images/manandbrother.jpg',
+  p2Skyline:'images/p2-skyline.jpg',
+  p2Bar:'images/p2-bar.jpg',
+  p2Towers:'images/p2-towers.jpg',
+  p2Street:'images/p2-street-astoria.jpg',
+  p2Stairs1:'images/p2-stairs-1.jpg',
+  p2Stairs2:'images/p2-stairs-2.jpg',
+  p2Stairs3:'images/p2-stairs-3.jpg'
 };
-const fig=(src,alt,caption,cls='')=>
-  `<figure class="plate ${cls}"><img src="${src}" alt="${alt}" loading="lazy"><figcaption>${caption}</figcaption></figure>`;
+/* Real pixel dimensions, so the browser reserves space before an image decodes
+   and the text underneath stops jumping as plates load. */
+const IMG_DIMS={
+  'images/ShiroyamaBattle.jpg':[1300,880],
+  'images/hunters.jpg':[1200,854],
+  'images/landing-part1-sunface-card.jpg':[960,1493],
+  'images/landing-part2-cybersyn-card.jpg':[2048,1572],
+  'images/landing-part3-knight-card.jpg':[1203,1493],
+  'images/manandbrother.jpg':[640,730],
+  'images/p1-velazquez-eggs.jpg':[1300,1099],
+  'images/p1-david-alps.jpg':[1088,1300],
+  'images/p1-hakewill-kingston.jpg':[1300,897],
+  'images/p1-lascaux.jpg':[1280,850],
+  'images/p1-american-courtesan.jpg':[402,600],
+  'images/p1-boxers.jpg':[1271,650],
+  'images/p1-japanese-military-review.jpg':[1326,650],
+  'images/p1-japanese-mission-1860.jpg':[768,539],
+  'images/p1-military-drill.jpg':[1238,600],
+  'images/p1-perry.jpg':[310,600],
+  'images/p1-satsuma-students.jpg':[400,285],
+  'images/p1-tres-riches-heures-mars.jpg':[1144,1847],
+  'images/p1-turner-slave-ship.jpg':[1280,961],
+  'images/p2-bar.jpg':[1300,974],
+  'images/p2-skyline.jpg':[1300,867],
+  'images/p2-stairs-1.jpg':[900,1350],
+  'images/p2-stairs-2.jpg':[900,1350],
+  'images/p2-stairs-3.jpg':[900,1350],
+  'images/p2-street-astoria.jpg':[1300,867],
+  'images/p2-towers.jpg':[1300,867],
+  'images/slaveshipdiagram.jpg':[1016,1024],
+};
+
+const fig=(src,alt,caption,cls='')=>{
+  const d=IMG_DIMS[src];
+  const dim=d?` width="${d[0]}" height="${d[1]}"`:'';
+  /* A bare plate (empty caption) emits no figcaption at all — an empty one
+     would still carry .plate figcaption’s margin-top and leave a gap.
+     numberPlates() adds one at render time holding just the plate number. */
+  const cap = caption ? `<figcaption>${caption}</figcaption>` : '';
+  return `<figure class="plate ${cls}"><img src="${src}" alt="${alt}"${dim} loading="lazy">${cap}</figure>`;
+};
 const figPair=(items,cls='two')=>
   `<div class="plate-grid ${cls}">${items.map(it=>fig(it.src,it.alt,it.caption,it.cls||'')).join('')}</div>`;
+const figP2=(src,alt,w,h,cls='')=>
+  `<figure class="plate plate--p2 ${cls}"><img src="${src}" alt="${alt}" width="${w}" height="${h}" loading="lazy"></figure>`;
 
-const PART_ONE_FOOTNOTES=[
-  {id:'1',n:'1',sec:'I',go:'p1_s1',txt:`Does Darwin mimic Hegel or vice versa? Is our reasoning imposing on reality or does reality shape our reasoning?`},
-  {id:'2',n:'2',sec:'I',go:'p1_s1',txt:`The stove comparison is a little imprecise and hokey. But it is really hard to come up with something that doesn't exist and explore its conceptual history.`},
-  {id:'3',n:'3',sec:'II',go:'p1_s2',txt:`I think it's probably more asymptotic: not sure we will ever get there. More importantly, perhaps, would we like the experience of perfection? I worry it would be like Jyggalag: pure frozen order. Lifeless and grey. The Coldest Iron Cage.`},
-  {id:'4',n:'4',sec:'II',go:'p1_s2',txt:`Hegel thought that nature had a rationality of its own, but it was "cloaked under contingency". To me, the ability to recognize abstract structures or patterns is a power of man. This is reflexivity.`},
-  {id:'5',n:'5',sec:'II',go:'p1_s2',txt:`Perhaps less so in the hard sciences and more so in the more subjective social sciences. A cannonball dropped from a leaning tower does not analyze its own trajectory down but a human certainly does. Goodhart captured this problem with his eponymous law.`},
-  {id:'6',n:'6',sec:'II',go:'p1_s2',txt:`And in the long run, we are all dead. Perhaps worrying about all this is pointless. Just let things unfold and enjoy the ride. Wu Wei?`},
-  {id:'7',n:'7',sec:'III',go:'p1_s3',txt:`If applied as Marx did, Polemics. His writings are an argument about the way the world will change. Hyperstition?`},
-  {id:'8',n:'8',sec:'III',go:'p1_s3',txt:`Burroughs said something like "language is a virus from outer space," which is either an overstatement or the most accurate sentence in English.`},
-  {id:'9',n:'9',sec:'III',go:'p1_s3',txt:`This power is why thinkers from Confucius to Machiavelli to Weber have treated religion as a tool for structuring political life: it forces people into habit. And habit becomes reason.`},
-  {id:'10',n:'10',sec:'IV',go:'p1_s4',txt:`There were plenty of peasants who didn't think so. But they didn't win. Mere footnotes.`},
-  {id:'11',n:'11',sec:'IV',go:'p1_s4',txt:`Of course, the Dutch King's letter wasn't some sort of generous gift: it was a rational act to try and resolve the tension brewing between Japan's isolationism and Britain's gunboat free trade in Asia. Reasoning is fractal.`},
-  {id:'12',n:'12',sec:'IV',go:'p1_s4',txt:`Japan was recognized as "Western" when it defeated Russia in 1905. But then it was different again in 1945. You get my drift. All this just because they saw Perry come across the horizon with a few black ships.`},
-  {id:'13',n:'13',sec:'IV',go:'p1_s4',txt:`Today's Okinawa. Funny how the Americans ended up there eh?`},
-  {id:'14',n:'14',sec:'IV',go:'p1_s4',txt:`Some scholars attribute the infamous Imperial Japanese army/navy interservice rivalry to this split. You could also argue that this represents the dual consciousness of Meiji Japan: British naval-liberal constitutionalism juxtaposed with Prussian army-junker militarism.`},
-  {id:'15',n:'15',sec:'IV',go:'p1_s4',txt:`Of course, this flattens things a little. The Shogunate understood the stakes but were more constrained by tradition and less desperate. There is a great picture of a bunch of traditionally dressed Shogunate samurai hanging out in DC during the American Civil War. The Satsuma youth, for their part, cut their hair and wore the suits.`},
-  {id:'16',n:'16',sec:'IV',go:'p1_s4',txt:`In their official portraits. Traditional Japanese culture persisted of course. But even that would be challenged and altered. The emergence of State Shinto and the suppression of Buddhism (Haibutsu kishaku) demonstrates this.`},
-  {id:'17',n:'17',sec:'V',go:'p1_s4b',txt:`Never mind that the Emperor had been sidelined by the Shogun during the great period of peace when the foreigners were completely restricted.`},
-  {id:'18',n:'18',sec:'V',go:'p1_s4b',txt:`The Charter Oath of 1868 was a self-conscious attempt to become modern. It promised: democracy, equality, progress. In reality: oligarchy, stratification, progress.`},
-  {id:'19',n:'19',sec:'V',go:'p1_s4b',txt:`Flattening a bit again: the real moment was at Tsushima and Mukden in 1905 but with hindsight the turning point is clear. Asia had been successfully "Thrown off".`},
-  {id:'20',n:'20',sec:'VI',go:'p1_s5',txt:`Of course, the African kingdoms were also complicit, but it was a rational complicity. They were making judgments too. Those who did not participate in slave taking would become slaves of their neighbors who did.`},
-  {id:'21',n:'21',sec:'VI',go:'p1_s5',txt:`Never mind that it was the Norman Conquest that finished off slavery. Perhaps the Norman Yoke was not all that much of a yoke. As much as I like Tolkien, I can't help but feel his romantic English Nationalism is a more palatable version of Heidegger's Black Forest Naziism.`},
-  {id:'22',n:'22',sec:'VII',go:'p1_s6',txt:`Don't feel too bad for the slaveowners: they received a healthy recompense from the British treasury. The freed slaves got nothing.`},
-  {id:'23',n:'23',sec:'VII',go:'p1_s6',txt:`Except the Congolese whose hands had been chopped off by Leopold's Force Publique. La plus ça change…`},
-  {id:'24',n:'24',sec:'VII',go:'p1_s6',txt:`In other words: if the case was rightly decided, then there is no need to validate it. Decisions only need stare decisis if they are wrong in some way. If interpretation relies on induction, but the deductive principles can be changed, then induction-based judgments are unstable. Consider a piece of precedent the court will overrule: Congress assumes it is constitutional and writes a bill in accordance with it. How could it determine the law is unconstitutional before the Court ruled it so?`},
-  {id:'25',n:'25',sec:'VIII',go:'p1_s7',txt:`This was known as the Haitōrei. Of course, the Daimyos were allowed to keep their swords. No proper European Aristocrat would be caught dead without one.`},
-  {id:'26',n:'26',sec:'VIII',go:'p1_s7',txt:`The peasants transcended their footnote status. Now the turn of samurai.`},
-  {id:'27',n:'27',sec:'VIII',go:'p1_s7',txt:`And then the Meiji oligarchs used him as a great example of Japanese honor and determination.`},
-  {id:'28',n:'28',sec:'VIII',go:'p1_s7',txt:`How could I be sure that I am not doing the same? Can I even see the unfolding well enough to, if not stop it, steer it?`},
-]
+/* Formal credits for the Plates page, keyed by IMG name rather than file path,
+   so swapping in a better scan only changes its path in IMG (and its size in
+   IMG_DIMS). A plate with no entry falls back to its alt text on that page. */
+const PLATE_CREDITS={
+  velazquez:'Diego Velázquez, <em>Old Woman Frying Eggs</em> (1618).',
+  davidAlps:'Jacques-Louis David, <em>Bonaparte Crossing the Alps</em> (1801).',
+  lascaux:'Lascaux IV, Montignac. Photo © <a href="https://commons.wikimedia.org/wiki/File:Lascaux-IV_01.jpg" target="_blank" rel="noopener">Traumrune / Wikimedia Commons</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a>.',
+  mars:'<em>March</em>, from the <em>Très Riches Heures du Duc de Berry</em> (c. 1412–1416).',
+  kingston:'James Hakewill, <em>Kingston and Port Royal, from Windsor Farm</em> (1825).',
+  slaveShip:'J.M.W. Turner, <em>Slavers Throwing overboard the Dead and Dying</em> (1840).',
+  cameo:'William Hackwood for Josiah Wedgwood, <em>Am I Not a Man And A Brother?</em> (1787).',
+  diagram:'Stowage plan of the slave ship <em>Brooks</em>, printed by the Society for Effecting the Abolition of the Slave Trade (1788).'
+};
+const IMG_KEY=Object.fromEntries(Object.entries(IMG).map(([k,v])=>[v,k]));
 
+/* Percentage of Part One's footnotes opened, not a raw count -- so adding or
+   removing footnotes rescales every unlock instead of breaking it. Values below
+   reproduce the original unlock counts, set when Part One had 28 notes. */
 const SECRET_THRESHOLDS={
-  's2': 2,  // "we live in a society" — light/early
-  's6': 5,  // "They gradually incorporate..." — reflective
-  's3': 8,  // "Back in college..." — nostalgic
-  's7':11,  // "An endless confrontation." — existential
-  's1':14,  // "She thinks about it..." — intimate
-  's9':17,  // "Another win for rationality." — cynical
-  's5':20,  // "It was an arms race..." — historical
-  's10':22, // "we can only see the pattern..." — epistemological
-  's4':24,  // "High literacy..." — scholarly
-  's11':27, // "It is a story we tell ourselves..." — meaning-making
-  's8':30,  // "Gravity. Force." — last unlock
+  's2':  7,  // "we live in a society" — light/early
+  's6': 17,  // "Gradually we learn from our mistakes." — reflective
+  's3': 28,  // "Back in college..." — nostalgic
+  's7': 39,  // "An endless confrontation." — existential
+  's1': 50,  // "She thinks about it..." — intimate
+  's9': 60,  // "Another win for rationality." — cynical
+  's5': 71,  // "It was an arms race..." — historical
+  's10':78,  // "we can only see the pattern..." — epistemological
+  's4': 85,  // "High literacy..." — scholarly
+  's11':96,  // "It is a story we tell ourselves..." — meaning-making
+  's8':107,  // "Gravity. Force." — last unlock; >100 so still unreachable, as before
 };
 
 const PART_ONE_SECRET_FOOTNOTES=[
   {id:'s1',sec:'I',go:'p1_s1',txt:`I wish I had understood the value of her creative mindset during our time together. I only realized how rare it was when she had finally left. Spending so much time with her made it seem so natural, almost quotidian. I took it for granted. I've been paying for this mistake for years.`},
-  {id:'s2',sec:'I',go:'p1_s1',txt:`A classic meme from a more innocent time. I try to slip this in to most of the things I write. Its also generally true, which makes it better. We really do live in a society!`},
+  {id:'s2',sec:'II',go:'p1_s2',txt:`A classic meme from a more innocent time. I try to slip this into most of the things I write. It's also generally true, which makes it better. We really do live in a society!`},
   {id:'s3',sec:'III',go:'p1_s3',txt:`The realization that people in the past likely experienced the world in ways that we cannot comprehend stuck with me for years. It made me a lot more humble about my place in the world. That should be what college gives you: the ability to see beyond your time and place. Maybe that perspective is Geist.`},
-  {id:'s4',sec:'IV',go:'p1_s4',txt:`I found the MIT visualizing cultures website while living with my parents during the covid years. By that point, the website was more than 10 years old. In many ways, it was deprecated: the webdesign was primitive and didn't always work great. But the content was unparalleled. The essays were clear and cogent. The accompanying images grounded the claims in real art history. It proved its point intellectually and visually. History at its best.`},
-  {id:'s5',sec:'V',go:'p1_s4b',txt:`My friends and I played a lot of Victoria II in college. Mostly modded with HPM or PDM. No game has captured the rational trap of the 19th century better. You need to become stronger to survive against rival countries. But the cost is not just abstract: your troops and pops actually die in battle and are removed from the game. When the world wars start up, Piketty's point becomes clear: the welfare states of Europe were paid for in blood.`},
-  {id:'s6',sec:'II',go:'p1_s2',txt:`I keep forcing myself to believe that I am learning from my mistakes. Considering how things have gone, I'm not sure I should. But that doesn't relieve me of the burden of striving.`},
-  {id:'s7',sec:'III',go:'p1_s3',txt:`The hardest thing about life is looking forward and realizing that every future day is likely more of the same boring grind. At a certain point it feels pointless. A pie eating contest where the prize is more pie. And I've eaten a lot of pie.`},
+  {id:'s4',sec:'IV',go:'p1_s4',txt:`I found the MIT Visualizing Cultures website while living with my parents during the covid years. By that point, the website was more than 10 years old. In many ways, it was deprecated: the web design was primitive and didn't always work great. But the content was unparalleled. The essays were clear and cogent. The accompanying images grounded the claims in real art history. It proved its point intellectually and visually. History at its best.`},
+  {id:'s5',sec:'V',go:'p1_s4b',txt:`My friends and I played a lot of <em>Victoria II</em> in college. Mostly modded with HPM or PDM. No game has captured the rational trap of the 19th century better. You need to become stronger to survive against rival countries. But the cost is not just abstract: your troops and pops actually die in battle and are removed from the game. When the world wars start up, Piketty's point becomes clear: the welfare states of Europe were paid for in blood.`},
+  {id:'s6',sec:'II',go:'p1_s2',txt:`I have to believe that I am learning. Considering how things have gone, I'm not sure I should. But that doesn't make the burden any lighter.`},
+  {id:'s7',sec:'III',go:'p1_s3',txt:`The hardest thing about life is looking forward and realizing that every future day is likely more of the same boring grind. At a certain point it feels pointless. A pie-eating contest where the prize is more pie. And I've eaten a lot of pie.`},
   {id:'s8',sec:'VI',go:'p1_s5',txt:`[Weil quote TBD + link]`},
-  {id:'s9',sec:'VI',go:'p1_s5',txt:`Reason is scary because it can justify almost anything as long as the priors are set up right. And humans are very good at setting up the board. I still eat meat despite knowing the actual moral cost.`},
-  {id:'s10',sec:'VIII',go:'p1_s7',txt:`Prophecy, modeling, hyperstition. All are ways to try and make the pattern legible and impose it on reality. But we don't know what we don't know. Unknown unknowns and black swans. Its why I feel the need to verify everything for myself. I feel like I'm the only person I can really trust.`},
-  {id:'s11',sec:'VII',go:'p1_s6',txt:`We try to avoid the fact that the world is fundamentally unstructured chaos. We try to organize our lives to make it bearable. If we fail, we are forced to confront our own mortality and how little control we have. I always end up thinking back to Snowden's secret in Catch 22. Man is just matter. Push him off a bridge and he will fall. Light him on fire and he will burn. There is nothing sacred about meat. We can die at any moment for any reason. But sometimes you just need to hang out with friends and play some backgammon.`},
+  {id:'s9',sec:'VI',go:'p1_s5',txt:`Reason is unnerving because it can justify almost anything as long as the priors are set up right. And humans are very good at setting up the board. I still eat meat despite knowing the actual moral cost. What is your tolerance for hypocrisy?`},
+  {id:'s10',sec:'VIII',go:'p1_s7',txt:`Prophecy, modeling, hyperstition. All are ways to try and make the pattern legible and impose it on reality. But we don't know what we don't know. Unknown unknowns and black swans. It's why I feel the need to verify everything for myself. I feel like I'm the only person I can really trust.`},
+  {id:'s11',sec:'VII',go:'p1_s6',txt:`We try to avoid the fact that the world is fundamentally unstructured chaos. We try to organize our lives to make it bearable. If we fail, we are forced to confront our own mortality and how little control we have. I always end up thinking back to Snowden's secret in <em>Catch-22</em>. Man is just matter. Push him off a bridge and he will fall. Light him on fire and he will burn. There is nothing sacred about meat. We can die at any moment for any reason. But sometimes you just need to hang out with friends and play some backgammon.`},
 ];
 
 const PART_ONE_PASSAGES=['p1_s1','p1_s2','p1_s3','p1_s4','p1_s4b','p1_s5','p1_s6','p1_s7','p1_s8'];
@@ -756,18 +1042,20 @@ const PART_ONE_SECTIONS={p1_s1:'I',p1_s2:'II',p1_s3:'III',p1_s4:'IV',p1_s4b:'V',
 
 // Curated term list (index anchors are sections, not page numbers)
 const PART_ONE_INDEX_TERMS=[
+  'Napoleon','Congress of Vienna','Ghetto','Code de l’indigénat','Tippu Tip','Zanzibar','Stanley Falls','Somerset v Stewart','Quakers','Jasperware','Slaughter-bench','Gatling','Bushido','Geist','Lex Rhodia',
+
   'Aufhebung','Sublation','Hegel','Hegelian Dialectic','Dialectic','Rationality','Reason','Freedom',
-  'Induction','Deduction','Judgment','Reflexivity','Contingency','Nature','Hume','Nietzsche',
+  'Induction','Deduction','Judgment','Reflexivity','Contingency','Nature','Hume',
   'Law','Institutions','Ideas','Tools','Metrics','History','Enlightenment',
   'Tokugawa','Japan','Shogunate','Peace','Commoners','Foreigners',
-  'Opium Wars','China','Europe','Fiscal-Military','Dutch King','Admiral Perry','Black Ships','Tokyo Bay',
+  'Opium Wars','China','Europe','Fiscal-Military','Dutch King','Commodore Perry','Black Ships','Tokyo Bay',
   'Satsuma','Choshu','Ryukyu','Okinawa','Sat-Cho alliance','Conscript army',
-  'Meiji','Boshin War','Sonno-Joi','Charter Oath','Zaibatsu','Schumpeter','Creative destruction',
+  'Meiji','Boshin War','Sonno-Joi','Charter Oath','Zaibatsu','Schumpeterian','Creative destruction',
   'Korea','Nanjing','Unit 731','Eight-Nation Alliance','Boxers','Tsushima','Mukden',
-  'Middle Passage','Zong','Asiento','New Spain','encomienda',"Lloyd's",'General Average','Sainte Domingue',
+  'Middle Passage','Zong','Asiento',"Lloyd's",'General Average','Saint-Domingue',
   'Olaudah Equiano','Granville Sharp','Josiah Wedgwood','Abolition','Berlin Conference','Leopold II','Congo Free State','Force Publique',
-  'Teleology','Theodicy','stare decisis',
-  'Sekigahara','Sengoku','Toyotomi','Tokugawa Ieyasu','Tozama','Edo','Sankin-kōtai','Mori Clan','Hideyoshi','Honshu',
+  'Theodicy',
+  'Sekigahara','Tozama','Sankin-kōtai','Mori Terumoto','Hideyoshi',
   'Saigo Takamori','Haitōrei','Shiroyama','Krupp','Owl of Minerva',
   'Confucius','Machiavelli','Weber'
 ];
@@ -785,6 +1073,7 @@ const actions={
   pressAKnight1(btn){
     S.pressAKnight++;
     const fb=document.getElementById('fb-a');
+    if(fb)fb.style.minHeight=fb.offsetHeight+'px';   // hold the reserved height so the shorter reply doesn't shift the page
     if(fb){fb.textContent='Nothing happens.';fb.classList.add('show');}
     if(S.pressAKnight>=2){
       const b=document.getElementById('bonfire-opt1');
@@ -794,34 +1083,13 @@ const actions={
 
   pressRTKnight1(btn){
     const fb=document.getElementById('fb-a');
+    if(fb)fb.style.minHeight=fb.offsetHeight+'px';
     if(fb){fb.textContent='Your character swings. No health bar appears. No stagger occurs. He stands there.';fb.classList.add('show');}
     const b=document.getElementById('bonfire-opt1');
     if(b)b.classList.remove('nav-locked');
   },
 
-  waitKnight2(btn){
-    S.pressAKnight++;
-    const txt=document.getElementById('wait-txt');
-    if(!txt)return;
-    if(S.pressAKnight===1){
-      txt.innerHTML='You just sit there. Before her. You watch — you turn your attention from your character\'s idle animations and towards the podcast. You can wait. You\'ve been trained for it.';
-    } else if(S.pressAKnight===2){
-      txt.innerHTML='You wait. The knight has not moved.';
-      const sp=document.getElementById('knight-speech-1');
-      if(sp)sp.style.display='block';
-      btn.style.display='none';
-      const nxt=document.getElementById('after-speech-1');
-      if(nxt){nxt.style.display='block';bind();}
-    }
-  },
 
-  pressAAfterSpeech(btn){
-    const fb=document.getElementById('fb-speech');
-    if(fb){fb.textContent='Nothing happens. No text box appears. She does not react.';fb.classList.add('show');}
-    const b=document.getElementById('bonfire-opt2');
-    if(b)b.classList.remove('nav-locked');
-    btn.style.display='none';
-  },
 
   answerKnight(btn){
     const fb=document.getElementById('fb-answer');
@@ -829,26 +1097,6 @@ const actions={
     document.querySelectorAll('[data-action="answerKnight"]').forEach(b=>b.classList.add('dead'));
     const bonfire=document.getElementById('bonfire-opt3');
     if(bonfire)bonfire.classList.remove('nav-locked');
-  },
-
-  waitFinal(btn){
-    S.waitFinalCount++;
-    const c=document.getElementById('wait-final-container');
-    if(!c)return;
-    if(S.waitFinalCount===1){
-      c.innerHTML+=`<p>The knight does not say anything else.</p><p>You wait.</p>`;
-    } else if(S.waitFinalCount===2){
-      c.innerHTML+=`<p>You wait.</p>`;
-    } else if(S.waitFinalCount===3){
-      c.innerHTML+=`<p>You fall asleep at your computer. You do not remember your own dreams.</p><p>The knight is still there.</p>`;
-      btn.style.display='none';
-      const link=document.createElement('a');
-      link.className='nav-link';
-      link.textContent='→ Enter Feast Hall';
-      link.addEventListener('click',()=>go('p3_bonfire_final'));
-      const footer=btn.closest('.game-footer');
-      (footer||btn.parentNode).appendChild(link);
-    }
   },
 
   terminalNext(btn){if(S.terminalPage<4){S.terminalPage++;go('p2_terminal');}},
@@ -886,6 +1134,7 @@ revealNext(btn){
     const after = container.querySelector('.after-reveal');
     if(after){after.style.display='block';bind();}
   }
+  if(next) next.scrollIntoView({block:'nearest'});   // last, after the footer changes: keeps the newest line fully in sight
 },
 };
 
@@ -994,9 +1243,9 @@ const termPages=[
 
 const passages={
 
-title:`<div class="toc">
+title:()=>`<div class="toc">
   <h1>GESTELL</h1>
-  <p class="subtitle">[PROTOTYPE — working draft]</p>
+  <p class="subtitle">[BETA]</p>
   <ul class="toc-list">
     <li class="toc-card">
       <img class="toc-img" src="${IMG.sunfaceCard}" alt="A red sun with a human face casts beams over marching silhouettes.">
@@ -1004,7 +1253,8 @@ title:`<div class="toc">
       <a class="toc-link" data-go="p1_intro">The Dialectic</a>
       <div class="toc-sub">
         <a class="toc-sub-link" data-go="p1_footnotes">Footnotes</a> ·
-        <a class="toc-sub-link" data-go="p1_index">Index</a>
+        <a class="toc-sub-link" data-go="p1_index">Index</a> ·
+        <a class="toc-sub-link" data-go="p1_plates">Plates</a>
       </div>
       <span class="toc-desc">An interactive essay</span>
     </li>
@@ -1018,7 +1268,8 @@ title:`<div class="toc">
       <img class="toc-img" src="${IMG.knightCard}" alt="An armored knight stands beside a page in a dark portrait.">
       <span class="toc-label">Part Three</span>
       <a class="toc-link" data-go="p3_title">The Game</a>
-      <span class="toc-desc">A game within a game</span>
+      <span class="toc-desc">A game within a game${S.quit?'<sup class="fn-ref fn-mark toc-dagger" data-fn="spost">&dagger;</sup>':''}</span>
+      ${S.quit?fnB('spost','History is monstrous. The Dialectic is monstrous. The world is monstrous.<br><br>Resist anyway'):''}
     </li>
   </ul>
 </div>`,
@@ -1028,33 +1279,35 @@ p1_intro:`<div class="essay paper">
   <p class="part-label">Part One</p>
   <p class="subtitle" style="margin-top:-1.25em;margin-bottom:2.3em;color:#777">The Dialectic</p>
   <div style="margin-bottom:2.8em;">
-    <img src="${IMG.huntersCard}" alt="Bruegel's Hunters in the Snow." style="width:100%;display:block;margin-bottom:.9em;opacity:.85;filter:sepia(20%) contrast(.95);">
+    <img src="${IMG.huntersCard}" alt="Bruegel's Hunters in the Snow." width="1200" height="854" style="width:100%;height:auto;display:block;margin-bottom:.9em;opacity:.85;filter:sepia(20%) contrast(.95);">
     <span class="toc-desc" style="display:block;">The hunters return. People warm themselves by a flame. Below, life unfolds. The river flows. The world continues.</span>
   </div>
   <div class="p1-tools">
     ${nav('p1_s1','→ Begin reading')}
     ${nav('p1_footnotes','→ Footnotes')}
     ${nav('p1_index','→ Index')}
+    ${nav('p1_plates','→ Plates')}
   </div>
   <div style="margin-top:2.8em;border-top:1px solid rgba(0,0,0,0.12);padding-top:1.4em;">
     <p style="font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;color:#aaa;font-family:'Courier New',monospace;margin-bottom:.9em;">Sections</p>
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.35em .9em;">
-      <a class="p1-footer-link" data-go="p1_s1" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">I. The Stove</a>
-      <a class="p1-footer-link" data-go="p1_s2" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">II. Induction</a>
-      <a class="p1-footer-link" data-go="p1_s3" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">III. History of Ideas</a>
-      <a class="p1-footer-link" data-go="p1_s4" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">IV. Black Ships</a>
-      <a class="p1-footer-link" data-go="p1_s4b" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">V. Meiji</a>
-      <a class="p1-footer-link" data-go="p1_s5" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">VI. The Zong</a>
-      <a class="p1-footer-link" data-go="p1_s6" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">VII. Abolition</a>
-      <a class="p1-footer-link" data-go="p1_s7" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">VIII. Shiroyama</a>
-      <a class="p1-footer-link" data-go="p1_s8" style="font-family:'Fjord One',Georgia,serif;font-size:.93rem;">IX. Conclusion</a>
+      <a class="p1-footer-link toc-section-link" data-go="p1_s1">I. The Stove</a>
+      <a class="p1-footer-link toc-section-link" data-go="p1_s2">II. Induction</a>
+      <a class="p1-footer-link toc-section-link" data-go="p1_s3">III. History of Ideas</a>
+      <a class="p1-footer-link toc-section-link" data-go="p1_s4">IV. Black Ships</a>
+      <a class="p1-footer-link toc-section-link" data-go="p1_s4b">V. Meiji</a>
+      <a class="p1-footer-link toc-section-link" data-go="p1_s5">VI. The Zong</a>
+      <a class="p1-footer-link toc-section-link" data-go="p1_s6">VII. Abolition</a>
+      <a class="p1-footer-link toc-section-link" data-go="p1_s7">VIII. Shiroyama</a>
+      <a class="p1-footer-link toc-section-link" data-go="p1_s8">IX. Conclusion</a>
     </div>
   </div>
   ${p1Footer()}
 </div>`,
 
 p1_footnotes:()=>{
-  const items=PART_ONE_FOOTNOTES.map(f=>
+  ensureNotes();
+  const items=P1_NOTES.map(f=>
     `<li><span class="fn-num">${f.n}.</span> ${f.txt} <a class="fn-back" data-go="${f.go}">↩ ${f.sec}</a></li>`
   ).join('');
   return `<div class="essay paper">
@@ -1063,6 +1316,25 @@ p1_footnotes:()=>{
     <ol class="fn-compilation">${items}</ol>
     <div class="p1-end-tools">
       ${nav('p1_intro','← Part One')}
+      ${nav('p1_index','→ Index')}
+      ${nav('p1_plates','→ Plates')}
+    </div>
+    ${p1Footer()}
+  </div>`;
+},
+
+p1_plates:()=>{
+  ensurePlates();
+  const items=P1_PLATES.map(pl=>
+    `<li id="plate-entry-${pl.n}"><span class="fn-num">${pl.n}.</span> ${pl.credit||pl.alt} <a class="fn-back" data-go="${pl.go}" data-scroll="plate-${pl.n}">↩ ${pl.sec}</a></li>`
+  ).join('');
+  return `<div class="essay paper">
+    <p class="part-label">Part One</p>
+    <p class="section-label">Plates</p>
+    <ol class="fn-compilation">${items}</ol>
+    <div class="p1-end-tools">
+      ${nav('p1_intro','← Part One')}
+      ${nav('p1_footnotes','→ Footnotes')}
       ${nav('p1_index','→ Index')}
     </div>
     ${p1Footer()}
@@ -1104,6 +1376,7 @@ p1_index:()=>{
     <div class="p1-end-tools">
       ${nav('p1_intro','← Part One')}
       ${nav('p1_footnotes','→ Footnotes')}
+      ${nav('p1_plates','→ Plates')}
     </div>
     ${p1Footer()}
   </div>`;
@@ -1111,39 +1384,49 @@ p1_index:()=>{
 
 p1_s1:`<div class="essay paper">
   <p class="section-label">I.</p>
-  <p>I think I finally understand the Hegelian Dialectic. Well, at least a part of it. In a sense, it is something primitive in our brains. A pattern of reality, perhaps. The way that human reason sees and changes the world.</p>
-  <p>Think of a hand on a hot stove. You feel it burn. It hurts you. You pull the hand away.</p>
-  <p>This is natural. This is the tendency of most living organisms. Rationality embodied in the act: self-preservation. Living things seek to continue themselves. Does this mean rationality is instinctual, or are instincts some form of rationality?${fnR('1','1')}</p>
-  ${fnB('1','Does Darwin mimic Hegel or vice versa? Is our reasoning imposing on reality or does reality shape our reasoning?')}
-  <p>Think back to the stove. Imagine for a second that everyone has forgotten what a stove is. You touch it, you pull your hand away when it burns you. You understand not to do it again: Pain is felt, lessons are learned. You tell others not to touch it for fear of being burned. Soon, no one touches the stove at all. Everyone goes back to campfires and microwaves.</p>
-  <p>Then one day, you accidentally touch a stove again, and it doesn't burn you. You refine your previous rule: the stove only hurts you if it is on. You realize that it can only burn you if you touch it directly, so you make mitts to protect your hands from the heat.</p>
-  <p>You tell your friend about the stove. ${fnS('s1','She thinks about it, then invents a light that shows the stove is on.')} You both start telling others about this wonderful innovation. Eventually, the public becomes aware of the problem, and legislation is passed requiring your friend's light to be installed on every stove.</p>
+  <p>I think I finally understand the Hegelian Dialectic. Well, at least a part of it. It tracks something primitive in all our brains. A pattern of reality, perhaps? Or the frame through which human reason sees and changes the world? Or maybe the two are the same.</p>
+  <p>Imagine your hand on a hot stove. You feel it burn. It hurts you.</p>
+  <p>You pull your hand away.</p>
+  <p>The pull-away response is natural. It is the tendency of most living organisms. Living things seek to continue themselves. Rationality embodied in the act: self-preservation. Is what we consider rational a form of instinct, then — or is instinct a form of rationality?${fnR('darwin')}</p>
+  ${fnB('darwin','Does Darwin mimic Hegel or vice versa? Is our reasoning imposing on reality or does reality shape our reasoning?')}
+  <p>Think back to the stove. Imagine now that everyone has forgotten what a stove is. You touch it, you pull your hand away when it burns you. You understand, on a physical level, not to do it again. Pain was felt, lessons were learned.</p>
+  <p>You tell others not to touch it for fear of being burned. Soon, no one touches the stove at all. Everyone goes back to campfires and microwaves.</p>
+  ${fig(IMG.velazquez,'An old woman in a white headscarf holds an egg and stirs eggs cooking in an earthenware dish set over a small charcoal brazier; a boy beside her holds a melon and a glass flask of wine, and brass and ceramic vessels crowd the table.','Frying stuff used to be a lot more involved before stoves. Makes you really appreciate modern conveniences, right?','plate--mid')}
+  <p>Take a step back: your initial sensation of pain has morphed into something else completely. By acting on your sensations and thoughts, you manifested change in the world.</p>
+  <p>One day, you touch the stove again. By accident. Yet it doesn’t burn you. You realize your mistake in judgment: the stove only hurts you if it is on. You fiddle around with the knobs a bit, turn it on, then off. Thinking about it more, you eventually realize it can only hurt you if you touch it directly. You make mitts to protect your hands from the heat.</p>
+  <p>You tell your friend about this discovery. ${fnS('s1','She thinks about it, then suggests adding a light to show when the stove is on.')} You come up with a prototype together, demonstrate it for others. Someone posts it online. Suddenly, the public is aware of this new technology. They lobby their representatives, who dutifully write legislation mandating “Red Lights on All Stoves.”</p>
   ${fnB('s1',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s1').txt,'fn-secret')}
-  <p>Your initial sensation of pain has morphed into something else completely: your thought manifested in the world, directly impacting how others think and experience reality. People don't see stoves the same way: the idea of one without a warning light is erased from conceptual existence.${fnR('2','2')}</p>
-  ${fnB('2','The stove comparison is a little imprecise and hokey. But it is really hard to come up with something that doesn\'t exist and explore its conceptual history.')}
-  <p>Our beliefs about the world influence how the world itself works. Law demonstrates this most clearly: we create law, law enforces itself on everyone, law updates as people respond to law. We shape reality around what we believe through the tools we create and the metrics we measure. The process continues and builds on itself.</p>
-  <p>That's it. That's "rational unfolding" or whatever Hegel calls it. He would perhaps define it more narrowly and more beautifully. "Freedom seeing itself" or something like that. I'm a little colder and more skeptical. Hegel and I mostly agree on the practical short-term outcomes, though: we learn to avoid hot stoves. Rationality works.</p>
-  <p>Any construction of human thought has this structure: ${fnS('s2','we live in a society, after all.')} However, it is not just one person doing this. Think back to the stove example, but instead of only you having that experience, everyone else is too, everywhere and all the time. Each human, a nerve cell in the greater whole. The process scales up then feeds back down. Ideas build on ideas. Nations challenge Nations. Systems adapt or collapse. Winners continue and losers cease to exist. The world continues to shift underfoot. 
-</p>
-  ${fnB('s2',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s2').txt,'fn-secret')}
-  <p>Of course, categorizing everything into winners and losers is much too simple: in reality, ideas generally contain good and bad subparts. The Hegelian process is incorporating the best of both and then forming something new. Sublation or <em>Aufhebung</em>.</p>
+  <p>This is how ideas directly shift how others experience reality. Nobody decides it. The invention of the light changes what people think a stove should be. One without a warning light becomes a serious aberration. The old ones get relegated to BBC period pieces. What a stove <em>is</em> has changed.${fnR('hokey')}</p>
+  ${fnB('hokey','The stove comparison is a little imprecise and hokey. But it is really hard to come up with something that doesn\'t exist and explore its conceptual history.')}
+  <p>Law is the same process, only reflexive and cumulative. We create law; law enforces itself on everyone; law updates as people respond to law. A building is built in accordance with what the regulatory framework demands. We shape reality around what we believe through the tools we create and the metrics we measure.</p>
+  <p>That’s it. That’s “rational unfolding” or whatever Hegel calls it. He would perhaps define it more narrowly and more beautifully. “Freedom seeing itself” or something like that. I’m a little colder and more skeptical. Hegel and I mostly agree on the practical short-term outcome, though: we both learned how to avoid hot stoves. Rationality works.</p>
   ${p1Footer()}
   <div class="p1-page-nav">
-    ${nav('p1_intro','← Part One')}
+    ${nav('p1_intro','← Sections')}
     ${nav('p1_s2','→ II')}
   </div>
 </div>`,
 
 p1_s2:`<div class="essay paper">
   <p class="section-label">II.</p>
-  <p>Hegel believes that this tends towards true freedom. Ideas approach their "perfected" form as we mold them to match the version in our heads. ${fnS('s6','They gradually incorporate and integrate lessons from the past, just as we do.')} Eventually, this process will liberate us all.${fnR('3','3')}</p>
+  <p>We try to bring the manifestations of our ideas closer to the “perfected” versions we hold in our heads. ${fnS('s6','Gradually we learn from our mistakes.')} The knowledge <em>must</em> filter up into our ideas. Hegel believes that this process tends towards true freedom, and will eventually liberate us all.${fnR('asymptote')}</p>
   ${fnB('s6',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s6').txt,'fn-secret')}
-  ${fnB('3','I think it\'s probably more asymptotic: not sure we will ever get there. More importantly, perhaps, would we like the experience of perfection? I worry it would be like Jyggalag: pure frozen order. Lifeless and grey. The Coldest Iron Cage.')}
-  <p>Hegel might be right, but I see the situation a little differently: what Hegel describes could also be read as rationality building on itself through induction. If you take a higher-level view, it is a process of revision. We look at the world to discern patterns of causality (induction) and then construct accounts of which specific causes matter (deduction). However, in a universe filled with a near infinite number of events, it has always been difficult to separate signal from noise. In the moment of decision, all we can do is make a Judgment on which is which and hope we are correct. The world provides validation: if we judge correctly, the Judgment reshapes the world. The most rational ideas survive, spread, and eventually become habitual. It is not an instant process. The assembly line, liberal capitalism, and women's suffrage have all become natural, yet were strongly opposed when they first emerged.${fnR('4','4')}</p>
-  ${fnB('4','Hegel thought that nature had a rationality of its own, but it was "cloaked under contingency". To me, the ability to recognize abstract structures or patterns is a power of man. This is reflexivity.')}
-  <p> However, these Judgments are often temporary at best. If a Judgment shifts the world, humans learn and alter their behavior accordingly, thereby shattering the very assumptions that undergirded the Judgment in the first place. ${fnR('5','5')} From the wreckage, a new Judgment emerges. If that Judgment proves eternal, then congrats: history has ended. Spirit has seen itself, if only for a moment.${fnR('6','6')}</p>
-  ${fnB('5','Perhaps less so in the hard sciences and more so in the more subjective social sciences. A cannonball dropped from a leaning tower does not analyze its own trajectory down but a human certainly does. Goodhart captured this problem with his eponymous law.')}
-  ${fnB('6','And in the long run, we are all dead. Perhaps worrying about all this is pointless. Just let things unfold and enjoy the ride. Wu Wei?')}
+  ${fnB('asymptote','I think it\'s probably more asymptotic: not sure we will ever get there. More importantly, perhaps, would we like the experience of perfection? I worry it would be like Jyggalag: pure frozen order. Lifeless and grey. The Coldest Iron Cage.')}
+  <p>This belief is not predicated on naive optimism. Rather, there is a cold intuition behind it. The most rational ideas survive, spread, and eventually become habitual. It is not an instant process. Often it takes years, or even generations. The assembly line, liberal capitalism, and women’s suffrage were strongly opposed when they first emerged. Today, all are naturalized to the point of banality.</p>
+  <p>Hegel witnessed it himself. He was writing nearby at the university while Napoleon destroyed the Prussian army. He saw the Emperor ride through the town, and called him the world-soul on horseback.</p>
+  <p>Before the French Revolution, most Jews in Europe were systematically excluded from much of Gentile life. The Jewish ghetto was not a “policy” as much as “how things were.” Then the National Assembly made French Jews citizens. French armies carried the Code wherever they marched. Behind the law came force: they pulled the ghetto gates down in Venice, in Frankfurt, in Rome.</p>
+  <p>The Congress of Vienna tried to hold back the tide of history in more ways than one.${fnR('nations')} They re-erected the gates to the ghettos, trying to seal the past away. But what had been done could not be undone. People understood that the Jews didn’t have — or want — to live in ghettos. The ghettos now required justification.</p>
+  ${fig(IMG.davidAlps,'Napoleon in a billowing red cloak on a rearing white horse, pointing upward through an Alpine pass, with soldiers hauling a cannon up the rocks behind him and three names carved into the stone in the foreground.','He made the actual crossing on a mule. Note the names cut into the rock beneath him: BONAPARTE, ANNIBAL, KAROLVS MAGNVS. He picked his own predecessors.','plate--tall')}
+  ${fnB('nations','The revolutions of 1848 were defeated almost everywhere within two years. But serfdom was abolished across the Habsburg lands and never restored. Prussia came out of it with a constitution it had never had before. And the civil equality granted to Jews that year, revoked in the reaction, was granted again permanently within twenty. Each defeat left the baseline higher than where it started.')}
+  <p>It was not Spirit. It was legislators arguing in a chamber, soldiers with crowbars, and men dying for their citizenship. That is true of any sort of social change. Each human, a nerve cell in the greater whole. ${fnS('s2','We live in a society, after all.')}</p>
+  ${fnB('s2',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s2').txt,'fn-secret')}
+  <p>These processes scale up, then feed back down. Ideas build on ideas. Nations challenge nations. Systems adapt or collapse. Winners continue and losers cease to exist. All these lessons accumulate, then form something new from both the successes and failures. Hegel calls this process Sublation or Aufhebung.</p>
+  <p>Hegel might be right, but I see it differently. He calls it unfolding. I would call it provisional. We look at the world, guess which causes matter, and act on the guess. In a universe filled with a near infinite number of events, separating signal from noise sometimes feels impossible. In the moment of decision, all we can do is make a Judgment on which is which and hope we are correct. The world provides validation: we get to see whether our predictions came true. Then our Judgment reshapes the world.${fnR('contingency')}</p>
+  ${fnB('contingency','Hegel thought that nature had a rationality of its own, but it was “cloaked under contingency”. To me, the ability to recognize abstract structures or patterns is a power of man. This is reflexivity.')}
+  <p>However, these Judgments are temporary. Logically, if a Judgment shifts the world, humans will learn and alter their behavior accordingly, thereby shattering the very assumptions that undergirded the correct Judgment.${fnR('cannonball')}</p>
+  <p>From the wreckage, a new Judgment will of course emerge. If that Judgment proves eternal, then congrats: history has ended. Spirit has seen itself, if only for a moment.${fnR('wuwei')}</p>
+  ${fnB('cannonball','Perhaps less so in the hard sciences and more so in the more subjective social sciences. A cannonball dropped from a leaning tower does not analyze its own trajectory down but a human certainly does. Goodhart captured this problem with his eponymous law.')}
+  ${fnB('wuwei','And in the long run, we are all dead. Perhaps worrying about all this is pointless. Just let things unfold and enjoy the ride. Wu Wei?')}
   ${p1Footer()}
   <div class="p1-page-nav">
     ${nav('p1_s1','← I')}
@@ -1153,19 +1436,28 @@ p1_s2:`<div class="essay paper">
 
 p1_s3:`<div class="essay paper">
   <p class="section-label">III.</p>
-  <p>The problem is that I think Hume is right: we are imperfect, temporary beings. Our ability to know things is profoundly limited. Unlike Hegel's grand spirit, we individuals don't have the luxury of an objective vantage point out of time. We are thrown into the world and embodied in our context. As a result, we must bite the bullet on induction: we almost always accept that what was true before will be true in the future.</p>
-  <p>For the most part, this works. The sun rises every morning, after all. The real problem is that for a lot of other Judgments, we forget that the underlying facts can change. Every moment we have new sensations, more data to synthesize. Thus, the rational choice in any one moment evolves in parallel with the world itself. Over the long term, stability is always an illusion, for our Judgments rely on premises that can be washed away by flux. Unfortunately, this results in a constant tension between objective reality and our temporally bound Judgments. ${fnS('s7','An endless confrontation.')}</p>
+  <p>My issue with Hegel’s grand vision is that I think Hume is right about our vantage point. Our ability to know things is profoundly limited. Unlike Hegel’s Spirit, we do not have the luxury of a space outside of time to disinterestedly judge. We are thrown into the world and embodied in our context. As a result, we must bite the bullet on induction: we almost always accept that what was true before will continue to hold true in the future.</p>
+  <p>For the most part, this shortcut works. The sun rises every morning, after all. The money in your bank account is still there when you check it. The real problem is that many other Judgments only stay accurate if the facts underlying them do not change. But intuitively we understand that facts do, in fact, change. Every moment we have new sensations, more data to synthesize. Every Judgment must be updated in parallel to changes in the world itself to remain accurate. No man can step in the same river twice. He is not the same man and it is not the same river. The tension between actually existing reality and our temporally bound Judgments is ${fnS('s7','an endless confrontation.')}</p>
   ${fnB('s7',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s7').txt,'fn-secret')}
-  <p> Perhaps the dialectic is merely the pattern humans follow to deal with this instability. Successful Judgments encode themselves into reality, altering the world accordingly. In this light, intellectual history traces the process unfolding. It is reflexive, as institutions "learn" by incorporating new knowledge about what works and what does not. It is active, as humans have agency to choose what to encode.${fnR('7','7')} It is materialist, as the most successful ideas persist, embodied in human language, tools, and organizations. Finally, it is transmissible, spreading through words, objects, or force.${fnR('8','8')}</p>
-  ${fnB('7','This is part of why many people are scared of Marx. He intended his writings to change the world by convincing people to act according to his predictions. Accelerationist Nick Land termed this "Hyperstition".')}
-  ${fnB('8','Burroughs said something like "language is a virus from outer space," which is either an overstatement or the most accurate sentence in English.')}
-  <p>${fnS('s3','Back in college, I took a class on the history of the future.')} It was really a history of how people have conceived of the future. The course began with an exploration of how medieval Europe thought of the future: time was something created and understood by God. This would culminate in Judgment Day, and the world would end. They built calendars and tracked time with this in mind. To them, Revelation was the rational end to all things. Ritual and habit anchored their world, as belief mandated practice and practice reinforced belief.  As long as the two reinforced each other, visible flux was suppressed and the world appeared stable. Persistence served as the ultimate proxy for success.${fnR('9','9')}</p> 
-  ${fnB('9','This power is why thinkers from Confucius to Machiavelli to Weber have treated religion as a tool for structuring political life: it forces people into habit. And habit becomes reason.')}
+  <p>Perhaps the dialectic is merely the name humans give the unstable churn of existence. New Judgments arise to fill in the gaps left by blind spots or changes. This is history.</p>
+  <p>Much of this comes down to what we humans are like. We are reflexive, so we “teach” institutions by incorporating the lessons we feel are valuable. We have agency, and actively choose what gets encoded and passed down.${fnR('marx')}</p>
+  ${fnB('marx','This is part of why many people are scared of Marx. He intended his writings to change the world by convincing people to act according to his predictions. Accelerationist Nick Land termed this “Hyperstition”.')}
+  <p>But ideas do not stay in heads. Successful ones get built, and they get enforced. That is how they persist, and it is how they transmit from person to person. You cannot gift someone a stove without explaining what a stove is for.</p>
+  <p>How do we know about prehistory? We have the artifacts and nothing else. Lascaux is seventeen thousand years old and every reading of it is our best guess. For them it was not a question. Objects survive us. Our reasons do not.</p>
+  ${fig(IMG.lascaux,'A frieze of animals drawn across a pale limestone wall, caught in a beam of light: a large horned cow stands among dozens of overlapping horses, with checkerboard signs at her feet and the rest of the panel fading into shadow.','','plate--mid')}
+  <p>Then we learned to write things down. History begins, or at least the record does. Now meaning can be attached to objects and perhaps understood across space and time. Socrates complains that written language alters how his students think. We know he thought that because Plato wrote it down.${fnR('virus')}</p>
+  ${fnB('virus','Burroughs said something like “language is a virus from outer space,” which is either an overstatement or the most accurate sentence in English.')}
+  <p>${fnS('s3','Back in college, I took a class on the political history of the future or something.')} It was a survey of how people, over time and space, have conceived of “the future”. It began with an exploration of how medieval Europe viewed the kingdom to come: time was created and understood by God alone.</p>
   ${fnB('s3',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s3').txt,'fn-secret')}
-  ${fig(IMG.mars,'March, from the Très Riches Heures du Duc de Berry (c. 1412–1416). Peasants plow beneath the Château de Lusignan while the zodiac marks the season above.','March, from the <em>Très Riches Heures du Duc de Berry</em> (c. 1412–1416). The seasons do not operate on mankind\'s time. The castle looms; the peasant plows; the zodiac turns. Ritual and habit as rational order.','plate--narrow')}
-
-  <p> Hume worked this out in "On the Standard of Taste". He believed that it was possible to "objectively" rank the quality of art. I put objective in scare quotes because it is more probabilistic than certain. To him, good art is what persists over time and across cultures. But the problem is that it is impossible to determine the durability of a Judgment in the moment it is made. Hume himself demonstrates this problem. He says that it would be foolish to equate Milton to Ogilby and this Judgment remains uncontroversial even today. Yet, in the same sentence he seems to equate Addison and Milton, something almost no one today would concede. As his own standard implies, his Judgment remained inextricably bound to its era even though he traced the process. In the end, the judge cannot know in the moment if they will be vindicated. All this leads me to wonder about the distinction between Humean habit and Hegelian reason if neither can provide certainty in the moment.</p>
-
+  <p>They built calendars and tracked time with this in mind. To them, Revelation was the rational end to all things. Ritual and habit anchored their world; belief mandated practice and practice reinforced belief. Visible flux was suppressed and the world appeared stable. Persistence served as the ultimate proxy for success.${fnR('religion')}</p>
+  ${fnB('religion','This power is why thinkers from Confucius to Machiavelli to Weber have treated religion as a tool for structuring political life: it forces people into habit. And habit becomes reason.')}
+  <p>The belief was load-bearing, and that is the part we cannot get back. It’s not that we don’t know. We can reconstruct exactly why, from the documents and the record. But that way of understanding the world is foreclosed to us. We have learned too much.</p>
+  <p>We still use the Church’s calendar. Every four years we add a day to February to keep Easter in place. Everything else you schedule rides on that.</p>
+  <p>We cannot recover the past with certainty. The future is not yet built. So people guess what is to come based on what they have decided happened before. Opaque on both ends. Can we at least be sure of a Judgment in the moment we make it?</p>
+  ${fig(IMG.mars,'March, from the Très Riches Heures du Duc de Berry (c. 1412–1416). Peasants plow beneath the Château de Lusignan while the zodiac marks the season above.','The seasons do not operate on mankind\'s time. The castle looms; the peasant plows; the zodiac turns. Ritual and habit as rational order.','plate--narrow')}
+  <p>Hume thought so. In “Of the Standard of Taste” he argued that it was possible to “objectively” rank the quality of art. To him, good art is what persists over time and across cultures.</p>
+  <p>But durability cannot be measured in a single moment. By definition, it is persistence over time. Hume proves it himself. He names two comparisons he takes to be self-evidently absurd: Ogilby with Milton, and Bunyan with Addison. The first still holds — nobody defends Ogilby. The second has inverted. <em>Pilgrim’s Progress</em> is still read. Addison is not. His own Judgment did not survive.</p>
+  <p>He built the test. Then he proved it correct. In the end, the judge cannot know in the moment if they will be vindicated.</p>
   ${p1Footer()}
   <div class="p1-page-nav">
     ${nav('p1_s2','← II')}
@@ -1176,25 +1468,25 @@ p1_s3:`<div class="essay paper">
 p1_s4:`<div class="essay paper">
   <p class="section-label">IV.</p>
   <p>This does raise a problem: if we start to perceive our own structures as unchangeable because they are stable, we are caught flat-footed when the world reveals its changes, destroying our priors and fracturing our inductive chain. Don't believe me? Look at history.</p>
-  <p>Tokugawa Japan was closed off from the rest of the world. ${fnS('s4','High literacy and a well-developed mass market visual culture.')} A Shogunate structured around ritual journeys to and from the capital that kept elites on a tight leash. Very effective repression of commoners and foreigners. Result? Centuries of what most would call peace.${fnR('10','10')} Since it persisted for so long, it appeared to those inside as the most rational system. Alas, it did not last: Europe's Fiscal-Military states were about to teach the rest of the world a deadly lesson.</p>
-  ${fnB('10','There were plenty of peasants who didn\'t think so. But they didn\'t win. Mere footnotes.')}
+  <p>Tokugawa Japan was closed off from the rest of the world. ${fnS('s4','High literacy and a well-developed mass market visual culture.')} A Shogunate structured around ritual journeys to and from the capital that kept elites on a tight leash. Very effective repression of commoners and foreigners. Result? Centuries of what most would call peace.${fnR('peasants')} Since it persisted for so long, it appeared to those inside as the most rational system. Alas, it did not last: Europe's Fiscal-Military states were about to teach the rest of the world a deadly lesson.</p>
+  ${fnB('peasants','There were plenty of peasants who didn\'t think so. But they didn\'t win. Mere footnotes.')}
   ${fnB('s4',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s4').txt,'fn-secret')}
-  <p>Japan wasn't blind to the changing outside reality. Far from it: it felt the storm coming. It saw what happened to China: its craftsmen depicted the Opium Wars in woodblock prints of battle and death. It knew the Europeans were about to arrive: the Shogun had received warnings from the Dutch King himself.${fnR('11','11')} Japan and its people began to understand the world had changed. The heat was building. When Admiral Perry and his Black Ships appeared in Tokyo Bay, the Shogun and many Daimyos deduced Japan would burn next. That deduction bred fear. And that fear bred action.</p>
-  ${fnB('11','Of course, the Dutch King\'s letter wasn\'t some sort of generous gift: it was a rational act to try and resolve the tension brewing between Japan\'s isolationism and Britain\'s gunboat free trade in Asia. Reasoning is fractal.')}
   ${fig(IMG.perry,'A Japanese print portrait of Commodore Perry in dark naval uniform.','A Japanese print portrait of Commodore Perry in dark naval uniform. This is more respectful than some of the portraits made by other contemporary Japanese artists.','plate--narrow')}
+  <p>Japan wasn't blind to the changing outside reality. Far from it: it felt the storm coming. It saw what happened to China: its craftsmen depicted the Opium Wars in woodblock prints of battle and death. It knew the Europeans were about to arrive: the Shogun had received warnings from the Dutch King himself.${fnR('dutch')} Japan and its people began to understand the world had changed. The heat was building. When Commodore Perry and his Black Ships appeared in Tokyo Bay, the Shogun and many Daimyos deduced Japan would burn next. That deduction bred fear. And that fear bred action.</p>
+  ${fnB('dutch','Of course, the Dutch King\'s letter wasn\'t some sort of generous gift: it was a rational act to try and resolve the tension brewing between Japan\'s isolationism and Britain\'s gunboat free trade in Asia.')}
   <p>Japan was thus confronted by a contradiction the existing system could not solve: its old rational way of structuring life turned out to be just a moment, not eternity. Confronted by this contradiction, Japan made a new Judgment.</p>
-  <p>The result was something novel. Japan was modern <em>but on its own terms</em>. By maintaining a form of their own culture while adopting European ideas, they became different from both their past and contemporary Europeans.${fnR('12','12')}</p>
-  ${fnB('12','Japan was recognized as "Western" when it defeated Russia in 1905. But then it was different again in 1945. You get my drift. All this just because they saw Perry come across the horizon with a few black ships.')}
-  <p>This isn't the full story, however. Zoom in for a second and you'll notice something uncanny: the same dynamic that happened <em>to</em> Japan happened <em>within</em> Japan. The actors in Japan had the experience of Japan, miniaturized.</p>
-  <p>Choshu and Satsuma, the modernizing Japanese Domains, chafed under the tight leash of the Shogunate. Satsuma controlled Ryukyu,${fnR('13','13')} one of Japan's limited traditional gateways to the outside world. Both had already fought the British navy and lost. They understood the threat and promise of the foreigners better than any other Domain. They experienced the Dialectic most directly: the old structure dying, but the new one has not yet been built. Soon, Japan would have no choice in the matter. They decided to act.</p>
-  ${fnB('13','Today\'s Okinawa. Funny how the Americans ended up there eh?')}
-  <p>In what became known retroactively as the Sat-Cho alliance, the two Domains aligned to destroy the old world. Choshu forged a European-style conscript army to oppose the traditional forces of the shogunate. They armed commoners, defying the 250-year tradition restricting weapons to only samurai. Satsuma, for its part, sent its youth to Britain to learn modern shipbuilding and industrialization, in direct opposition to the laws of the shogunate and their own stated ideals.${fnR('14','14')} On arrival, the Satsuma students visited dockyards and wore English three-piece suits.${fnR('15','15')} On return, these youth would go on to create the Meiji state, and guess what? They all kept the suits.${fnR('16','16')}</p>
-  ${fnB('14','Some scholars attribute the infamous Imperial Japanese army/navy interservice rivalry to this split. You could also argue that this represents the dual consciousness of Meiji Japan: British naval-liberal constitutionalism juxtaposed with Prussian army-junker militarism.')}
-  ${fnB('15','Of course, this flattens things a little. The Shogunate understood the stakes but were more constrained by tradition and less desperate. There is a great picture of a bunch of traditionally dressed Shogunate samurai hanging out in DC during the American Civil War. The Satsuma youth, for their part, cut their hair and wore the suits.')}
-  ${fnB('16','In their official portraits. Traditional Japanese culture persisted of course. But even that would be challenged and altered. The emergence of State Shinto and the suppression of Buddhism (Haibutsu kishaku) demonstrates this.')}
+  <p>The result was something novel. Japan was modern <em>but on its own terms</em>. By maintaining a form of their own culture while adopting European ideas, they became different from both their past and contemporary Europeans.${fnR('tsushima')}</p>
+  ${fnB('tsushima','Japan was recognized as “Western” when it defeated Russia at Tsushima and Mukden in 1905. But then it was different again in 1945. You get my drift. All this just because they saw Perry come across the horizon with a few black ships.')}
+  <p>This isn't the full story, however. Zoom in for a second and you'll notice something uncanny: the same dynamic that happened <em>to</em> Japan happened <em>within</em> Japan. The actors in Japan had the experience of Japan, miniaturized. The pattern is fractal.</p>
+  <p>Choshu and Satsuma, the modernizing Japanese Domains, chafed under the tight leash of the Shogunate. Satsuma controlled Ryukyu,${fnR('okinawa')} one of Japan's limited traditional gateways to the outside world. Both had already fought the British navy and lost. They understood the threat and promise of the foreigners better than any other Domain. They experienced the Dialectic most directly: the old structure dying, but the new one not yet being built. Soon, Japan would have no choice in the matter. They decided to act.</p>
+  ${fnB('okinawa','Today\'s Okinawa. Funny how the Americans ended up there, eh?')}
+  <p>In what became known retroactively as the Sat-Cho alliance, the two Domains aligned to destroy the old world. Choshu forged a European-style conscript army to oppose the traditional forces of the shogunate. They armed commoners, defying the 250-year tradition restricting weapons to only samurai. Satsuma, for its part, sent its youth to Britain to learn modern shipbuilding and industrialization, in direct opposition to the laws of the shogunate and their own stated ideals.${fnR('rivalry')} On arrival, the Satsuma students visited dockyards and wore English three-piece suits. On return, these youth would go on to create the Meiji state, and guess what? They all kept the suits.</p>
+  ${fnB('rivalry','Some scholars attribute the infamous Imperial Japanese army/navy interservice rivalry to this split. You could also argue that this represents the dual consciousness of Meiji Japan: British naval-liberal constitutionalism juxtaposed with Prussian army-junker militarism.')}
+ 
+ 
   ${figPair([
-    {src:IMG.ambassadors,alt:'Members of the 1860 Japanese mission to the United States in traditional dress.',caption:'Members of the 1860 Japanese mission to the United States in traditional dress. The old order meets the future bosses.',cls:'plate--photo'},
-    {src:IMG.satsuma,alt:'Young Satsuma students in Western suits pose for a studio portrait.',caption: 'Young Satsuma students in Western suits pose for a studio portrait. The new order teaches the old.', cls:'plate--photo'}
+    {src:IMG.ambassadors,alt:'Members of the 1860 Japanese mission to the United States in traditional dress.',caption:'Members of the 1860 Japanese mission to the United States in traditional dress. The old order meets the future bosses.'},
+    {src:IMG.satsuma,alt:'Young Satsuma students in Western suits pose for a studio portrait.',caption: 'Young Satsuma students in Western suits pose for a studio portrait. The new order teaches the old.'}
   ])}
   ${p1Footer()}
   <div class="p1-page-nav">
@@ -1208,18 +1500,18 @@ p1_s4b:`<div class="essay paper">
   <p>Can you argue with the results? Sat-Cho's modern military repeatedly routed the antiquated Shogunate forces, who then embarked on their own program of modernization. ${fnS('s5','It was an arms race, but the Shogunate had started too late.')} The early competitive advantage meant that the Shogunate was effectively playing catch-up to the Domains.</p>
   ${fnB('s5',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s5').txt,'fn-secret')}
   ${fig(IMG.drill,'A woodblock print of soldiers drilling and charging through smoke and open ground.','A woodblock print of soldiers drilling and charging through smoke and open ground. What space is there for the samurai in this new world?')}
-  <p>Sat-Cho did not abandon the past but instead recontextualized it. They said, “Shogun, you are illegitimate because you cannot expel the barbarians. Thus, we must return to tradition and get the emperor back in power to expel the barbarians." Sonno-Joi.${fnR('17','17')}</p>
-  ${fnB('17','Never mind that the Emperor had been sidelined by the Shogun during the great period of peace when the foreigners were completely restricted.')}
+  <p>Sat-Cho did not abandon the past but instead recontextualized it. They said, “Shogun, you are illegitimate because you cannot expel the barbarians. Thus, we must return to tradition and get the emperor back in power to expel the barbarians.” Sonno-Joi.${fnR('emperor')}</p>
+  ${fnB('emperor','Never mind that the Emperor had been sidelined by the Shogun during the great period of peace when the foreigners were completely restricted.')}
   <p>Do you see it? The Contradiction? To restore tradition, they had to become modern. To become modern, they had to restore tradition. The premise required the conclusion that required the premise. Inductively and deductively, this chain of reasoning makes sense as a pattern, but there is an uncomfortable circularity. The founding document of the Meiji order itself makes this tension explicit:</p>
-  <p class="pullquote">Knowledge shall be sought throughout the world so as to strengthen the foundations of imperial rule.${fnR('18','18')}</p>
-  ${fnB('18','The Charter Oath of 1868 was a self-conscious attempt to become modern. It promised: democracy, equality, progress. In reality: oligarchy, stratification, progress.')}
-  <p>The Satsuma-Choshu Alliance came out on top of what became known as the Boshin War. In victory, the two domains remade Japan in their own image: a modernized traditionalism. Railways, Zaibatsu megacorporations, and imperial conquests, all with an “Eternal Emperor" who had reigned uninterrupted for thousands of years at its head. The Shogun himself abdicated but was eventually incorporated into the Meiji oligarchy. Things changed but they also stayed the same.</p>
+  <p class="pullquote">Knowledge shall be sought throughout the world so as to strengthen the foundations of imperial rule.${fnR('charter')}</p>
+  ${fnB('charter','The Charter Oath of 1868 was a self-conscious attempt to become modern. It promised: democracy, equality, progress. In reality: oligarchy, stratification, progress.')}
+  <p>The Satsuma-Choshu Alliance came out on top of what became known as the Boshin War. In victory, the two domains remade Japan in their own image: a modernized traditionalism.${fnR('trad')} Railways, Zaibatsu megacorporations, and imperial conquests, all with an “Eternal Emperor” who had reigned uninterrupted for thousands of years at its head. Today, those years are measured on the Church’s calendar. Things changed but they also stayed the same.</p>
+  ${fnB('trad','Traditional Japanese culture persisted. But the Japanese state now understood that it could choose what counted as traditional. Hence the emergence of state Shinto and the suppression of supposedly foreign Buddhism.')}
   <p>That's the dialectic in action: Adapt or die. Fuse the outside world with yourself. Reconcile yourself with change and claim it as your own. Schumpeterian creative destruction applied to the state and society and the individual.</p>
-  ${fig(IMG.boxers,'A Japanese woodblock print of an Imperial officer protecting a Chinese child from Chinese fire during the Boxer War.','A Japanese woodblock print of an Imperial officer protecting a Chinese child from Chinese fire during the Boxer War.')}
-  <p>Japan would then go on to help Korea and China learn this lesson. It started with good intentions. A kind older brother who wants to protect the rest of Asia from rapacious Europeans. Unsurprisingly, this generosity was ephemeral. In Korea, cultural genocide and comfort women. In China, Nanjing and Unit 731. But hey, at least it wasn't the damn Europeans doing it.</p>
-  <p> But of course Japan had become European in a way. The Eight-Nation Alliance was a collaboration between Japan and European powers to suppress the Boxers. Japan took concessions from China, just like the rest of the Europeans. They dressed like the Europeans and listened to European classical music. The Japanese had become equal to the Europeans and were recognized as such. Given this, what difference does the nationality of the boot make?${fnR('19','19')}</p>
-  ${fnB('19','Flattening a bit again: the real moment was at Tsushima and Mukden in 1905 but with hindsight the turning point is clear. Asia had been successfully "Thrown off".')}
-  ${fig(IMG.courtesan,'A woodblock print of a Western man and Japanese woman sharing an interior scene.','A woodblock print of a Western man and Japanese woman sharing an interior scene. Madame Butterfly had a long history in Japan before Puccini wrote the Opera.','plate--narrow')}
+  ${fig(IMG.boxers,'A Japanese woodblock print of Captain Higuchi shielding an abandoned Chinese infant while directing his men.','Captain Higuchi shields an abandoned Chinese infant at Motianling, First Sino-Japanese War, 1894–95.')}
+  <p>Japan would then go on to help Korea and China learn this lesson. It started with good intentions. A kind older brother who wants to protect the rest of Asia from rapacious Europeans. Of course, this generosity was ephemeral. In Korea, cultural genocide and comfort women. In China, Nanjing and Unit 731. But hey, at least it wasn't the damn Europeans doing it.</p>
+  <p> But of course Japan had become European in a way. The Eight-Nation Alliance was a collaboration between Japan and European powers to suppress the Boxers. Japan took concessions from China, just like the rest of the Europeans. They dressed like the Europeans and listened to European classical music. The Japanese had become equal to the Europeans and were recognized as such. Asia had been successfully “Thrown off”. When the boot is on your neck, what difference does its nationality make?</p>
+  ${fig(IMG.courtesan,'A woodblock print of a Western man and Japanese woman sharing an interior scene.','A woodblock print of a Western man and Japanese woman sharing an interior scene. Madame Butterfly had a long history in Japan before Puccini wrote the opera.','plate--narrow')}
   ${p1Footer()}
   <div class="p1-page-nav">
     ${nav('p1_s4','← IV')}
@@ -1232,16 +1524,24 @@ p1_s5:`<div class="essay paper">
   <p class="section-label">VI.</p>
   <p>The mask drops: the dialectic is value-neutral. It explains how to survive, but nothing inherently “good” guides the process. It is power manifest. ${fnS('s8','Gravity. Force.')}</p>
   ${fnB('s8',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s8').txt,'fn-secret')}
-  <p>Spin the globe and zoom in on the Caribbean of the 1700s. The Atlantic Enlightenment is in full swing, fueled by coffee and sugar. Both become almost as valuable as gold. Not enough free men would willingly do the back-breaking labor required to make the plantations profitable. The Portuguese had already found the solution: import slaves from West Africa. Many of the same rational Europeans who decried slavery had no such problems when the slaves were taken in “just wars" by African statelets. That is what Rome did, said Grotius. Thus, the Middle Passage is born.${fnR('20','20')}</p>
-  ${fnB('20',"Of course, the African kingdoms were also complicit, but it was a rational complicity. They were making judgments too. Those who did not participate in slave taking would become slaves of their neighbors who did.")}
-  <p>England had experimented with the plantation system during their colonization of Ireland. English adventurers exported plantations to the Antilles, specifically Barbados. Initially, these Caribbean plantations were staffed by indentured servants from England and Ireland. However, the transition to sugar cultivation created a near-endless need for labor. The supply of indentured servants could never meet the demand. Out of necessity, they too turned towards African Slavery. The Royal African Company was formed and given royal imprimatur. Although the English took pride in their opposition to slavery within England's borders,${fnR('21','21')} the siren call of profit proved too hard to ignore.</p>
-  ${fnB('21','Never mind that it was the Norman Conquest that finished off slavery. Perhaps the Norman Yoke was not all that much of a yoke. As much as I like Tolkien, I can\'t help but feel his romantic English Nationalism is a more palatable version of Heidegger\'s Black Forest Naziism.')}
-  <p>The <em>Zong</em>, a British slave ship, misjudges how far away Jamaica is and spends some extra time at sea. A pleasant 60 day journey instead becomes an unbearable 108. But these transports are rationalized and economized: they carry only as much supply as they need for the journey. Every ounce of water is one less pound of cargo and one less pound of profit. Unfortunately, the value of a slave diminishes when they get sick. See, the lifespan of a slave is “priced in": plantation foremen are unlikely to buy the unhealthy slaves when the ship finally docks at Black River. Unfortunate.</p>
-  <p>All hope is not yet lost. In the coffeehouses of London, the underwriters at Lloyd's have discovered maritime insurance and risk mitigation. They offer an economic life vest, the “Law of the General Average": cargo sacrificed to save the ship will be compensated by the insurers. It pushes the captain to save the ship when the vessel itself is at stake without worrying about the voyage's patron back home.</p>
-  <p>One hiccup in the fine print: insurance covers only accidents, not natural deaths. Thus, the Captain is faced by a time bound decision: if he does not act quickly, the slaves will die natural deaths and insurance will not pay out. The captains of these expeditions are consummate businessmen: they are hired to protect the returns of the investors back in London. So, of course, they understand the law. The rational solution is clear. The captain on the <em>Zong</em> judges. He acts.</p>
-   ${fig(IMG.slaveShip,'Turner\'s <em>The Slave Ship</em>.','Turner\'s <em>The Slave Ship</em> (1840). Before sublime nature, both the <em>Zong</em> and the drowning slave are miniscule.','plate--mid')} 
-  <p>Throw the still living slaves overboard, claim them as cargo and get insurance to pay £30 a head. The Captain and the investors win. The insurers are furious about the loophole. The 130 slaves tossed overboard are dead, silent in the vast Atlantic waters.</p>
-  <p>When the ship returns to London, there is a trial. For insurance fraud, not murder. That question is not even considered, as slaves are not men in the eyes of the rational law. The jury, made up of the British economic elite, understands the stakes: dastardly France has perfected the slave economy on the hell colony of Sainte-Domingue. Thus, if the insurers win, the Jamaican economy collapses and the French solidify their economic grip on the plantation economy. Of course, they find for the Captain. </p>
+  <p>Spin the globe and zoom in on the Caribbean of the 1700s. The Atlantic Enlightenment is in full swing, fueled by coffee and sugar. Both become almost as valuable as gold. Not so valuable that free men are willing to do the back-breaking labor required to make plantations profitable.</p>
+  <p>Luckily, the Portuguese had figured out a solution: import slaves from West Africa. Many of those rational Europeans who decried slavery had no qualms if the slaves were taken in “just wars” by and from African statelets up and down what would become known as the Slave Coast.${fnR('complicity')} Enslaving the defeated is what glorious Rome did, said Grotius. Thus, the Middle Passage is born.</p>
+  ${fnB('complicity',"Of course, the African kingdoms were also complicit, but it was a rational complicity. They were making Judgments too. Those who did not participate in slave taking would become slaves of their neighbors who did.")}
+  <p>Although the English took pride in their opposition to slavery within England's borders, the siren call of profit proved too hard to ignore.${fnR('norman')} They staffed their initial Caribbean plantations with indentured servants from the British Isles. However, the transition to sugar cultivation created a near-endless need for labor that the supply of willing (or even unwilling) Europeans could never meet. Out of necessity, England too turned towards African Slavery. The African Company was formed and given Royal imprimatur. Soon Britain is fully enmeshed in the slave trade, eventually taking over the Asiento contract to supply the Spanish Empire with slaves.</p>
+  ${fnB('norman','Never mind that it was the Norman Conquest that finished off slavery. Perhaps the Norman Yoke was not all that much of a yoke. As much as I like Tolkien, I can\'t help but feel his romantic English Nationalism is a more palatable version of Heidegger\'s Black Forest Naziism.')}
+  <p>Journeys across the Atlantic remain difficult. The <em>Zong</em>, a British slave ship, misjudges the distance to Jamaica and spends a bit of extra time at sea. Suddenly, that pleasant 60 day journey instead becomes an unbearable 108. But these voyages are rationalized and economized: a ship only carries as much supply as it needs to complete the journey. Every ounce of water is one less pound of cargo and one less pound of profit. When supplies run low, the slaves are the ones who are not fed. Unfortunately for the owners of the <em>Zong</em>, slaves decrease in value if they are sick or weak. A slave's lifespan is “priced in”, as plantation foremen are unlikely to buy the unhealthy slaves when the ship finally docks at Black River.</p>
+  ${fig(IMG.kingston,'A hillside view over hedged fields to the town of Kingston and its harbor, where ships lie at anchor and a long spit of land runs out to Port Royal, with mountains across the water. In the foreground a man in a black top hat points out over the view; beside him stands a woman in a long white dress and a striped shawl, next to a tall flowering agave.','A British plantation owner points to what makes the Empire grand: buildings, roads, ships loaded with sugar. Not a slave in sight.','plate--mid')}
+  <p>All hope is not yet lost, as Rome comes to the rescue once again. In the coffeehouses of London, the underwriters at Lloyd's reach for the <em>Lex Rhodia de iactu</em>, an old rule holding that losses from jettisoned cargo are shared proportionally. They begin applying it to slaves.</p>
+  <p>The ancient rule, now known as the “Law of the General Average”, becomes an economic life vest for the shipowners. Insurers will compensate them for any cargo sacrificed to save the ship. Incentives are aligned: captains are pushed to save the ship when the vessel itself is at stake, as they no longer have to worry quite as much about explaining how they lost all the cargo to their patrons back in Liverpool.</p>
+  <p>All this because some men have realized that slaves are, in fact, cargo.</p>
+  <p>One hiccup in the fine print. Insurance will only cover accidents, not natural deaths. The captains of these expeditions are consummate businessmen, hired to protect the returns of the investors back in Britain. So, of course, they understand the law. The <em>Zong</em>'s Captain is thus left to face a time-bound decision: if slaves die natural deaths, insurance will not pay out.</p>
+  <p>The Captain on the <em>Zong</em> judges. The rational solution is clear.</p>
+  <p>He acts.</p>
+   ${fig(IMG.slaveShip,'A blazing orange sunset over a heaving sea; a ship with furled sails recedes into the coming storm while in the foreground a shackled leg juts up out of the water among converging fish.','Before sublime nature, both the <em>Zong</em> and the drowning slave are miniscule.','plate--mid')} 
+  <p>Throw the still living slaves overboard, claim them as jettisoned cargo and demand insurance pay £30 a head. Problem solved. The Captain has done his duty. The investors will be made whole. The insurers are furious about this loophole and refuse to pay.</p>
+  <p>The 130 slaves tossed overboard are dead, silent in the vast Atlantic waters.</p>
+  <p>When the ship returns to London, its owners sue. The trial concerns insurance money, not murder. That question is not even considered, as slaves are cargo in the eyes of the rational law. The jury, made up of the British elite, understands the stakes: dastardly France has perfected the slave economy on the hell colony of Saint-Domingue.${fnR('choiseul')} Thus, if the insurers win, the flow of slaves to Jamaica slows, the economy of the British West Indies sputters, and the French solidify their grip on the sugar trade. Of course, they find for the owners.</p>
+  ${fnB('choiseul','Britain’s choice to take Canada instead of the French sugar islands at the Treaty of Paris in 1763 looks worse every year. Voltaire’s few acres of snow are out-earned by Guadeloupe alone. Now the thirteen colonies Britain fought to protect have broken away with French help. Choiseul will live two more years — long enough to see his wager pay off. Saint-Domingue has eight years left.')}
   <p>${fnS('s9','Another win for rationality.')}</p>
   ${fnB('s9',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s9').txt,'fn-secret')}
   ${p1Footer()}
@@ -1253,55 +1553,76 @@ p1_s5:`<div class="essay paper">
 
 p1_s6:`<div class="essay paper">
   <p class="section-label">VII.</p>
-  <p>Unsurprisingly, the Zong ruling helped kickstart the anti-slavery movement. Olaudah Equiano, a formerly enslaved African who endured the Middle Passage, informed abolitionist Granville Sharp of the case's outcome.</p>
-  <p>Granville then helped found the British “Society for Effecting the Abolition of the Slave Trade", thereby concretizing the moral horror of the <em>Zong</em> into a social movement.</p>
-  <p>Josiah Wedgwood, a prominent Unitarian Dissenter and industrialist famous for his fine porcelain, was disgusted by slavery generally and the <em>Zong</em> specifically. He used his skills to create a cameo depicting a kneeling African begging for relief with the text of “Am I Not a Man And A Brother?” above. It became a meme: people attached it to their clothes and their snuffboxes, fanning the anti-slavery flames across Britain. An idea literally embodied in physical reality.</p>
-  ${fig(IMG.cameo,'The Wedgwood anti-slavery cameo: a kneeling enslaved man in profile with the inscription “Am I Not a Man And A Brother?”','An example of the Wedgwood Cameo. Although it is sometimes seen as problematic with its depiction of a supplicant African, I think it represents the reality of the situation accurately. Sometimes the truth is painful.','plate--narrow')}
-  <p>Eventually, Parliament abolished the slave trade, then later slavery itself.${fnR('22','22')} Much of Europe soon followed suit, and shortly after Europe would end “formal slavery” across the world through imperialism. At the Berlin Conference of 1884, the European powers gave Belgian King Leopold II a huge swath of Central Africa to bring civilization and end slavery. He established the Congo Free State, which brought modern Christianity, science, and freedom to the people of the basin. Rationality unfolded; freedom triumphed. Everyone clapped.${fnR('23','23')}</p>
-  ${fnB('22','Don\'t feel too bad for the slaveowners: they received a healthy recompense from the British treasury. The freed slaves got nothing.')}
-  ${fnB('23','Except the Congolese whose hands had been chopped off by Leopold\'s Force Publique. Plus ça change…')}
-  <p>The drowned slaves couldn\'t really take comfort in this historical justice, as they had already died. To deal with this problem, Hegel and his disciples (like Marx) pull a powerful move: inject teleology. This horror is fine because it needed to happen. Without the <em>Zong</em>, Spirit would have learned nothing. In fact, it validates the dialectic: by allowing hundreds of people to be thrown overboard, Reason “learned” that there is more to life than mere economics.</p>
-  <p>To me, this reasoning too closely resembles theodicy: evil exists so that good can vanquish it. Will it? Eventually. My problem remains induction: we can only know in retrospect, so therefore anything existing now can easily be overturned later. It's like <em>stare decisis</em>: binding precedent until we decide it isn't.${fnR('24','24')} There is no immutable law that results in reason learning moral lessons from annihilation. ${fnS('s11','It is a story we tell ourselves to make sense of it all.')} The Dialectic continues no matter how much we want it to stop.</p>
+  <p>Unfortunately for the owners, the ruling is not the end of the story.</p>
+  <p>Olaudah Equiano, the formerly enslaved African, follows the trial closely. He endured the Middle Passage personally, and so understands it in a way no one else can. He gives literal voice to a horror that, for everyone else, is secondhand. As a free African in London, he is a refutation of the caricatures of his race. Literate, Christian, employed. He calls on gentlemen and is received.</p>
+  <p>He visits Granville Sharp to inform the prominent abolitionist of the result of the trial. Unlike Equiano, Sharp is no outsider: born into impeccable Anglican lineage, grandson of an Archbishop of York. He had played a decisive role in <em>Somerset v Stewart</em>, a case that has been interpreted ever since as affirming the rights of slaves on British soil. Sharp is appalled by the <em>Zong</em>.</p>
+  <p>He reaches for the law, as it has served him before. He attends the appeal, hires a shorthand writer to transcribe it, and presses for the owners to be tried for murder.</p>
+  <p>He fails.</p>
+  <p>He does not cease his efforts. Four years later he co-founds the &ldquo;Society for Effecting the Abolition of the Slave Trade&rdquo;: a committee of twelve, nine of them Quakers. As an Anglican among Dissenters, he brings a name the British establishment cannot dismiss. He is chosen as chair.</p>
+  <p>Josiah Wedgwood soon joins the twelve. He is a Unitarian &mdash; barred, like the Quakers around him, from the universities and the professions, and gone into trade instead. He does not make porcelain for the elite. He mass-produces jasperware.</p>
+  <p>So Wedgwood contributes in the way he knows how. He cuts a cameo of a kneeling slave, with the words &ldquo;Am I Not a Man And A Brother?&rdquo; raised above him. He manufactures them by the thousand, then gives them all away. The image spreads like a meme: to bracelets, snuffbox lids, brooches; women wear them in their hair, fanning the anti-slavery flames across Britain.</p>
+  <p>An idea has become embodied in physical reality.</p>
+  ${fig(IMG.cameo,'The Wedgwood anti-slavery cameo: a kneeling enslaved man in profile with the inscription \u201cAm I Not a Man And A Brother?\u201d','Although it is sometimes seen as problematic in its depiction of a supplicant African, I think it represents the reality of the situation accurately. Sometimes the truth is painful.','plate--narrow')}
+  <p>Eventually, Parliament abolished the slave trade. Twenty-six years later, slavery itself was outlawed.${fnR('recompense')} Wedgwood, Equiano, and Sharp were long dead. The Judgment that allowed the <em>Zong</em> never died; it simply stopped having anything to apply to.</p>
+  ${fnB('recompense','Don\'t feel too bad for the slaveowners: they received a healthy recompense from the British treasury. The freed slaves got nothing.')}
+  <p>What replaced it was a global campaign, led by Britain, to suppress the slave trade wherever it still ran. Empire and Abolition went hand in hand: as the British empire expanded, so did the campaign against slavery. Slavery\u2019s survival justified reaching back into the very regions where Britain had once trafficked in bodies \u2014 to destroy that same trade, and administer the land. The other European states followed suit.${fnR('indigenat')}</p>
+  ${fnB('indigenat','France abolished slavery in its colonies in 1848 and made the former slaves citizens outright. Two of France\u2019s remaining Caribbean colonies, Martinique and Guadeloupe, sent deputies to Paris that same year. They were lucky: the people of every territory France took afterward were granted subjecthood at gunpoint. Classed as <em>indig\u00e8nes</em> under the Code de l\u2019indig\u00e9nat, they could be punished without trial and conscripted to labor. France did not abolish the practice until 1946, ninety-eight years after emancipation.')}
+  <p>At the Berlin Conference of 1884, the European powers entrusted Belgian King Leopold II with a huge swath of Central Africa. It was wracked by slavery, as the Sultans of Zanzibar made great profit from the trade east to their island. Leopold promised he would end the trade and bring civilization to the Congo Basin.</p>
+  <p>To educate the Africans, he established the Congo Free State. He brought modern Christianity and European science to these deprived people. Of course, Leopold knew the right man to govern darkest Africa. He appointed Tippu Tip, an active Zanzibari slave trader, as governor of Stanley Falls. The man had experience, after all. Rationality unfolded; freedom triumphed.</p>
+  <p>Everyone clapped.${fnR('hands')}</p>
+  ${fnB('hands','Except the Congolese whose hands had been chopped off by Leopold\'s Force Publique. Plus \u00e7a change\u2026')}
+  ${fig(IMG.diagram,'A schematic drawing of the slaveship Brooks demonstrating the cramped conditions of a Middle Passage journey.','The stowage plan of the <em>Brooks</em>, a slave ship. Abolition took many years to unfold, and the Slave Trade Act of 1788 was one step along the way: it limited how many slaves a ship could carry, and aboard the <em>Brooks</em> the number allowed fell from 609 to 454. Planters and abolitionists supported it together, for different reasons. Another great humanitarian victory born of compromise.','plate--mid')}
+  <p>Hegel and his disciples \u2014 Marx among them \u2014 have noticed a pattern. Horror is necessary for the world to progress. The <em>Zong</em>? A textbook demonstration. Reason demanded that hundreds of people be thrown overboard; luckily, it learned an important lesson. Life exists outside the ledger. A profound development!</p>
+  <p>I\u2019ve always found this argument unsatisfying. In form, it resembles theodicy to an uncomfortable degree: evil exists so that good can vanquish it. Will it? Eventually. Nothing guarantees it. ${fnS('s11','It could be a story we tell ourselves to make sense of it all.')} The Dialectic doesn\u2019t care. It continues no matter how much we want it to stop.</p>
   ${fnB('s11',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s11').txt,'fn-secret')}
-  ${fnB('24','In other words: if the case was rightly decided, then there is no need to validate it. Decisions only need stare decisis if they are wrong in some way. If interpretation relies on induction, but the deductive principles can be changed, then induction-based judgments are unstable. Consider a piece of precedent the court will overrule: Congress assumes it is constitutional and writes a bill in accordance with it. How could it determine the law is unconstitutional before the Court ruled it so?')}
-  ${fig(IMG.diagram,'A schematic drawing of the slaveship Brooks demonstrating the cramped conditions of a Middle Passage journey.','A schematic drawing of the ship Brooks demonstrating the conditions of ships undergoing the Middle Passage. The <em>Zong</em> case spurred reform here: both planters and abolitionists supported the Slave Trade Act 1788, which limited the number of slaves per ship. The number of slaves transported aboard the Brooks decreased from 609 to 454.','plate--mid')}
+  <p>I worry, as Hegel did, that even the noblest intentions can be subordinate to rational ends. Unlike Hegel, I am not able to abstract away the sacrifices. The slaughter-bench consumes more than happiness, wisdom, virtue.</p>
+  <p>It consumes men.</p>
+  <p>The 130 slaves remain drowned off the coast of Jamaica.</p>
   ${p1Footer()}
   <div class="p1-page-nav">
-    ${nav('p1_s5','← VI')}
-    ${nav('p1_s7','→ VIII')}
+    ${nav('p1_s5','\u2190 VI')}
+    ${nav('p1_s7','\u2192 VIII')}
   </div>
 </div>`,
 
 p1_s7:`<div class="essay paper">
   <p class="section-label">VIII.</p>
-  <p>I left out a bit of crucial Japanese history earlier.</p>
-  <p>Satsuma and Choshu Domains hated the Shogunate because of a deep historical grudge stemming from the Battle of Sekigahara back in 1600, the conclusion of the Sengoku Period of violent civil war between clans. The two domains were originally Toyotomi loyalists and part of the “Western Army" opposed to the upstart Tokugawa Ieyasu. However, both bent the knee when the victory of Tokugawa's “Eastern Army" became inevitable. Both were spared by the triumphant now-Shogun Tokugawa Ieyasu, who made the calculation that more open conflict would be counterproductive to the country's stability.</p>
-  <p>However, the Toyotomi lords were forever stained as “Tozama" or “Outsider Lords". The Tokugawa Shogunate judged them dangerous, so it set up a system to cage these lords of suspect loyalty: drain them of wealth by requiring the construction of elaborate public works and require the distant domains to make expensive bi-yearly journeys to the capital of Edo (<em>sankin-kōtai</em>). Thus, the Shogunate “bought" stability by forcing the Daimyos into poverty, effectively avoiding a protracted guerrilla war against the losing daimyos. Looking back from 1800, the Shogunate would say it was the right rational decision, as it achieved 200 years of relative peace. Vindication.</p>
-  <p>Of course, the Tozama never forgot or forgave their defeat at Sekigahara, in part because the system never stopped reminding them of their defeat. The Mori Clan, who became the Choshu Domain, suffered heavily from the burden imposed. Under Hideyoshi, the Mori had been one of the “Five Regent" clans that controlled much of Western Honshu, the main island. Following Sekigahara, they were stripped of nearly three quarters of their land and shoved into two of the poorest provinces distant from Edo. Satsuma kept its lands but was in perennial financial difficulties due to the huge number of samurai retainers it maintained.</p>
-  <p class="pullquote">Every New Year's Day for 250 years, Choshu samurai would approach the Daimyo and ask:<br><br>“Has the time come to begin the subjugation of the Shogunate?"<br><br>And for 250 years, the Daimyo would reply:<br><br>“No. The time is not yet ripe."</p>
-  <p>Satsuma and Choshu were rational. They bided their time, as they knew there was little they could do as long as the Shogunate remained stable. However, when the Black Ships arrived, the Tozama were ready and able to strike back. The result was the previously mentioned Boshin War and Meiji Restoration. Many of the leaders of these movements came from the samurai class, including the man who helped spearhead the entire victory, Saigo Takamori.</p>
-  <p>Following the Meiji victory, many of these samurai found a place in the new order and became very successful. However, nearly as many were rendered obsolete by European modernity. The literati virtues that had sustained the samurai as a class during the Shogunate were useful, but no longer unique. A modern bureaucratic state does not need a bunch of warrior-poet wannabes: it needs clerks and conscripts. Shorn of purpose and use, many samurai fell into penury. In the end, the Meiji oligarchy only fulfilled half the promise of sonno-joi: they restored the emperor but invited the barbarians directly into the house for tea. A final twist of the knife: the Meiji elite banned anyone from carrying swords, effectively abolishing and reversing the traditional symbol of samurai class distinction.${fnR('25','25')}</p>
-  ${fnB('25','This was known as the Haitōrei. Of course, the Daimyos were allowed to keep their swords. No proper European Aristocrat would be caught dead without one.')}
+  <p>A nerve cell cannot see what the whole is building. Take the samurai. I did not tell you the full story. The pattern is fractal, after all.</p>
+  <p>Satsuma and Choshu had fought on the losing side at Sekigahara back in 1600. Both submitted when Tokugawa victory became inevitable and were spared, but thereafter remained stigmatized as Tozama \u2014 \u201cOutsider Lords&rdquo;. The Shogunate kept potentially disloyal domains weak and under watch through costly public works and <em>sankin-k\u014dtai</em>. It bought more than two centuries of peace. It also ensured that the defeated never forgot who had defeated them.${fnR('mori')}</p>
+  ${fnB('mori','Mori Terumoto, lord of the territory that became Choshu, had been one of Hideyoshi\'s Council of Five Elders. After Sekigahara, the Mori lost nearly three-quarters of their lands and were confined to two comparatively poor provinces. Satsuma retained its territory but remained burdened by its unusually large samurai class.')}
+  <p class="pullquote">Every New Year's Day for 250 years, Choshu samurai would approach the Daimyo and ask:<br><br>\u201cHas the time come to begin the subjugation of the Shogunate?&rdquo;<br><br>And for 250 years, the Daimyo would reply:<br><br>\u201cNo. The time is not yet ripe.&rdquo;</p>
+  <p>When the Black Ships showed up in Tokyo Bay, the Tozama and their samurai were itching to strike. These men were competent, driven, and angry. Many leaders of what was later called a Restoration came from the samurai class, including Saigo Takamori, instrumental in Satsuma's rise.</p>
+  <p>However, most samurai were rendered antiquated by European modernity. The literati virtues that had sustained the samurai as a class during the Shogunate were useful, but no longer unique. A modern bureaucratic state does not need a bunch of warrior-poet wannabes, as clerks and conscripts are much more useful. Shorn of purpose, the unfortunate samurai fell into penury.</p>
+  <p>In the end, the Meiji oligarchy only fulfilled half the promise of sonno-joi: they restored the emperor but invited the barbarians directly into the house for tea. And as a final twist of the knife, the Meiji elite stripped sword rights from the samurai, effectively abolishing the traditional symbol of samurai class distinction.${fnR('haitorei')} The new state asserted its monopoly of violence.</p>
+  ${fnB('haitorei','This was known as the Hait\u014drei. Of course, the Daimyos were allowed to keep their swords. No proper European Aristocrat would be caught dead without one.')}
   ${fig(IMG.shiroyama,'A woodblock print of the Battle of Shiroyama.','The Battle of Shiroyama, 1877. The last stand of the samurai. Krupp artillery against katanas.','plate--mid')}
-  <p>No surprise then that the samurai rose in rebellion against the very government they had created. The new Meiji order was led by many of the samurai's former leaders. Choshu leaders headed the conscript army that the samurai had helped forge.${fnR('26','26')} The navy forged by Satsuma blockaded the coast, penning the samurai in. Together, the Meiji army and navy obliterated the samurai at Shiroyama. Saigo Takamori killed himself.${fnR('27','27')} The samurai who provided much of the alliance's original strength and brought it to power were liquidated by their creation. Popular history fixates on the arquebus ending European honor culture, but the Krupp cannons manned by former peasants cut down the flowers of Japanese chivalry more effectively.</p>
-  ${fnB('26','The peasants transcended their footnote status. Now the turn of samurai.')}
-  ${fnB('27','And then the Meiji oligarchs used him as a great example of Japanese honor and determination.')}
+  <p>It could not have come as a surprise to the Meiji leadership that these now dispossessed samurai would rise in revolt. Luckily, they had just the right tools to suppress the uprising. The conscript army introduced by Choshu was primed to destroy their former betters.${fnR('transcended')} The Imperial Navy forged by Satsuma blockaded the coast and penned the samurai in. In command stood many of the very men who had led the samurai to war against the Shogun.</p>
+  ${fnB('transcended','The peasants transcended their footnote status. Now the turn of the samurai.')}
+  <p>Bushido proved no match for the new order. The rebellion ground on for eight months, and what was left of it \u2014 400 men \u2014 dug in on the hill at Shiroyama, surrounded by 30,000 imperial conscripts. The army spent days walling them in and shelling the hillside from land and sea. When the assault came before dawn, the survivors charged down into it, and Gatling guns cut them apart. Saigo Takamori killed himself.${fnR('takamori')}</p>
+  ${fnB('takamori','And then the Meiji oligarchs used him as a great example of Japanese honor and determination.')}
+  <p>Popular history fixates on the arquebus ending European honor culture, but the Krupp cannons manned by former peasants cut down the flowers of Japanese chivalry more effectively. The samurai who had restored the emperor to power were liquidated in his name.</p>
+  <p>Every one of them was a nerve cell in the greater whole, and Geist (as Hegel calls Spirit) does not feel a nerve cell. You may be the one offered up. The samurai made the right Judgments. Where did they end up? Charging Gatling guns at dawn. Today they are a symbol of honor, of futility, of a past no longer accessible.</p>
   ${fig(IMG.armies,'A triptych showing Japanese and foreign military uniforms assembled in comparative display.','A triptych showing Japanese and foreign military uniforms assembled in comparative display. The Japanese portray themselves as indistinguishable from their Russian opponents outside of their uniforms.')}
-  <p>That's the cold hard truth of the dialectic: Geist (as Hegel calls Spirit) is not focused on an individual nerve cell. All the samurai retainers acted rationally and made the right judgments. But when the world judged them incomplete, the guns were turned on them. The Owl of Minerva only appears at dusk: ${fnS('s10','we can only see the pattern in retrospect.')} The samurai built the very boot that would snap their necks. Would they have destroyed the Shogunate if they had known the result?${fnR('28','28')}</p>
+  <p>The Owl of Minerva only appears at dusk: ${fnS('s10','we can only see the pattern in retrospect.')} The samurai built the very boot that would snap their necks. Would they have destroyed the Shogunate if they had known the result?${fnR('unfolding')}</p>
   ${fnB('s10',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s10').txt,'fn-secret')}
-  ${fnB('28','How could I be sure that I am not doing the same? Can I even see the unfolding well enough to, if not stop it, steer it?')}
+  ${fnB('unfolding','How could I be sure that I am not doing the same? Can I even see the unfolding well enough to, if not stop it, steer it?')}
   ${p1Footer()}
   <div class="p1-page-nav">
-    ${nav('p1_s6','← VII')}
-    ${nav('p1_s8','→ IX')}
+    ${nav('p1_s6','\u2190 VII')}
+    ${nav('p1_s8','\u2192 IX')}
   </div>
 </div>`,
 
 p1_s8:`<div class="essay paper">
   <p class="section-label">IX.</p>
-  <p>The problem with thinking is that you can't unthink. Theories feel less like something you hold and more something that has begun to hold you. If ideas really do become tools, then somewhere the tools <em>must</em> exist, continuing to do what they were built to do, whether anyone remembers the reason that built them or not.</p>
-  <p>And once you suspect that, you start wanting to see them for yourself. To see the theory in action. To see its process. To see it continue.</p>
-  <p>I worry that it is too late for me. That I already built the boot. But not knowing is worse. I want to know. I have to know.</p>
+  <p>The problem with thinking is that you can't unthink. Theories feel less like something you hold and more like something that has begun to hold you. If ideas really do become tools, then somewhere the tools <em>must</em> exist, continuing to do what they were built to do, whether anyone remembers the reason that built them or not.${fnR('must')}</p>
+  ${fnB('must','Must they? Or do I <em>need</em> them to?')}
+  <p>And once you suspect that, you start wanting to see them for yourself. To see the theory in action.</p>
+  <p>To see its process. To see it continue.</p>
+  <p>I worry that it is too late for me. That I already built the boot.</p>
+  <p>But not knowing is worse.</p>
+  <p>I <em>want</em> to know.</p>
+  <p>I <em>have</em> to know.</p>
   ${p1Footer()}
   <div class="p1-page-nav">
     ${nav('p1_s7','← VIII')}
@@ -1313,34 +1634,72 @@ p1_s8:`<div class="essay paper">
 /* ══ PART TWO ══ */
 p2_intro:`<div class="essay part2">
   <p class="part-label">Part Two</p>
+  ${figP2(IMG.p2Skyline,'A person seen from behind at a window, city rooftops and skyline beyond.',1300,867)}
   ${nav('p2_bar','→ Begin')}
 </div>`,
 
 p2_bar:`<div class="essay part2">
-  <p>One of my close friends calls himself an archaeologist of the present. He journeys into the forgotten basements of the primitive digital age, rebooting long-dormant computers and fixing corrupted hard drives. He feels it is a moral duty to preserve archives that others forgot, intentionally or accidentally.</p>
-  <p>Over drinks one night in a dingy East Harlem bar, we exchanged the drunken stories that structure our lives.${fnR('b1','1')} It was only after too many Modelos that he found the courage to recount his most recent expedition. A harrowing experience.</p>
-  ${fnB('b1','I lived in this neighborhood at the time. New York real estate is very expensive. He didn\'t want to meet at his place.')}
-  <p>He had ventured into an abandoned government building carved into the foothills of some South American mountain.${fnR('b2','2')} Paranoid as always, he told no one and abandoned his phone stateside. He became a ghost, leaving behind neither digital trace nor memories in the minds of others.</p>
+  <p>Whenever I end up in New York, I try to get drinks with a close buddy of mine from college. Right after graduation, we were both working crappy jobs while living in whatever we could afford in East Harlem. We decompressed on Fridays by drinking at some dingy neighborhood bar.${fnR('b1')} We spent hours drunkenly exchanging the stories that anchor our lives.</p>
+  ${fnB('b1','We did not have the glamorous Manhattan experience. That is probably why we stayed friends.')}
+  ${figP2(IMG.p2Bar,'A bar entrance at night, neon signs and a lit doorway, photographed from the sidewalk.',1300,974)}
+  <p>He loves to call himself an “archaeologist of the present.” His hobby is journeying into the forgotten basements of the primitive digital age, rebooting long-dormant computers and fixing corrupted hard drives.${fnR('barch')}</p>
+  ${fnB('barch','He claims it is a moral duty to preserve archives that others forgot, intentionally or accidentally.')}
+  ${nav('p2_bar2')}
+</div>`,
+
+p2_bar2:`<div class="essay part2">
+  <p>He was visibly drunk by the time I arrived for our last meeting. Perhaps that's why he had the courage to launch into this story with no warning.</p>
+  <p>He had been in South America, visiting an abandoned government building. It was carved into the foothills of a mountain down there.${fnR('b2')}</p>
   ${fnB('b2','I admit that I was too drunk (or crossed) to remember which specifically.')}
+  <p>Paranoid as always, my friend had told no one of this trip. He abandoned his electronics stateside.${fnR('bghost')}</p>
+  ${fnB('bghost','He explained that he needed to be a “digital ghost”. No evidence of his journey.')}
   ${nav('p2_descent1')}
 </div>`,
 
 p2_descent1:`<div class="essay part2">
-  <p>The facility's upper levels were wrecked by a violent storm. Unplugged, tangled cables. Rows and rows of chairs and tables, some overturned. Drawers torn out, their contents emptied on the floor. Wine-dark stains on fading carpet. CRT screens reduced to black mirrors, doomed to reflect lightless rooms.${fnR('b3','3')} Computers with 256-megabyte hard drives, connected to keyboards made of yellowing plastic keys. Silence so thick that he only heard the beat of his heart.</p>
-  ${fnB('b3','My friend loves to exaggerate. I\'m sure some still worked.')}
-  <p>He felt like an intruder robbing the dead. It was a graveyard.</p>
-  <p>He descended and descended further and further. Every floor, every room, the same pattern repeated. An endless electronic tomb. Upon reaching the lowest level, a door, unlike any before. A thin bar of green light leaked from the bottom gap. His skin went cold: this place was supposed to be abandoned. He opened the door.${fnR('b4','4')}</p>
+  <p>The facility's upper levels were in complete disarray, as if they had been wrecked by a violent storm.</p>
+  <p>Rows and rows of chairs and tables, some overturned. Drawers torn out, their contents emptied on the floor. Wine-dark stains on fading carpet.</p>
+  <p>Unplugged, tangled cables. CRT screens reduced to black mirrors, reflecting lightless rooms.</p>
+  <p>Silence so thick he only heard the beat of his heart.</p>
+  <p>It was a graveyard.${fnR('bgrave')}</p>
+  ${fnB('bgrave','He felt like an intruder robbing the dead.')}
+  ${nav('p2_descent1b')}
+</div>`,
+
+p2_descent1b:`<div class="essay part2">
+  <p>He descended and descended further and further. Every floor, every room. Every floor, every room. The same pattern repeated: an endless electronic tomb.${fnR('b4')}</p>
   ${fnB('b4','He stopped here to take a sip of his beer. When he resumed his story, his hands were shaking.')}
+  <p>At the bottom, a door. A green light leaked through the cracks.</p>
+  ${figP2(IMG.p2Street,'A city street at night, parked cars, one person walking in the distance.',1300,867)}
+  <p>He opened the door.</p>
+  ${nav('p2_descent1c')}
+</div>`,
+
+p2_descent1c:`<div class="essay part2">
+  <p>The air shifted the instant his body crossed the threshold.${fnR('b5')} Heavier. Drier.</p>
+  ${fnB('b5','He also described an accompanying sensation: “forward movement while standing completely still”. I still can\'t parse what he meant by that.')}
+  <p>Inside, the room appeared untouched by whatever had unfolded above.</p>
+  <p>Pale fluorescent lights. Vibrant green carpets. Wood-paneled walls. Blinking terminals with faint text. No furniture but a circle of white fiberglass chairs.</p>
+  <p>The only evidence of its advanced age was a thin layer of dust that coated everything.</p>
   ${nav('p2_descent2')}
 </div>`,
 
 p2_descent2:`<div class="essay part2">
- <p>As he entered, he said the world felt like it was shifting underfoot.${fnR('b5','5')} In contrast to the chaos upstairs, the room behind the door was preserved in perfect order. Green carpet, wood-paneled walls, and white fiberglass chairs deliberately arranged in a circle. The center remained empty, as if waiting for someone or something to stand and supervise. Terminals of various sorts lined the walls.</p>
-  ${fnB('b5','He claimed that the air itself was different. Heavier and drier.')}
-  <p>The only sign of the room's age was a thin layer of dust covering everything. No longer a tomb. Instead, an abandoned sterile lab. A terminal on the wall hummed, glowing faintly. A fan whirred.</p>
-  <p>He approached the terminal screen with trepidation.${fnR('b6','6')}</p>
-  ${fnB('b6','According to him, it seemed like the terminal had never stopped. I personally find this hard to believe. How could the place even have power?')}
-  <p>He gazed, recording its output by hand in red ink. He pulled out a piece of paper and showed it to me.</p>
+  <p>He stepped deeper into the room. When he reached the middle, he stopped. He noticed that he alone stood at the center. Without him, the chairs surrounded nothing. It occurred to him that the room itself was waiting for someone to stand where he was standing. To supervise?</p>
+  <p>It was then that he realized the facility was not merely a tomb.</p>
+  ${nav('p2_descent2b')}
+</div>`,
+
+p2_descent2b:`<div class="essay part2">
+  <p>He became aware that sound had returned to the world. A fan whirred. A terminal hummed. Then it beeped.${fnR('b6')}</p>
+  ${fnB('b6','I really wanted to ask him how this place even had power, but kept any objections to myself.')}
+  <p>Did it beckon to him?</p>
+  <p>Curious, he approached the terminal and gazed down at its glowing screen.</p>
+  ${nav('p2_descent2c')}
+</div>`,
+
+p2_descent2c:`<div class="essay part2">
+  <p>At this point in his recounting, he pulled a notebook out of his bag and handed it to me. He then showed me the text he had copied in red ink.</p>
   ${nav('p2_terminal','→ Read the notes')}
 </div>`,
 
@@ -1361,84 +1720,124 @@ p2_terminal:()=>{
 },
 
 p2_aftermath1:`<div class="essay part2">
-  <p>My friend escaped, compelled upwards by a terror greater than anything he had ever felt. He left the room behind, its open door expelling sickly green light. On his return to the nearby city, he immediately rescheduled his flight back to New York, arriving back just a few days before our meeting.</p>
-  <p>He explained that he fled so quickly because he understood that <span style="font-variant:small-caps">gestell</span> had data about <em>him</em>. He didn't know how the machine knew, but he felt its hot gaze in that room.</p>
-  <p>He emphasized that the gaze itself was not the source of his terror. Rather, it was the realization that the gaze had always been there. He <em>knew</em> the machine understood him better than his mother, his girlfriend, his best friend. Better than himself. Worst of all, this was the first time he had ever understood where to gaze back.${fnR('b7','7')}</p>
+  <p>By the time I finished reading the pages he had handed to me, my friend had gotten another Modelo.</p>
+  <p>He then explained that those pages were all he had written down because he couldn't bear to continue copying. Every letter he scrawled filled him with greater and greater terror. In the end, he snapped.</p>
+  <p>Fear compelled him upwards. Back through the abandoned floors filled with dead electronics. Even with his back turned, he felt the sickly green light clinging to him. </p>
+  <p>He worried that it would never let go.</p>
+  ${nav('p2_return')}
+</div>`,
+
+p2_return:`<div class="essay part2">
+  <p>It took him a day to get back to the city he had set out from. He was on the next plane back to New York.</p>
+  <p>He had touched down a few hours earlier.</p>
+  <p>Now he was at the bar.</p>
+  ${nav('p2_aftermath1b')}
+</div>`,
+
+p2_aftermath1b:`<div class="essay part2">
+  <p>He did not wait for my response, explaining that he had fled so quickly because he understood that <span style="font-variant:small-caps">gestell</span> had data about <em>him</em>. He didn't know how the machine knew, but he felt its hot gaze in that room.</p>
+  <p>He emphasized that the gaze itself was not the source of his terror. Rather, it was the realization that the gaze had always been there. He <em>knew</em> the machine understood him better than his mother, his girlfriend, his best friend. Better than himself.</p>
+  <p>Worst of all, this was the first time he had ever understood where to gaze back.${fnR('b7')}</p>
   ${fnB('b7','My friend\'s hands had stopped shaking by then, as if some great burden had finally escaped his grasp.')}
     ${hr}
   ${nav('p2_aftermath2')}
 </div>`,
 
 p2_aftermath2:`<div class="essay part2">
-  <p>I didn't know how to react, so I made an uncomfortable sound that approximated laughter. His glassy, drunk eyes gazed back at me without an ounce of humor.${fnR('b8','8')} The laughter died in my throat. I finally understood he was deathly serious: he did not see this as a joke. Obviously, I was at a loss for words. It was all too melodramatic.${fnR('b9','9')}</p>
+  <p>I didn't know how to react, so I made an uncomfortable sound that approximated laughter. His glassy, drunk eyes gazed back at me without an ounce of humor.${fnR('b8')}</p>
   ${fnB('b8','Looking back, I should have found this strange. He was a rather temperate guy most of the time.')}
-  ${fnB('b9','I just thought we were gonna catch up over a few beers, not hear a story about a haunted computer lab.')}
+  <p>The laughter died in my throat.${fnR('blaugh')}</p>
+  ${fnB('blaugh','I finally understood he was deathly serious: he did not see this as a joke.')}
+  <p>I had nothing to say. It was all too melodramatic.${fnR('b9')}</p>
+  ${fnB('b9','I just thought we were gonna catch up over a few beers. I wasn\'t expecting a story about a haunted computer lab.')}
   <p>An immense silence grew between us. Finally, I asked</p>
-  <p class="pullquote">"Why not smash the terminal?"</p>
-  <p>My friend looked at me, confusion plastered on his face. He never answered my question.</p>
+  <p class="pullquote">Why not smash the terminal?</p>
+  ${figP2(IMG.p2Towers,'High-rise apartment buildings at night, lit windows against a dark sky.',1300,867)}
+  <p>My friend looked at me, confusion plastered on his face.</p>
+  <p>He never answered my question.</p>
     ${hr}
   ${nav('p2_leaving')}
 </div>`,
 
 p2_leaving:`<div class="essay part2">
   <p>Eventually, he stood up from the bar and walked to the door. Before he stepped outside into the dark November night, he said</p>
-  <p class="pullquote" style="color:var(--red);font-family:'Fjord One',Georgia,serif;">"It is already too late for me. I cannot unlearn what I learned. Cannot unthink what I thought. <br>It continues. Whether we want it to or not."</p>
-  <p>He was out the door. He left his notes on the table. I still have them.</p>
+  <p class="pullquote" style="color:var(--red);font-family:'Fjord One',Georgia,serif;">It is already too late for me. I cannot unlearn what I learned. Cannot unthink what I thought. <br>It continues. Whether we want it to or not.</p>
+  <p>He was out the door. He left his notes on the table.</p>
+  <p>I still have them.${fnR('bessay')}</p>
+  ${fnB('bessay','I still haven\'t read that essay he sent me.')}
   ${hr}
   ${nav('p2_apartment')}
 </div>`,
 
 p2_apartment:`<div class="essay part2">
-  <p>A few days later, I tried to visit his apartment in Chelsea.${fnR('b10','10')} When I arrived, I noticed his ex outside sitting on the curb. Makeup ran down her face. Her hair was a mess. I understood what happened in an instant.</p>
+  <p>I only understood the gravity of the story the next morning. I begged my supervisor to let me take some time off work, but didn't have the courage to explain what my friend had told me.</p>
+  <p>It was a few days before I had time to visit his apartment in Chelsea.${fnR('b10')}</p>
   ${fnB('b10','He had a nice rent-controlled loft.')}
+  ${nav('p2_girlfriend')}
+</div>`,
+
+p2_girlfriend:`<div class="essay part2">
+  <p>When I arrived, I noticed his ex sitting outside on the curb. Makeup ran down her face. Her hair was a mess.</p>
+  ${figP2(IMG.p2Stairs1,'A narrow wooden staircase photographed from the bottom, coats and shoes on the landing above.',900,1350,'plate--tall')}
+  <p>I understood what had happened in an instant.</p>
   ${nav('p2_apartmentreveal1')}
 </div>`,
 
 p2_apartmentreveal1:`<div class="essay part2">
-  <p>I climbed the stairs. A 5-story walk-up. I stood before his door. The sun's yellow light leaked through the gap. I unlocked it.</p>
-  ${nav('p2_apartmentreveal2',)}
+  <p>I climbed the stairs. Five flights.</p>
+  ${figP2(IMG.p2Stairs2,'A narrow wooden staircase photographed from the bottom, coats and shoes on the landing above.',900,1350,'plate--tall')}
+  <p>I stood before his door.</p>
+  ${nav('p2_apartmentreveal2')}
 </div>`,
 
 p2_apartmentreveal2:`<div class="essay part2">
-  <p>Inside, no furniture. White walls. No dust. No trace of anything human.</p>
+  <p>The sun's yellow light leaked through the gap.</p>
+  ${figP2(IMG.p2Stairs3,'A narrow wooden staircase photographed from the bottom, coats and shoes on the landing above.',900,1350,'plate--tall')}
+  <p>I unlocked it.</p>
+  ${nav('p2_apartmentreveal3')}
+</div>`,
+
+p2_apartmentreveal3:`<div class="essay part2">
+  <p>Inside, no furniture.</p>
+  <p>White walls.</p>
+  <p>No dust.</p>
+  <p>No trace of anything human.</p>
   ${nav('p3_title','→ Part Three')}
 </div>`,
 
 
 /* ══ PART THREE ══ */
 p3_title:()=>{
-  S.pressAKnight=0;S.waitFinalCount=0;
+  S.pressAKnight=0;
   return `<div class="game out-game">
-  <p style="text-align:center;font-size:1.35rem;margin-bottom:.4em"><strong>Part Three</strong></p>
-  <p style="text-align:center;font-style:italic;color:#999;margin-bottom:3em">[PROTOTYPE — working draft]</p>
+  <p style="text-align:center;font-size:1.35rem;margin-bottom:3em"><strong>Part Three</strong></p>
   <div style="text-align:center">${nav('p3_boot1','→ Boot up your save')}</div>
 </div>`;},
 
 p3_boot1:()=>{
   S.playerLevel=2;
   return `<div class="game in-game reveal-click"
-  data-labels="→ Remember">
-${hud('SAVE FILE 1 &nbsp;|&nbsp; The Drift')}
-${p('You awaken by a bonfire outside a cave. You try to remember what you were doing.')}
-  <div class="hidden">
-    <p>You were farming experience. To win? To enjoy? To escape?</p>
-    <p>Your time is limited. You need to optimize.</p>
-    <p>Luckily, the Discord theorycrafters already ran the numbers: killing chimeras in the cave is 32% more efficient than the next best farm at your level.</p>
-    </div>
+  data-labels="→ Remember|→ Consult Sources">
+  ${hud('SAVE FILE 1 &nbsp;|&nbsp; The Drift')}
+  ${p('You awaken by a bonfire outside a cave. You try to remember what you were doing.')}
+  <div class="hidden">${p('You were farming experience. To win? To enjoy? To escape?')}${p('You suddenly remember your time is limited. You need to optimize.')}</div>
+  ${ph('Luckily, the Discord theorycrafters already ran the numbers: killing chimeras in the cave is 32% more efficient than the next best farm at your level.')}
   <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Remember</button>
   </div>
   <div class="after-reveal">
     ${nav('p3_grind1','→ Enter the cave')}
   </div>
-  </div>`;},
+</div>`;},
 
 p3_grind1:()=>{
   S.playerLevel=2;
   return `<div class="game in-game reveal-click" 
-  data-labels="→ Swing|→ Swing|→ Swing|→ Sip|→ Swing">
+  data-labels="→ Swing|→ Swing|→ Swing|→ Swing|→ Swing|→ Sip|→ Swing|→ Swing">
     ${hud('SAVE FILE 1 &nbsp;|&nbsp; Chimera Grotto')}
-  ${p('You enter a rhythm. You become the game.')}
+  ${p('You see a chimera.')}
+  ${ph('You swing.')}
+  ${ph('You enter a rhythm. You become the game.')}
   ${ph('Every button press is a slash with your greatsword. A roll. A swing. Experience.')}
   ${ph('A shriek.')}
   ${ph('Which is drowned out by the soundtrack. Which is drowned out by your music. Which is drowned out by the podcast you are watching on your second monitor. Something about looksmaxxing? You barely notice it. You are lost in the game.')}
@@ -1450,6 +1849,7 @@ p3_grind1:()=>{
       </div>
   <div class="after-reveal">
     ${nav('p3_timepasses1','→ Swing')}
+</div>
 </div>`;},
 
 p3_timepasses1:()=>{ 
@@ -1478,7 +1878,7 @@ ${p('You hit level 10.  You leave the cave for the final time. You hope. Your ch
 ${ph('You save the game. The clock reads 6:03.')}
 ${ph('You sigh.')} 
   <div class="choices">
-    <button class="choice-btn" data-action="revealNext">→   Save</button>
+    <button class="choice-btn" data-action="revealNext">→ Save</button>
   </div>
   <div class="after-reveal">
     ${nav('p3_work1','→ Exit Game')}
@@ -1534,58 +1934,50 @@ p3_work10:
   ${nav('p3_boot_game1','→ Boot up your save')}
 </div>`,
 
-p3_boot_game1:()=>{ 
-  S.playerLevel=10; 
-  return`<div class="game in-game">
+p3_boot_game1:()=>{
+  S.playerLevel=10;
+  return `<div class="game in-game">
   ${hud('SAVE FILE 1 &nbsp;|&nbsp; The Drift')}
   ${p('You awaken at the Bonfire outside the cave.')}
-  ${p('You have leveled enough.')}
-    ${p('Its time to take on the boss.')}
+  ${p('You have leveled enough. It\'s time to take on the boss.')}
   ${nav('p3_feasthall1','→ Journey to the Feast Hall')}
 </div>`},
 
-p3_feasthall1:()=>{ 
-  return `<div class="game in-game reveal-click" 
-  data-labels="→ Swing">
+p3_feasthall1:()=>{
+  S.playerLevel=10;
+  return `<div class="game in-game reveal-click"
+  data-labels="→ Gaze|→ Swing|→ Die|→ Die|→ Die">
   ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
   ${p('Inside, you see tables overturned, food scattered, drinks spilled. Remnants of a hedonistic night you are left to imagine.')}
-  ${p('The Countless Count stands, waiting for your approach.')}
+  ${ph('At the center, the Countless Count stands waiting for someone to approach.')}
   ${ph('You swing.')}
-    <div class="choices">
+  ${ph('You respawn. You don\'t know the Count\'s attack pattern. You hope you are progressing.')}
+  ${ph('You respawn. You don\'t understand the Count\'s attack pattern. You feel you are progressing.')}
+  ${ph('You respawn. At least you got to see the Count\'s second phase. You know you are progressing.')}
+  <div class="choices">
+    <button class="choice-btn" data-action="revealNext">→ Gaze</button>
+  </div>
+  <div class="after-reveal">
+    ${nav('p3_feasthallfight1','→ Roll')}
+  </div>
+</div>`;},
+
+p3_feasthallfight1:()=>{
+  S.playerLevel=10;
+  return `<div class="game in-game reveal-click"
+  data-labels="→ Swing|→ Roll|→ Stab">
+  ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
+  ${p('The Feast Hall spins around you.')}
+  ${p('The Count\'s lunge lands where you were 5 frames ago. When his rapier finds nothing, he curses. He pauses to sip wine from his goblet. Now is your chance.')}
+  ${ph('He staggers, falling to one knee.')}
+  ${ph('His arms reach out to where you were 2 frames ago, but find nothing. He topples.')}
+  ${ph('Your blade is through his chest in an instant. The Count dies. His empty goblet rolls across the floor. A Bonfire bursts into flame.')}
+  <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Swing</button>
   </div>
   <div class="after-reveal">
-  ${nav('p3_die1','→ Die')}
-    </div>
-</div>`;},
-
-p3_die1:()=>{ 
-  S.playerLevel=10; 
-  return`<div class="game in-game">
-      ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
-      ${p('You die. You don\'t know the Count\'s attack pattern.')}
-      ${p('You hope you are progressing.')}${nav('p3_die2','→ Respawn')}</div>`},
-  
-p3_die2:()=>{ 
-  S.playerLevel=10; 
-  return `<div class="game in-game">
-      ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
-  ${p('You die. You don\'t understand the Count\'s attack pattern.')}
-  ${p('You feel you are progressing.')}${nav('p3_die3','→ Respawn')}</div>`},
-
-  p3_die3:()=>{ 
-  S.playerLevel=10; 
-  return `<div class="game in-game">
-      ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
-  ${p('You die. At least you got to see the Count\'s second phase.')}
-  ${p('You know you are progressing.')}${nav('p3_count_dies','→ Respawn')}</div>`},
-  
-  
-p3_count_dies:()=>{ 
-  return `<div class="game in-game" >
-  ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
-${p('The Count dies. In the room, a Bonfire bursts into flame. ')}  
-  ${nav('p3_clock1','→ Glance at Clock')}
+    ${nav('p3_clock1','→ Glance at Clock')}
+  </div>
 </div>`;},
 
 p3_clock1: `<div class="game out-game">
@@ -1593,21 +1985,24 @@ p3_clock1: `<div class="game out-game">
   ${nav('p3_courtyard1','→ Exit Feast Hall')}
 </div>`,
 
-p3_courtyard1:()=>{ 
-    return `<div class="game in-game reveal-click"
-   data-labels="→ Look Ahead|→ Approach">
-         ${hud('SAVE FILE 1 &nbsp;|&nbsp; Courtyard (Night)')}
-  ${p('The game loads.  You enter the Courtyard. Outside is a night darker than any night you have experienced. There is a single point of light in the sky. You don\'t look up.')}
-  ${ph('A knight stands before you. Blocking the road to the Elysian Fields. Cloaked in red and white and black. Holding a torch. Tall. Faceless. Immovable.')}
+p3_courtyard1:()=>{
+  S.playerLevel=10;
+  return `<div class="game in-game reveal-click"
+  data-labels="→ Look Ahead|→ Approach">
+  ${hud('SAVE FILE 1 &nbsp;|&nbsp; Courtyard (Night)')}
+  ${p('The game loads. You enter the Courtyard. Outside is a night darker than any night you have experienced. There is a single point of light in the sky. You don\'t look up.')}
+  <div class="hidden">${p('A knight stands before you. Blocking the road to the Elysian Fields. Cloaked in red and white and black. Holding a torch.')}${p('Tall. Faceless. Immovable.')}</div>
   ${ph('You walk up to him.')}
-      <div class="choices">
+  <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Look Ahead</button>
   </div>
   <div class="after-reveal">
-  ${nav('p3_knight1','→ Interact')}
+    ${nav('p3_knight1','→ Interact')}
+  </div>
 </div>`;},
 
 p3_knight1:()=>{
+  S.playerLevel=10;
   S.pressAKnight=0;
     return `<div class="game in-game">
          ${hud('SAVE FILE 1 &nbsp;|&nbsp; Courtyard (Night)')}
@@ -1616,18 +2011,20 @@ ${p('The knight does not react. He stands before you.')}
   <div class="choices">
     <button class="choice-btn" data-action="pressAKnight1">[Interact]</button>
     <button class="choice-btn" data-action="pressRTKnight1">[Swing]</button>
-    <p class="feedback" id="fb-a"></p>
+    <p class="feedback" id="fb-a">Your character swings. No health bar appears. No stagger occurs. He stands there.</p>
     <div id="bonfire-opt1" class="nav-locked" style="margin-top:1.2em">
-      ${nav('p3_bonfire1','→ Enter Feast Hall')}
+      ${nav('p3_bonfire1','→ Exit Courtyard')}
     </div>
   </div>
 </div>`;},
 
-p3_bonfire1:()=>`<div class="game in-game">
+p3_bonfire1:()=>{
+  S.playerLevel=10;
+  return `<div class="game in-game">
            ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
-  <p> The party's detritus  remains strewn across the floor. There is no trace of the Count. </p>
+  <p>You return to the Feast Hall. The party's detritus remains strewn across the floor. There is no trace of the Count.</p>
   <p> You approach the Bonfire. </p>
-  ${nav('p3_daybreak','→  Save the Game')}</div>`,
+  ${nav('p3_daybreak','→ Save the Game')}</div>`;},
 
 p3_daybreak:`<div class="game out-game">
   <p> The workday passes in a blink of an eye.</p> 
@@ -1636,72 +2033,77 @@ p3_daybreak:`<div class="game out-game">
 </div>`,
 
 p3_boot2:()=>{
+  S.playerLevel=10;
   S.pressAKnight=0;
   return `<div class="game in-game reveal-click"
   data-labels="→ Remember">
-         ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
-  ${p('You awaken in a trashed feast hall. You try to remember what you were doing')}
+  ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
+  ${p('You awaken in a trashed feast hall. You try to remember what you were doing.')}
   ${ph('You killed the Count in the Feast Hall. The guides say that you should exit the Courtyard and enter the Elysian Fields.')}
-        <div class="choices">
+  <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Remember</button>
   </div>
   <div class="after-reveal">
-    ${nav('p3_courtyard2','→ Enter Courtyard')}
+    ${nav('p3_courtyard2','→ Exit Feast Hall')}
+  </div>
 </div>`;},
 
-p3_courtyard2: ()=>{
-   return `<div class="game in-game reveal-click"  
-  data-labels="→ Look Ahead|→ Approach |→ Route Past Her">
-           ${hud('SAVE FILE 1 &nbsp;|&nbsp; Courtyard (Day)')}
-  ${p('It is day: brighter than any day you have experienced. There is a single point of light shining down. You don\'t look up.')}
-  ${ph('A knight stands before you, blocking the road to the Elysian Fields. Cloaked in red and white and black. Holding a torch.')}
+p3_courtyard2:()=>{
+  S.playerLevel=10;
+  return `<div class="game in-game reveal-click"
+  data-labels="→ Look Ahead|→ Approach|→ Route Past Her">
+  ${hud('SAVE FILE 1 &nbsp;|&nbsp; Courtyard (Day)')}
+  ${p('You enter the Courtyard. It is day: brighter than any day you have experienced. There is a single point of light shining down. You don\'t look up.')}
+  <div class="hidden">${p('A knight stands before you, blocking the road to the Elysian Fields.')}${p('Cloaked in red and white and black.')}${p('Holding a torch.')}</div>
   ${ph('He does not move.')}
- ${ph('You fail.')}
+  ${ph('You cannot route past her.')}
   <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Look Ahead</button>
   </div>
   <div class="after-reveal">
-  ${nav('p3_ghost_knights','→ Exploit')}
-  </div>`;},
-
-p3_ghost_knights:()=>{ return `<div class="game in-game reveal-click"  
-  data-labels="→ Die|→ Accept">
-           ${hud('SAVE FILE 1 &nbsp;|&nbsp; Courtyard (Day)')}
- ${p('You pull some ghost knights from elsewhere in the courtyard towards her. They do not attack him. They do not see her. They focus on you instead.')}
- ${ph('You respawn back at the Feast Hall Bonfire.')}
-${ph('You are stuck.')}
-  <div class="choices">
-    <button class="choice-btn" data-action="revealNext">→ Die</button>
-  </div>
-  <div class="after-reveal">
-  ${nav('p3_wait1')}
-  </div>`;},
-
-p3_wait1:()=>{
-  S.pressAKnight=0;
-  return `<div class="game in-game">
-    ${hud('SAVE FILE 1 &nbsp;|&nbsp; Courtyard (Day)')}
-  <p>You return to the courtyard. This time you don't do anything.</p>
-  <p id="wait-txt">You just sit there. Before her.</p>
-  <div id="knight-speech-1" style="display:none">
-    <p>Eventually he speaks. Text scrolls along the bottom of the screen.</p>
-    <span class="knight-quote">"Is this what you wanted? Freedom?"</span>
-  </div>
-  <div class="choices">
-    <button class="choice-btn" data-action="waitKnight2">[You wait]</button>
-    <div id="after-speech-1" style="display:none">
-      <button class="choice-btn" data-action="pressAAfterSpeech">[Interact]</button>
-      <p class="feedback" id="fb-speech"></p>
-      <div id="bonfire-opt2" class="nav-locked" style="margin-top:1.2em">
-        ${nav('p3_bonfire2','→ Enter Feast Hall')}
-      </div>
-    </div>
+    ${nav('p3_ghost_knights','→ Exploit')}
   </div>
 </div>`;},
 
-p3_bonfire2:()=>{ 
+p3_ghost_knights:()=>{
+  S.playerLevel=10;
+  return `<div class="game in-game reveal-click"
+  data-labels="→ Run|→ Realize|→ Die|→ Accept">
+  ${hud('SAVE FILE 1 &nbsp;|&nbsp; Courtyard (Day)')}
+  ${p('You pull some Ghostbound Thanes from across the courtyard.')}
+  <div class="hidden">${p('You run towards the Knight.')}${p('They do not attack him. They do not see her.')}</div>
+  ${ph('They focus on you instead.')}
+  ${ph('You respawn back at the Feast Hall Bonfire.')}
+  ${ph('You are stuck.')}
+  <div class="choices">
+    <button class="choice-btn" data-action="revealNext">→ Run</button>
+  </div>
+  <div class="after-reveal">
+    ${nav('p3_wait1')}
+  </div>
+</div>`;},
+
+p3_wait1:()=>{
+  S.playerLevel=10;
+  return `<div class="game in-game reveal-click"
+  data-labels="→ Wait|→ Wait|→ Interact">
+  ${hud('SAVE FILE 1 &nbsp;|&nbsp; Courtyard (Day)')}
+  ${p('You return to the Courtyard. This time you don\'t do anything. You just sit there. Before her.')}
+  ${ph('You watch — you turn your attention from your character\'s idle animations and towards the podcast. You can wait. You\'ve been trained for it.')}
+  <div class="hidden">${p('You wait. The knight has not moved.')}${p('Eventually he speaks. Text scrolls along the bottom of the screen.')}<span class="knight-quote">Is this what you wanted? Freedom?</span></div>
+  <p class="hidden feedback-line">Nothing happens. No text box appears. She does not react.</p>
+  <div class="choices">
+    <button class="choice-btn" data-action="revealNext">→ Wait</button>
+  </div>
+  <div class="after-reveal">
+    ${nav('p3_bonfire2','→ Exit Courtyard')}
+  </div>
+</div>`;},
+
+p3_bonfire2:()=>{
+  S.playerLevel=10;
   return `<div class="game in-game reveal-click"  
-  data-labels="→ Save|→ Exit">
+  data-labels="→ Save">
            ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
 ${p('You return to the Feast Hall and sit by its Bonfire.')}
 ${ph('You know it is late.  You have work soon.')}
@@ -1710,6 +2112,7 @@ ${ph('You know it is late.  You have work soon.')}
   </div>
   <div class="after-reveal">
 ${nav('p3_search1','→ Catch Subway')}
+</div>
 </div>`},
 
 p3_search1:`<div class="game out-game">
@@ -1719,24 +2122,27 @@ p3_search1:`<div class="game out-game">
 </div>`,
 
 p3_boot3:()=>{
+  S.playerLevel=10;
   return `<div class="game in-game reveal-click"
-  data-labels="→ Remember">
+  data-labels="→ Remember|→ Remember">
   ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
   ${p('You awaken in the Feast Hall. You try to remember what you were doing.')}
-  ${ph('A knight stood in your way. You are stuck. You feel helpless. You want to return to the comfort of the grind.')}
+  ${ph('A knight stood in your way. You were stuck. Are stuck. You feel helpless.')}
+  ${ph('You think about the comfort of the grind.')}
     <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Remember</button>
   </div>
   <div class="after-reveal">
-    ${nav('p3_grind2','→ Warp to the Grotto Bonfire')}
+    ${nav('p3_grind2','→ Warp to the Drift')}
   </div>
 </div>`;},
 
 p3_grind2:()=>{
+  S.playerLevel=10;
   return `<div class="game in-game reveal-click"
   data-labels="→ Swing|→ Swing|→ Swing">
   ${hud('SAVE FILE 1 &nbsp;|&nbsp; Chimera Grotto')}
-  ${p('You warp to the Chimera grotto.')}
+  ${p('You enter the cave. You see a chimera.')}
   ${ph('You continue to grind. The loop gradually becomes unsatisfying as each kill gives less XP.')}
   ${ph('You continue anyways. This is what you\'ve been trained for.')}
   ${phl('Another level. It means less than it used to.')}
@@ -1744,17 +2150,19 @@ p3_grind2:()=>{
     <button class="choice-btn" data-action="revealNext">→ Swing</button>
   </div>
   <div class="after-reveal">
-    ${nav('p3_courtyard3','→ Return to the Courtyard')}
+    ${nav('p3_courtyard3','→ Exit the cave')}
   </div>
 </div>`;},
 
 p3_courtyard3:()=>{
+  S.playerLevel=11;
   return `<div class="game in-game reveal-click"
-  data-labels="→ Plead|→ Wait">
+  data-labels="→ Plead|→ Accept|→ Sit">
   ${hud('SAVE FILE 1 &nbsp;|&nbsp; Courtyard (Day)')}
   ${p('You return to the Courtyard. The Knight remains, dressed in red and white and black.')}
-  <div class="hidden"><p>You plead with him to move. She stands there.</p><p>Tall. Faceless. Immovable.</p><p>You accept that you are stuck.</p><p>You sit before her.</p></div>
-  ${ph('You wait.')}
+  <div class="hidden">${p('You plead with him to move. She stands there.')}${p('Tall. Faceless. Immovable.')}</div>
+  ${ph('You accept that you are stuck.')}
+  ${ph('You sit before her.')}
   <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Plead</button>
   </div>
@@ -1764,27 +2172,30 @@ p3_courtyard3:()=>{
 </div>`;},
 
 p3_knight2:()=>{
+  S.playerLevel=11;
   return `<div class="game in-game">
   ${hud('SAVE FILE 1 &nbsp;|&nbsp; Courtyard (Day)')}
   <p>Eventually he speaks. Text scrolls along the bottom of the screen.</p>
-  <span class="knight-quote">"What is this for?"</span>
+  <span class="knight-quote">What is this for?</span>
   <p>You try to think of a good answer. None are satisfying.</p>
   <div class="choices">
     <button class="choice-btn" data-action="answerKnight">"To win."</button>
     <button class="choice-btn" data-action="answerKnight">"To escape."</button>
     <button class="choice-btn" data-action="answerKnight">"I don't know."</button>
-    <p class="feedback" id="fb-answer"></p>
+    <p class="feedback" id="fb-answer">She does not react.</p>
     <div id="bonfire-opt3" class="nav-locked" style="margin-top:1.2em">
-      ${nav('p3_bonfire3','→ Enter Feast Hall')}
+      ${nav('p3_bonfire3','→ Exit Courtyard')}
     </div>
   </div>
 </div>`;},
 
-p3_bonfire3:`<div class="game in-game">
+p3_bonfire3:()=>{
+  S.playerLevel=11;
+  return `<div class="game in-game">
   ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
-  ${p('You return to the Feast Hall bonfire. It is late. You have work tomorrow.')}
+  ${p('You return to the Feast Hall Bonfire. It is late. You have work tomorrow.')}
   ${nav('p3_prelife3','→ Save the Game')}
-</div>`,
+</div>`;},
 
 p3_prelife3:`<div class="game out-game">
   ${p('Subway is delayed by 20 minutes. You think about the knight.')}
@@ -1792,29 +2203,36 @@ p3_prelife3:`<div class="game out-game">
 </div>`,
 
 p3_prelife4:`<div class="game out-game">
-  ${p('You get drinks with some friends. You think about the knight.')}
+  ${p('You get drinks with some friends on Friday to decompress. You think about the knight.')}
   ${nav('p3_fresh_save','→ Boot up your save')}
 </div>`,
 
 p3_fresh_save:()=>{
   S.playerLevel=1;
-  return `<div class="game in-game">
+  return `<div class="game in-game reveal-click"
+  data-labels="→ Replay|→ Zone out">
   ${hud('SAVE FILE 2 &nbsp;|&nbsp; Tutorial Island')}
   ${p('You start a fresh save.')}
-  ${p('You replay the introduction a second time. You have seen this all before. It is rote and comforting.')}
-    ${p('You are barely paying attention to the game. Your focus is on the second screen.')}
-  ${nav('p3_fresh_save2','→ Scan')}
+  <div class="hidden">${p('You replay the introduction a second time. You have seen this all before.')}${p('It is rote and comforting.')}</div>
+  ${ph('You\'re barely paying attention to the game your focus is on the second screen.')}
+  <div class="choices">
+    <button class="choice-btn" data-action="revealNext">→ Replay</button>
+  </div>
+  <div class="after-reveal">
+    ${nav('p3_fresh_save2','→ Scan')}
+  </div>
 </div>`},
 
 p3_fresh_save2:()=>{
+  S.playerLevel=1;
   return `<div class="game in-game reveal-click"
-  data-labels="→ Think">
+  data-labels="→ Reflect|→ Swing">
   ${hud('SAVE FILE 2 &nbsp;|&nbsp; Tutorial Island')}
   ${p('A potential war? Bitcoin down. Oil up. Markets oscillating. Green into red into green into red into green into red.')}
-  ${p('You tell yourself it won\'t affect you. It is as virtual as the game you are playing.')}
+  ${ph('You tell yourself it won\'t affect you. The second monitor is as virtual as the first monitor, after all.')}
   ${ph('Instead, you think about him.')}
   <div class="choices">
-    <button class="choice-btn" data-action="revealNext">→ Swing</button>
+    <button class="choice-btn" data-action="revealNext">→ Reflect</button>
   </div>
   <div class="after-reveal">
     ${nav('p3_grind3','→ Enter the cave')}
@@ -1824,65 +2242,80 @@ p3_fresh_save2:()=>{
 p3_grind3:()=>{
   S.playerLevel=1;
   return `<div class="game in-game reveal-click"
-  data-labels="→ Smash">
+  data-labels="→ Swing|→ Swing|→ Swing|→ Swing|→ Swing|→ Sip|→ Swing|→ Swing">
   ${hud('SAVE FILE 2 &nbsp;|&nbsp; Chimera Grotto')}
-  ${p('You enter a rhythm. You become the game. Every button press is a swipe with your greatmace. A roll. A swing. Each chimera death grants experience. Its screams are drowned out by the soundtrack. Which is drowned out by your music. Which is drowned out by the video essay you are watching on your second monitor. Something about looksmaxxing? You barely notice it.')}
-  ${phl('You are thinking about her.')}
+  ${p('You see a chimera.')}
+  ${ph('You swing.')}
+  ${ph('You enter a rhythm. You become the game.')}
+  ${ph('Every button press is a swipe with your greatmace. A roll. A swing. Experience.')}
+  ${ph('A shriek.')}
+  ${ph('Which is drowned out by the soundtrack. Which is drowned out by your music. Which is drowned out by the video essay you are watching on your second monitor. Something about looksmaxxing? You barely notice it. You wonder where she is.')}
+  ${ph('You take a sip of Mountain Dew.')}
+  ${ph('You kill another enemy.')}
+  ${phl('You gain another level.')}
   <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Swing</button>
   </div>
   <div class="after-reveal">
-    ${nav('p3_count_instant','→ Enter the Feast Hall')}
+    ${nav('p3_feasthall2','→ Exit the cave')}
   </div>
 </div>`;},
 
-p3_count_instant:()=>{
+p3_feasthall2:()=>{
   S.playerLevel=11;
   return `<div class="game in-game reveal-click"
-   data-labels="→ Smash|→ Exit Feast Hall">
+  data-labels="→ Smash">
   ${hud('SAVE FILE 2 &nbsp;|&nbsp; Feast Hall')}
   ${p('You enter the Feast Hall. You see the Countless Count.')}
-  ${gdiv}
   ${ph('You smash. The Count dies.')}
-  ${ph('You exit the Feast Hall. The game loads.')}
-    <div class="choices">
+  <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Smash</button>
   </div>
   <div class="after-reveal">
-  ${nav('p3_courtyard4','→ Enter Courtyard')}
+    ${nav('p3_courtyard4','→ Exit Feast Hall')}
+  </div>
 </div>`;},
 
 p3_courtyard4:()=>{
+  S.playerLevel=11;
   return `<div class="game in-game reveal-click"
-   data-labels="→ Look up|→ Approach|→ Wait">
+   data-labels="→ Look Up|→ Look Ahead|→ Approach|→ Wait">
                        ${hud('SAVE FILE 2 &nbsp;|&nbsp; Courtyard (Dawn)')}
 
    ${p('You enter the Courtyard. It is dawn.')}   
   ${ph('You look up. You see the sun rising in the sky.')}
-   ${ph('A knight stands before you. Cloaked in red and white and black. Holding a torch.')}
-   ${ph('You approach. She stands in front of you. Tall. Faceless. Immovable.')}
+   ${ph('A knight stands before you. Blocking the road to the Elysian Fields. Cloaked in red and white and black. Holding a torch.')}
+   <div class="hidden">${p('You approach. She stands in front of you.')}${p('Tall. Faceless. Immovable.')}</div>
   ${ph('You wait.')}
       <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Look Up</button>
   </div>
   <div class="after-reveal">
   ${nav('p3_knight3','→ Wait')}
+</div>
 </div>`},
 
 p3_knight3:()=>{
-  S.waitFinalCount=0;
-  return `<div class="game in-game">
+  S.playerLevel=11;
+  return `<div class="game in-game reveal-click"
+  data-labels="[You wait]|[You wait]|[You wait]|[You wait]">
     ${hud('SAVE FILE 2 &nbsp;|&nbsp; Courtyard (Dawn)')}
   <p>Eventually he speaks. Text scrolls along the bottom of the screen.</p>
   <span class="knight-quote">Why do you CONTINUE?</span>
-  <p>You do not answer.</p>
-  <div id="wait-final-container"></div>
-  <div class="choices" style="margin-top:1.5em">
-    <button class="choice-btn" data-action="waitFinal">[You wait]</button>
+  ${ph('You do not answer. The knight does not say anything else.')}
+  ${ph('You wait.')}
+  ${ph('You wait.')}
+  <div class="hidden">${p('You fall asleep at your computer. You do not remember your own dreams.')}${p('The knight is still there.')}</div>
+  <div class="choices">
+    <button class="choice-btn" data-action="revealNext">[You wait]</button>
+  </div>
+  <div class="after-reveal">
+    ${nav('p3_bonfire_final','→ Exit Courtyard')}
   </div>
 </div>`;},
 
 p3_bonfire_final:()=>{
+  S.playerLevel=11;
   return `<div class="game in-game">
     ${hud('SAVE FILE 2 &nbsp;|&nbsp; Feast Hall')}
   <p>You return to the Feast Hall. You save the game. It is early. You have work soon.</p>
@@ -1899,7 +2332,7 @@ p3_life:()=>{
   ${fade('The holidays. Family. Celebration.',5.6)}
   ${fade('You forget about the game.',7.2)}
   ${fade('Life moves on.',8.6)}
-  <a class="nav-link" data-go="p3_return" style="opacity:0;animation:fadeIn 1.0s ease 10.5s forwards;">→ Boot up Save</a>
+  <a class="nav-link" data-go="p3_return" style="opacity:0;animation:fadeIn 1.0s ease 10.5s forwards;">→ Boot up your save</a>
 </div>`},
 
 p3_return:()=>{
@@ -1914,36 +2347,36 @@ ${ph('You can\'t. It has been too long.')}
     <button class="choice-btn" data-action="revealNext">→ Think</button>
   </div>
   <div class="after-reveal">
-    ${nav('p3_courtyard5','Exit Feast Hall')}
+    ${nav('p3_courtyard5','→ Exit Feast Hall')}
   </div>
 </div>`},
 
 p3_courtyard5:()=>{
+  S.playerLevel=11;
   return `<div class="game in-game reveal-click"
-   data-labels="→ Look up|→ Look ahead.">
-        ${hud('SAVE FILE 2 &nbsp;|&nbsp; Courtyard (Dusk)')}
-${p('You enter the Courtyard.')}  
-${ph('It is dusk. You look up. You see the sun setting in the sky.')}  
-${ph('The path to Elysian Fields is open. There is no knight. A Choice Lies Before You:')}
-        <div class="choices">
+  data-labels="→ Look Up|→ Look Ahead">
+  ${hud('SAVE FILE 2 &nbsp;|&nbsp; Courtyard (Dusk)')}
+  ${p('You enter the Courtyard.')}
+  ${ph('It is dusk. You look up. You see the sun setting in the sky.')}
+  ${ph('The path to the Elysian Fields is open. There is no knight. A Choice Lies Before You:')}
+  <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Look Up</button>
   </div>
   <div class="after-reveal">
-  ${nav('p3_ending','→')}
+    <div class="choices">
+      <button class="choice-btn" data-go="p3_continue">[Continue]</button>
+      <button class="choice-btn" data-go="p3_quit">[Quit]</button>
+    </div>
+  </div>
 </div>`},
 
-p3_ending:`<div class="endscreen">
-  <button class="end-choice" data-go="p3_continue">CONTINUE</button>
-  <div class="end-div">———</div>
-  <button class="end-choice" data-go="p3_quit">QUIT</button>
-</div>`,
-
 p3_continue:()=>{
-  S.pressAKnight=0;S.waitFinalCount=0;
+  S.pressAKnight=0;
   return passages.p3_cont1();
 },
 
 p3_cont1:()=>{
+  S.playerLevel=11;
   return `<div class="game in-game reveal-click"
   data-labels="→ Continue|→ Continue|→ Continue|→ Continue">
   ${hud('SAVE FILE 1 &nbsp;|&nbsp; Wheatfields')}
@@ -1961,6 +2394,7 @@ p3_cont1:()=>{
 </div>`;},
 
 p3_cont2:()=>{
+  S.playerLevel=12;
   return `<div class="game in-game reveal-click"
   data-labels="→ Continue|→ Continue|→ Continue|→ Continue|→ Continue">
   ${hud('SAVE FILE 1 &nbsp;|&nbsp; Wheatfields')}
@@ -1979,6 +2413,7 @@ p3_cont2:()=>{
 </div>`;},
 
 p3_cont3:()=>{
+  S.playerLevel=12;
   return `<div class="game in-game reveal-click"
   data-labels="→ Continue|→ Continue|→ Continue|→ Continue|→ Continue">
   ${hud('SAVE FILE 1 &nbsp;|&nbsp; Wheatfields')}
@@ -1997,6 +2432,7 @@ p3_cont3:()=>{
 </div>`;},
 
 p3_cont4:()=>{
+  S.playerLevel=12;
   return `<div class="game in-game">
   ${hud('SAVE FILE 1 &nbsp;|&nbsp; Wheatfields')}
   ${p('You try to remember the knight. You cannot.')}
@@ -2005,6 +2441,8 @@ p3_cont4:()=>{
 
 p3_quit:()=>{
   document.body.style.background='#000';
+  S.quit=true;
+  try{localStorage.setItem(QUIT_KEY,'1');}catch(e){}
   return `<div class="quit-screen"><p>You turn off the screen. You see yourself in the black mirror.</p></div>`;
 },
 
@@ -2019,16 +2457,15 @@ window.addEventListener('popstate',()=>{
   go(id && passages[id] ? id : 'title', false);
 });
 window.addEventListener('resize',()=>{
-  const narrow=window.innerWidth<960;
   document.querySelectorAll('.fn-body.sidenote-active').forEach(b=>{
-    if(narrow){
+    if(!sidenoteHost(b)){
       b.classList.remove('sidenote-active');
       b.style.top='';
       b.style.left='';
     }
   });
-  if(!narrow){
-    document.querySelectorAll('#main .paper .fn-body.open').forEach(b=>{
+  {
+    document.querySelectorAll('#main .paper .fn-body.open, #main .essay.part2 .fn-body.open').forEach(b=>{
       const id=b.id.replace('fn-','');
       const ref=document.querySelector(`[data-fn="${id}"]`);
       if(ref) positionSidenote(b,ref);
