@@ -24,7 +24,6 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fjord+One&family=Lora:ital,wght@0,400;0,600;1,400&family=MedievalSharp&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap">
 <link href="https://fonts.googleapis.com/css2?family=Fjord+One&family=Lora:ital,wght@0,400;0,600;1,400&family=MedievalSharp&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 
 <style>
@@ -37,6 +36,8 @@
   --mid:#666;
 }
 html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}   /* the fades change opacity, not position, so they stay */
+#main:focus{outline:none}   /* the page container takes focus after each page turn; it is not a control */
 body{
   background:var(--cream);
   color:var(--dark);
@@ -346,8 +347,8 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
 .fn-num{color:var(--teal);font-family:'Fjord One',Georgia,serif;margin-right:.35em}
 .fn-back{margin-left:.6em;color:var(--teal);text-decoration:none;border-bottom:1px solid transparent;cursor:pointer;font-size:.92em}
 .fn-back:hover{border-bottom-color:var(--teal);opacity:.85}
-.fn-compilation a[href]{color:var(--teal);text-decoration:none;border-bottom:1px solid transparent}
-.fn-compilation a[href]:hover{border-bottom-color:var(--teal);opacity:.85}
+.fn-compilation a[href^="http"]{color:var(--teal);text-decoration:none;border-bottom:1px solid transparent}
+.fn-compilation a[href^="http"]:hover{border-bottom-color:var(--teal);opacity:.85}
 
 .index-note{font-size:.92em;color:var(--mid);font-style:italic;margin:-.2em 0 1.4em}
 .index-list{column-count:2;column-gap:2.6em}
@@ -572,8 +573,8 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
 </style>
 </head>
 <body>
-<button id="menu-btn" onclick="go('title')">← menu</button>
-<div id="main"></div>
+<button id="menu-btn" data-go="title">← menu</button>
+<div id="main" tabindex="-1"></div>
 <noscript>
   <div style="max-width:500px;margin:20vh auto;text-align:center;font-family:Georgia,serif;color:#666;line-height:1.8;">
     GESTELL requires JavaScript to run.<br>Please enable it in your browser settings.
@@ -687,6 +688,7 @@ function numberNotes(root){
     if(ref.classList.contains('fn-mark'))return;   // carries its own glyph and sits outside the numbering
     const n=NOTE_NUMBER[ref.dataset.fn];
     ref.textContent = n===undefined ? '?' : n;
+    ref.setAttribute('aria-label','Note '+ref.textContent);
   });
 }
 
@@ -752,7 +754,24 @@ function go(id, addHistory=true){
     if(mb) mb.style.display=(id==='title')?'none':'block';
     if(id==='p3_quit') document.body.style.background='#000';
     else document.body.style.background='';
+    document.title=pageTitle(id);
+    if(go.rendered)el.focus({preventScroll:true});   // keyboards and screen readers start on the new page, not at the top of the document
+    go.rendered=true;
   },300);
+}
+
+/* Tab titles. Section names come from the contents list, so renaming a section there renames its tab too. */
+let PAGE_TITLES=null;
+function pageTitle(id){
+  if(id==='title')return 'GESTELL';
+  if(!PAGE_TITLES){
+    PAGE_TITLES={p1_intro:'Part One',p1_footnotes:'Footnotes',p1_index:'Index',p1_plates:'Plates'};
+    const r=passages.p1_intro, d=document.createElement('div');
+    d.innerHTML=typeof r==='function'?r():r;
+    d.querySelectorAll('a.toc-section-link').forEach(a=>{PAGE_TITLES[a.dataset.go]=a.textContent.trim();});
+  }
+  const name=PAGE_TITLES[id]||(id.startsWith('p1_')?'Part One':id.startsWith('p2_')?'Part Two':id.startsWith('p3_')?'Part Three':'');
+  return name?'GESTELL · '+name:'GESTELL';
 }
 
 function updateFootnoteBar(){
@@ -765,7 +784,7 @@ function updateFootnoteBar(){
   Object.entries(SECRET_THRESHOLDS).forEach(([id,threshold])=>{
     if(pct>=threshold){
       const ref=document.querySelector(`.secret-ref[data-fn="${id}"]`);
-      if(ref&&!ref.classList.contains('fn-revealed'))ref.classList.add('fn-revealed');
+      if(ref&&!ref.classList.contains('fn-revealed')){ref.classList.add('fn-revealed');ref.tabIndex=0;ref.setAttribute('role','button');}
     }
   });
 }
@@ -826,10 +845,22 @@ function positionSidenote(fnBody,fnRef){
 function bind(){
   document.querySelectorAll('[data-go]').forEach(el=>{
     if(el._boundGo)return; el._boundGo=true;       // bind() runs again after a reveal
-    el.addEventListener('click',e=>{e.preventDefault();PENDING_SCROLL=el.dataset.scroll||null;go(el.dataset.go)});
+    // a real href puts the link in the tab order, makes screen readers announce it, and lets it open in a new tab (the router reads the hash)
+    if(el.tagName==='A'&&!el.hasAttribute('href'))el.setAttribute('href','#'+el.dataset.go);
+    el.addEventListener('click',e=>{
+      if(e.ctrlKey||e.metaKey||e.shiftKey)return;   // leave new-tab and new-window clicks to the browser
+      e.preventDefault();
+      if(el.closest('.nav-locked'))return;          // a locked exit stays locked from the keyboard too
+      const after=el.closest('.after-reveal');
+      if(after&&Date.now()-(+after.dataset.armedAt||0)<400)return;   // it appeared where the reveal button was: an extra click, not a choice
+      PENDING_SCROLL=el.dataset.scroll||null;go(el.dataset.go);
+    });
   });
   document.querySelectorAll('[data-fn]').forEach(el=>{
     if(el._boundFn)return; el._boundFn=true;
+    // focusable like a button, except a secret that hasn't unlocked: tabbing to it would give it away
+    if(!el.classList.contains('secret-ref')||el.classList.contains('fn-revealed')){el.tabIndex=0;el.setAttribute('role','button');}
+    el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click();}});
     el.addEventListener('click',()=>{
       const id=el.dataset.fn;
       const b=document.getElementById('fn-'+id);
@@ -865,6 +896,7 @@ function structureGame(){
   if(!footerEls.length)return;
   const content=document.createElement('div');
   content.className='game-content';
+  content.setAttribute('aria-live','polite');   // screen readers announce each line a reveal adds
   Array.from(game.children).forEach(child=>{
     if(child!==hud&&!footerEls.includes(child))content.appendChild(child);
   });
@@ -961,10 +993,10 @@ const IMG_DIMS={
   'images/p1-american-courtesan.jpg':[402,600],
   'images/p1-boxers.jpg':[1271,650],
   'images/p1-japanese-military-review.jpg':[1326,650],
-  'images/p1-japanese-mission-1860.jpg':[768,539],
+  'images/p1-japanese-mission-1860.jpg':[1400,983],
   'images/p1-military-drill.jpg':[1238,600],
   'images/p1-perry.jpg':[310,600],
-  'images/p1-satsuma-students.jpg':[400,285],
+  'images/p1-satsuma-students.jpg':[835,586],
   'images/p1-tres-riches-heures-mars.jpg':[1144,1847],
   'images/p1-turner-slave-ship.jpg':[1280,961],
   'images/p2-bar.jpg':[1300,974],
@@ -1001,8 +1033,16 @@ const PLATE_CREDITS={
   mars:'<em>March</em>, from the <em>Très Riches Heures du Duc de Berry</em> (c. 1412–1416).',
   kingston:'James Hakewill, <em>Kingston and Port Royal, from Windsor Farm</em> (1825).',
   slaveShip:'J.M.W. Turner, <em>Slavers Throwing overboard the Dead and Dying</em> (1840).',
-  cameo:'William Hackwood for Josiah Wedgwood, <em>Am I Not a Man And A Brother?</em> (1787).',
-  diagram:'Stowage plan of the slave ship <em>Brooks</em>, printed by the Society for Effecting the Abolition of the Slave Trade (1788).'
+  cameo:'William Hackwood for Josiah Wedgwood, <em>Am I Not a Man and a Brother?</em> (1787).',
+  diagram:'Stowage plan of the slave ship <em>Brooks</em>, printed by the Society for Effecting the Abolition of the Slave Trade (1788).',
+  perry:'Shimooka Renjō, portrait of Commodore Perry, hanging scroll (1901). Peabody Essex Museum.',
+  drill:'Tsukioka Yoshitoshi, military drill at Yokohama. Arthur M. Sackler Gallery, Smithsonian Institution.',
+  boxers:'Mizuno Toshikata, <em>Captain Higuchi</em> (1895). Museum of Fine Arts, Boston.',
+  courtesan:'Utagawa Yoshitora, <em>Autumn Moon at Miyozaki</em>, from <em>Eight Views of Yokohama</em> (1861). Arthur M. Sackler Gallery, Smithsonian Institution.',
+  shiroyama:'Nagashima Mōsai (Utagawa Yoshitora), <em>The Battle of Shiroyama, Kagoshima</em> (1877).',
+  armies:'Yōsai Nobukazu, <em>Illustration of Russian and Japanese Army and Navy Officers</em> (1904). Museum of Fine Arts, Boston.',
+  ambassadors:'Mathew B. Brady, <em>Japanese Embassy, Navy Yard, Washington, DC</em> (1860). The Metropolitan Museum of Art.',
+  satsuma:'<em>Eight of the Satsuma Students in London</em> (1865). Kagoshima Prefectural Library.'
 };
 const IMG_KEY=Object.fromEntries(Object.entries(IMG).map(([k,v])=>[v,k]));
 
@@ -1024,17 +1064,17 @@ const SECRET_THRESHOLDS={
 };
 
 const PART_ONE_SECRET_FOOTNOTES=[
-  {id:'s1',sec:'I',go:'p1_s1',txt:`I wish I had understood the value of her creative mindset during our time together. I only realized how rare it was when she had finally left. Spending so much time with her made it seem so natural, almost quotidian. I took it for granted. I've been paying for this mistake for years.`},
-  {id:'s2',sec:'II',go:'p1_s2',txt:`A classic meme from a more innocent time. I try to slip this into most of the things I write. It's also generally true, which makes it better. We really do live in a society!`},
-  {id:'s3',sec:'III',go:'p1_s3',txt:`The realization that people in the past likely experienced the world in ways that we cannot comprehend stuck with me for years. It made me a lot more humble about my place in the world. That should be what college gives you: the ability to see beyond your time and place. Maybe that perspective is Geist.`},
-  {id:'s4',sec:'IV',go:'p1_s4',txt:`I found the MIT Visualizing Cultures website while living with my parents during the covid years. By that point, the website was more than 10 years old. In many ways, it was deprecated: the web design was primitive and didn't always work great. But the content was unparalleled. The essays were clear and cogent. The accompanying images grounded the claims in real art history. It proved its point intellectually and visually. History at its best.`},
-  {id:'s5',sec:'V',go:'p1_s4b',txt:`My friends and I played a lot of <em>Victoria II</em> in college. Mostly modded with HPM or PDM. No game has captured the rational trap of the 19th century better. You need to become stronger to survive against rival countries. But the cost is not just abstract: your troops and pops actually die in battle and are removed from the game. When the world wars start up, Piketty's point becomes clear: the welfare states of Europe were paid for in blood.`},
-  {id:'s6',sec:'II',go:'p1_s2',txt:`I have to believe that I am learning. Considering how things have gone, I'm not sure I should. But that doesn't make the burden any lighter.`},
-  {id:'s7',sec:'III',go:'p1_s3',txt:`The hardest thing about life is looking forward and realizing that every future day is likely more of the same boring grind. At a certain point it feels pointless. A pie-eating contest where the prize is more pie. And I've eaten a lot of pie.`},
-  {id:'s8',sec:'VI',go:'p1_s5',txt:`[Weil quote TBD + link]`},
-  {id:'s9',sec:'VI',go:'p1_s5',txt:`Reason is unnerving because it can justify almost anything as long as the priors are set up right. And humans are very good at setting up the board. I still eat meat despite knowing the actual moral cost. What is your tolerance for hypocrisy?`},
-  {id:'s10',sec:'VIII',go:'p1_s7',txt:`Prophecy, modeling, hyperstition. All are ways to try and make the pattern legible and impose it on reality. But we don't know what we don't know. Unknown unknowns and black swans. It's why I feel the need to verify everything for myself. I feel like I'm the only person I can really trust.`},
-  {id:'s11',sec:'VII',go:'p1_s6',txt:`We try to avoid the fact that the world is fundamentally unstructured chaos. We try to organize our lives to make it bearable. If we fail, we are forced to confront our own mortality and how little control we have. I always end up thinking back to Snowden's secret in <em>Catch-22</em>. Man is just matter. Push him off a bridge and he will fall. Light him on fire and he will burn. There is nothing sacred about meat. We can die at any moment for any reason. But sometimes you just need to hang out with friends and play some backgammon.`},
+  {id:'s1',txt:`I wish I had understood the value of her creative mindset during our time together. I only realized how rare it was when she had finally left. Spending so much time with her made it seem so natural, almost quotidian. I took it for granted. I've been paying for this mistake for years.`},
+  {id:'s2',txt:`A classic meme from a more innocent time. I try to slip this into most of the things I write. It's also generally true, which makes it better. We really do live in a society!`},
+  {id:'s3',txt:`The realization that people in the past likely experienced the world in ways that we cannot comprehend stuck with me for years. It made me a lot more humble about my place in the world. That should be what college gives you: the ability to see beyond your time and place. Maybe that perspective is Geist.`},
+  {id:'s4',txt:`I found the MIT Visualizing Cultures website while living with my parents during the covid years. By that point, the website was more than 10 years old. In many ways, it was deprecated: the web design was primitive and didn't always work great. But the content was unparalleled. The essays were clear and cogent. The accompanying images grounded the claims in real art history. It proved its point intellectually and visually. History at its best.`},
+  {id:'s5',txt:`My friends and I played a lot of <em>Victoria II</em> in college. Mostly modded with HPM or PDM. No game has captured the rational trap of the 19th century better. You need to become stronger to survive against rival countries. But the cost is not just abstract: your troops and pops actually die in battle and are removed from the game. When the world wars start up, Piketty's point becomes clear: the welfare states of Europe were paid for in blood.`},
+  {id:'s6',txt:`I have to believe that I am learning. Considering how things have gone, I'm not sure I should. But that doesn't make the burden any lighter.`},
+  {id:'s7',txt:`The hardest thing about life is looking forward and realizing that every future day is likely more of the same boring grind. At a certain point it feels pointless. A pie-eating contest where the prize is more pie. And I've eaten a lot of pie.`},
+  {id:'s8',txt:`[Weil quote TBD + link]`},
+  {id:'s9',txt:`Reason is unnerving because it can justify almost anything as long as the priors are set up right. And humans are very good at setting up the board. I still eat meat despite knowing the actual moral cost. What is your tolerance for hypocrisy?`},
+  {id:'s10',txt:`Prophecy, modeling, hyperstition. All are ways to try and make the pattern legible and impose it on reality. But we don't know what we don't know. Unknown unknowns and black swans. It's why I feel the need to verify everything for myself. I feel like I'm the only person I can really trust.`},
+  {id:'s11',txt:`We try to avoid the fact that the world is fundamentally unstructured chaos. We try to organize our lives to make it bearable. If we fail, we are forced to confront our own mortality and how little control we have. I always end up thinking back to Snowden's secret in <em>Catch-22</em>. Man is just matter. Push him off a bridge and he will fall. Light him on fire and he will burn. There is nothing sacred about meat. We can die at any moment for any reason. But sometimes you just need to hang out with friends and play some backgammon.`},
 ];
 
 const PART_ONE_PASSAGES=['p1_s1','p1_s2','p1_s3','p1_s4','p1_s4b','p1_s5','p1_s6','p1_s7','p1_s8'];
@@ -1050,14 +1090,21 @@ const PART_ONE_INDEX_TERMS=[
   'Tokugawa','Japan','Shogunate','Peace','Commoners','Foreigners',
   'Opium Wars','China','Europe','Fiscal-Military','Dutch King','Commodore Perry','Black Ships','Tokyo Bay',
   'Satsuma','Choshu','Ryukyu','Okinawa','Sat-Cho alliance','Conscript army',
-  'Meiji','Boshin War','Sonno-Joi','Charter Oath','Zaibatsu','Schumpeterian','Creative destruction',
+  'Meiji','Gregorian','Boshin War','Sonno-Joi','Charter Oath','Zaibatsu','Schumpeterian','Creative destruction',
   'Korea','Nanjing','Unit 731','Eight-Nation Alliance','Boxers','Tsushima','Mukden',
   'Middle Passage','Zong','Asiento',"Lloyd's",'General Average','Saint-Domingue',
   'Olaudah Equiano','Granville Sharp','Josiah Wedgwood','Abolition','Berlin Conference','Leopold II','Congo Free State','Force Publique',
   'Theodicy',
   'Sekigahara','Tozama','Sankin-kōtai','Mori Terumoto','Hideyoshi',
   'Saigo Takamori','Haitōrei','Shiroyama','Krupp','Owl of Minerva',
-  'Confucius','Machiavelli','Weber'
+  'Confucius','Machiavelli','Weber',
+
+  'Heidegger','Marx','Hyperstition','Nick Land','Darwin','Socrates','Plato','Burroughs','Revelation',
+  'Milton','Ogilby','Bunyan','Addison',
+  'French Revolution','Rome','Venice','Grotius','Norman Yoke','Parliament',
+  'Jamaica','Liverpool','Caribbean','Guadeloupe','Martinique','Treaty of Paris','Brooks','Slave Trade Act',
+  'Sino-Japanese War','Shinto','Buddhism',
+  'Jyggalag'
 ];
 
 const stripTags=(html)=>html.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
@@ -1104,6 +1151,7 @@ const actions={
 
 revealNext(btn){
   const container = btn.closest('.reveal-click');
+  const hadFocus = document.activeElement === btn;
   const next = container.querySelector('.hidden');
   if(next){
     next.classList.remove('hidden');
@@ -1132,7 +1180,13 @@ revealNext(btn){
   if(!remaining.length){
     btn.closest('.choices').style.display='none';
     const after = container.querySelector('.after-reveal');
-    if(after){after.style.display='block';bind();}
+    if(after){
+      after.style.display='block';
+      after.dataset.armedAt=Date.now();             // the exit lands where the button was; see the click guard in bind()
+      bind();
+      const first=after.querySelector('a[data-go],button[data-go]');
+      if(hadFocus&&first)first.focus({preventScroll:true});   // keyboard readers stay in place instead of falling back to the top
+    }
   }
   if(next) next.scrollIntoView({block:'nearest'});   // last, after the footer changes: keeps the newest line fully in sight
 },
@@ -1292,7 +1346,7 @@ p1_intro:`<div class="essay paper">
     <p style="font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;color:#aaa;font-family:'Courier New',monospace;margin-bottom:.9em;">Sections</p>
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.35em .9em;">
       <a class="p1-footer-link toc-section-link" data-go="p1_s1">I. The Stove</a>
-      <a class="p1-footer-link toc-section-link" data-go="p1_s2">II. Induction</a>
+      <a class="p1-footer-link toc-section-link" data-go="p1_s2">II. Sublation</a>
       <a class="p1-footer-link toc-section-link" data-go="p1_s3">III. History of Ideas</a>
       <a class="p1-footer-link toc-section-link" data-go="p1_s4">IV. Black Ships</a>
       <a class="p1-footer-link toc-section-link" data-go="p1_s4b">V. Meiji</a>
@@ -1345,7 +1399,10 @@ p1_index:()=>{
   const textByPassage={};
   PART_ONE_PASSAGES.forEach(pid=>{
     const raw=passages[pid];
-    textByPassage[pid]=stripTags(typeof raw==='function'?raw():raw);
+    const d=document.createElement('div');
+    d.innerHTML=(typeof raw==='function'?raw():raw);
+    d.querySelectorAll('.fn-secret').forEach(e=>e.remove());   // a locked secret must not put its section in the index
+    textByPassage[pid]=stripTags(d.innerHTML);
   });
 
   const entries=PART_ONE_INDEX_TERMS
@@ -1414,7 +1471,7 @@ p1_s2:`<div class="essay paper">
   ${fnB('asymptote','I think it\'s probably more asymptotic: not sure we will ever get there. More importantly, perhaps, would we like the experience of perfection? I worry it would be like Jyggalag: pure frozen order. Lifeless and grey. The Coldest Iron Cage.')}
   <p>This belief is not predicated on naive optimism. Rather, there is a cold intuition behind it. The most rational ideas survive, spread, and eventually become habitual. It is not an instant process. Often it takes years, or even generations. The assembly line, liberal capitalism, and women’s suffrage were strongly opposed when they first emerged. Today, all are naturalized to the point of banality.</p>
   <p>Hegel witnessed it himself. He was writing nearby at the university while Napoleon destroyed the Prussian army. He saw the Emperor ride through the town, and called him the world-soul on horseback.</p>
-  <p>Before the French Revolution, most Jews in Europe were systematically excluded from much of Gentile life. The Jewish ghetto was not a “policy” as much as “how things were.” Then the National Assembly made French Jews citizens. French armies carried the Code wherever they marched. Behind the law came force: they pulled the ghetto gates down in Venice, in Frankfurt, in Rome.</p>
+  <p>Before the French Revolution, most Jews in Europe were systematically excluded from much of Gentile life. The Jewish ghetto was not a “policy” as much as “how things were.” Then the National Assembly made French Jews citizens. French armies carried the Napoleonic Code wherever they marched. Behind the law came force: they pulled the ghetto gates down in Venice, in Frankfurt, in Rome.</p>
   <p>The Congress of Vienna tried to hold back the tide of history in more ways than one.${fnR('nations')} They re-erected the gates to the ghettos, trying to seal the past away. But what had been done could not be undone. People understood that the Jews didn’t have — or want — to live in ghettos. The ghettos now required justification.</p>
   ${fig(IMG.davidAlps,'Napoleon in a billowing red cloak on a rearing white horse, pointing upward through an Alpine pass, with soldiers hauling a cannon up the rocks behind him and three names carved into the stone in the foreground.','He made the actual crossing on a mule. Note the names cut into the rock beneath him: BONAPARTE, ANNIBAL, KAROLVS MAGNVS. He picked his own predecessors.','plate--tall')}
   ${fnB('nations','The revolutions of 1848 were defeated almost everywhere within two years. But serfdom was abolished across the Habsburg lands and never restored. Prussia came out of it with a constitution it had never had before. And the civil equality granted to Jews that year, revoked in the reaction, was granted again permanently within twenty. Each defeat left the baseline higher than where it started.')}
@@ -1422,7 +1479,7 @@ p1_s2:`<div class="essay paper">
   ${fnB('s2',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s2').txt,'fn-secret')}
   <p>These processes scale up, then feed back down. Ideas build on ideas. Nations challenge nations. Systems adapt or collapse. Winners continue and losers cease to exist. All these lessons accumulate, then form something new from both the successes and failures. Hegel calls this process Sublation or Aufhebung.</p>
   <p>Hegel might be right, but I see it differently. He calls it unfolding. I would call it provisional. We look at the world, guess which causes matter, and act on the guess. In a universe filled with a near infinite number of events, separating signal from noise sometimes feels impossible. In the moment of decision, all we can do is make a Judgment on which is which and hope we are correct. The world provides validation: we get to see whether our predictions came true. Then our Judgment reshapes the world.${fnR('contingency')}</p>
-  ${fnB('contingency','Hegel thought that nature had a rationality of its own, but it was “cloaked under contingency”. To me, the ability to recognize abstract structures or patterns is a power of man. This is reflexivity.')}
+  ${fnB('contingency','Hegel thought that nature had a rationality of its own, but it was “cloaked under contingency.” To me, the ability to recognize abstract structures or patterns is a power of man. This is reflexivity.')}
   <p>However, these Judgments are temporary. Logically, if a Judgment shifts the world, humans will learn and alter their behavior accordingly, thereby shattering the very assumptions that undergirded the correct Judgment.${fnR('cannonball')}</p>
   <p>From the wreckage, a new Judgment will of course emerge. If that Judgment proves eternal, then congrats: history has ended. Spirit has seen itself, if only for a moment.${fnR('wuwei')}</p>
   ${fnB('cannonball','Perhaps less so in the hard sciences and more so in the more subjective social sciences. A cannonball dropped from a leaning tower does not analyze its own trajectory down but a human certainly does. Goodhart captured this problem with his eponymous law.')}
@@ -1440,19 +1497,18 @@ p1_s3:`<div class="essay paper">
   <p>For the most part, this shortcut works. The sun rises every morning, after all. The money in your bank account is still there when you check it. The real problem is that many other Judgments only stay accurate if the facts underlying them do not change. But intuitively we understand that facts do, in fact, change. Every moment we have new sensations, more data to synthesize. Every Judgment must be updated in parallel to changes in the world itself to remain accurate. No man can step in the same river twice. He is not the same man and it is not the same river. The tension between actually existing reality and our temporally bound Judgments is ${fnS('s7','an endless confrontation.')}</p>
   ${fnB('s7',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s7').txt,'fn-secret')}
   <p>Perhaps the dialectic is merely the name humans give the unstable churn of existence. New Judgments arise to fill in the gaps left by blind spots or changes. This is history.</p>
-  <p>Much of this comes down to what we humans are like. We are reflexive, so we “teach” institutions by incorporating the lessons we feel are valuable. We have agency, and actively choose what gets encoded and passed down.${fnR('marx')}</p>
-  ${fnB('marx','This is part of why many people are scared of Marx. He intended his writings to change the world by convincing people to act according to his predictions. Accelerationist Nick Land termed this “Hyperstition”.')}
+  <p>Much of this comes down to what we humans are like. We are reflexive, so we “teach” our institutions by incorporating the lessons we feel are valuable. That process is active: what gets passed down is usually selected.${fnR('marx')}</p>
+  ${fnB('marx','This is part of why many people are scared of Marx. He intended his writings to change the world by convincing people to act according to his predictions. Accelerationist Nick Land termed this “Hyperstition.”')}
   <p>But ideas do not stay in heads. Successful ones get built, and they get enforced. That is how they persist, and it is how they transmit from person to person. You cannot gift someone a stove without explaining what a stove is for.</p>
   <p>How do we know about prehistory? We have the artifacts and nothing else. Lascaux is seventeen thousand years old and every reading of it is our best guess. For them it was not a question. Objects survive us. Our reasons do not.</p>
   ${fig(IMG.lascaux,'A frieze of animals drawn across a pale limestone wall, caught in a beam of light: a large horned cow stands among dozens of overlapping horses, with checkerboard signs at her feet and the rest of the panel fading into shadow.','','plate--mid')}
   <p>Then we learned to write things down. History begins, or at least the record does. Now meaning can be attached to objects and perhaps understood across space and time. Socrates complains that written language alters how his students think. We know he thought that because Plato wrote it down.${fnR('virus')}</p>
   ${fnB('virus','Burroughs said something like “language is a virus from outer space,” which is either an overstatement or the most accurate sentence in English.')}
-  <p>${fnS('s3','Back in college, I took a class on the political history of the future or something.')} It was a survey of how people, over time and space, have conceived of “the future”. It began with an exploration of how medieval Europe viewed the kingdom to come: time was created and understood by God alone.</p>
+  <p>${fnS('s3','Back in college, I took a class on the political history of the future or something.')} It was a survey of how people, over time and space, have conceived of “the future.” It began with an exploration of how medieval Europe viewed the kingdom to come: time was created and understood by God alone.</p>
   ${fnB('s3',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s3').txt,'fn-secret')}
   <p>They built calendars and tracked time with this in mind. To them, Revelation was the rational end to all things. Ritual and habit anchored their world; belief mandated practice and practice reinforced belief. Visible flux was suppressed and the world appeared stable. Persistence served as the ultimate proxy for success.${fnR('religion')}</p>
   ${fnB('religion','This power is why thinkers from Confucius to Machiavelli to Weber have treated religion as a tool for structuring political life: it forces people into habit. And habit becomes reason.')}
-  <p>The belief was load-bearing, and that is the part we cannot get back. It’s not that we don’t know. We can reconstruct exactly why, from the documents and the record. But that way of understanding the world is foreclosed to us. We have learned too much.</p>
-  <p>We still use the Church’s calendar. Every four years we add a day to February to keep Easter in place. Everything else you schedule rides on that.</p>
+  <p>Belief held that world together. It’s not that we don’t know. We can reconstruct exactly why, from the documents and the record. But that way of understanding the world is foreclosed to us. We have learned too much.</p>
   <p>We cannot recover the past with certainty. The future is not yet built. So people guess what is to come based on what they have decided happened before. Opaque on both ends. Can we at least be sure of a Judgment in the moment we make it?</p>
   ${fig(IMG.mars,'March, from the Très Riches Heures du Duc de Berry (c. 1412–1416). Peasants plow beneath the Château de Lusignan while the zodiac marks the season above.','The seasons do not operate on mankind\'s time. The castle looms; the peasant plows; the zodiac turns. Ritual and habit as rational order.','plate--narrow')}
   <p>Hume thought so. In “Of the Standard of Taste” he argued that it was possible to “objectively” rank the quality of art. To him, good art is what persists over time and across cultures.</p>
@@ -1471,23 +1527,23 @@ p1_s4:`<div class="essay paper">
   <p>Tokugawa Japan was closed off from the rest of the world. ${fnS('s4','High literacy and a well-developed mass market visual culture.')} A Shogunate structured around ritual journeys to and from the capital that kept elites on a tight leash. Very effective repression of commoners and foreigners. Result? Centuries of what most would call peace.${fnR('peasants')} Since it persisted for so long, it appeared to those inside as the most rational system. Alas, it did not last: Europe's Fiscal-Military states were about to teach the rest of the world a deadly lesson.</p>
   ${fnB('peasants','There were plenty of peasants who didn\'t think so. But they didn\'t win. Mere footnotes.')}
   ${fnB('s4',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s4').txt,'fn-secret')}
-  ${fig(IMG.perry,'A Japanese print portrait of Commodore Perry in dark naval uniform.','A Japanese print portrait of Commodore Perry in dark naval uniform. This is more respectful than some of the portraits made by other contemporary Japanese artists.','plate--narrow')}
+  ${fig(IMG.perry,'A Japanese painted portrait of Commodore Perry in dark naval uniform.','A Japanese painted portrait of Commodore Perry in dark naval uniform. This is more respectful than some of the portraits made during his visit.','plate--narrow')}
   <p>Japan wasn't blind to the changing outside reality. Far from it: it felt the storm coming. It saw what happened to China: its craftsmen depicted the Opium Wars in woodblock prints of battle and death. It knew the Europeans were about to arrive: the Shogun had received warnings from the Dutch King himself.${fnR('dutch')} Japan and its people began to understand the world had changed. The heat was building. When Commodore Perry and his Black Ships appeared in Tokyo Bay, the Shogun and many Daimyos deduced Japan would burn next. That deduction bred fear. And that fear bred action.</p>
   ${fnB('dutch','Of course, the Dutch King\'s letter wasn\'t some sort of generous gift: it was a rational act to try and resolve the tension brewing between Japan\'s isolationism and Britain\'s gunboat free trade in Asia.')}
-  <p>Japan was thus confronted by a contradiction the existing system could not solve: its old rational way of structuring life turned out to be just a moment, not eternity. Confronted by this contradiction, Japan made a new Judgment.</p>
+  <p>Japan was thus confronted by a contradiction the existing system could not solve: its old rational way of structuring life turned out to be just a moment, not eternity. Japan made a new Judgment.</p>
   <p>The result was something novel. Japan was modern <em>but on its own terms</em>. By maintaining a form of their own culture while adopting European ideas, they became different from both their past and contemporary Europeans.${fnR('tsushima')}</p>
   ${fnB('tsushima','Japan was recognized as “Western” when it defeated Russia at Tsushima and Mukden in 1905. But then it was different again in 1945. You get my drift. All this just because they saw Perry come across the horizon with a few black ships.')}
   <p>This isn't the full story, however. Zoom in for a second and you'll notice something uncanny: the same dynamic that happened <em>to</em> Japan happened <em>within</em> Japan. The actors in Japan had the experience of Japan, miniaturized. The pattern is fractal.</p>
   <p>Choshu and Satsuma, the modernizing Japanese Domains, chafed under the tight leash of the Shogunate. Satsuma controlled Ryukyu,${fnR('okinawa')} one of Japan's limited traditional gateways to the outside world. Both had already fought the British navy and lost. They understood the threat and promise of the foreigners better than any other Domain. They experienced the Dialectic most directly: the old structure dying, but the new one not yet being built. Soon, Japan would have no choice in the matter. They decided to act.</p>
   ${fnB('okinawa','Today\'s Okinawa. Funny how the Americans ended up there, eh?')}
-  <p>In what became known retroactively as the Sat-Cho alliance, the two Domains aligned to destroy the old world. Choshu forged a European-style conscript army to oppose the traditional forces of the shogunate. They armed commoners, defying the 250-year tradition restricting weapons to only samurai. Satsuma, for its part, sent its youth to Britain to learn modern shipbuilding and industrialization, in direct opposition to the laws of the shogunate and their own stated ideals.${fnR('rivalry')} On arrival, the Satsuma students visited dockyards and wore English three-piece suits. On return, these youth would go on to create the Meiji state, and guess what? They all kept the suits.</p>
+  <p>In what became known retroactively as the Sat-Cho alliance, the two Domains aligned to destroy the old world. Choshu forged a European-style conscript army to oppose the traditional forces of the Shogunate. They armed commoners, defying the 250-year tradition restricting weapons to only samurai. Satsuma, for its part, sent its youth to Britain to learn modern shipbuilding and industrialization, in direct opposition to the laws of the Shogunate and their own stated ideals.${fnR('rivalry')} On arrival, the Satsuma students visited dockyards and wore English three-piece suits. On return, these youth would go on to create the Meiji state, and guess what? They all kept the suits.</p>
   ${fnB('rivalry','Some scholars attribute the infamous Imperial Japanese army/navy interservice rivalry to this split. You could also argue that this represents the dual consciousness of Meiji Japan: British naval-liberal constitutionalism juxtaposed with Prussian army-junker militarism.')}
  
  
   ${figPair([
     {src:IMG.ambassadors,alt:'Members of the 1860 Japanese mission to the United States in traditional dress.',caption:'Members of the 1860 Japanese mission to the United States in traditional dress. The old order meets the future bosses.'},
     {src:IMG.satsuma,alt:'Young Satsuma students in Western suits pose for a studio portrait.',caption: 'Young Satsuma students in Western suits pose for a studio portrait. The new order teaches the old.'}
-  ])}
+  ],'')}
   ${p1Footer()}
   <div class="p1-page-nav">
     ${nav('p1_s3','← III')}
@@ -1500,17 +1556,17 @@ p1_s4b:`<div class="essay paper">
   <p>Can you argue with the results? Sat-Cho's modern military repeatedly routed the antiquated Shogunate forces, who then embarked on their own program of modernization. ${fnS('s5','It was an arms race, but the Shogunate had started too late.')} The early competitive advantage meant that the Shogunate was effectively playing catch-up to the Domains.</p>
   ${fnB('s5',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s5').txt,'fn-secret')}
   ${fig(IMG.drill,'A woodblock print of soldiers drilling and charging through smoke and open ground.','A woodblock print of soldiers drilling and charging through smoke and open ground. What space is there for the samurai in this new world?')}
-  <p>Sat-Cho did not abandon the past but instead recontextualized it. They said, “Shogun, you are illegitimate because you cannot expel the barbarians. Thus, we must return to tradition and get the emperor back in power to expel the barbarians.” Sonno-Joi.${fnR('emperor')}</p>
+  <p>Sat-Cho did not abandon the past but instead recontextualized it. They said, “Shogun, you are illegitimate because you cannot expel the barbarians. Thus, we must return to tradition and get the Emperor back in power to expel the barbarians.” Sonno-Joi.${fnR('emperor')}</p>
   ${fnB('emperor','Never mind that the Emperor had been sidelined by the Shogun during the great period of peace when the foreigners were completely restricted.')}
   <p>Do you see it? The Contradiction? To restore tradition, they had to become modern. To become modern, they had to restore tradition. The premise required the conclusion that required the premise. Inductively and deductively, this chain of reasoning makes sense as a pattern, but there is an uncomfortable circularity. The founding document of the Meiji order itself makes this tension explicit:</p>
   <p class="pullquote">Knowledge shall be sought throughout the world so as to strengthen the foundations of imperial rule.${fnR('charter')}</p>
   ${fnB('charter','The Charter Oath of 1868 was a self-conscious attempt to become modern. It promised: democracy, equality, progress. In reality: oligarchy, stratification, progress.')}
-  <p>The Satsuma-Choshu Alliance came out on top of what became known as the Boshin War. In victory, the two domains remade Japan in their own image: a modernized traditionalism.${fnR('trad')} Railways, Zaibatsu megacorporations, and imperial conquests, all with an “Eternal Emperor” who had reigned uninterrupted for thousands of years at its head. Today, those years are measured on the Church’s calendar. Things changed but they also stayed the same.</p>
+  <p>The Satsuma-Choshu Alliance came out on top of what became known as the Boshin War. In victory, the two Domains remade Japan in their own image: a modernized traditionalism.${fnR('trad')} Railways, Zaibatsu megacorporations, and imperial conquests, all with an “Eternal Emperor” who had reigned uninterrupted for thousands of years at its head. Today, those years are measured on the Gregorian calendar. Things changed but they also stayed the same.</p>
   ${fnB('trad','Traditional Japanese culture persisted. But the Japanese state now understood that it could choose what counted as traditional. Hence the emergence of state Shinto and the suppression of supposedly foreign Buddhism.')}
   <p>That's the dialectic in action: Adapt or die. Fuse the outside world with yourself. Reconcile yourself with change and claim it as your own. Schumpeterian creative destruction applied to the state and society and the individual.</p>
   ${fig(IMG.boxers,'A Japanese woodblock print of Captain Higuchi shielding an abandoned Chinese infant while directing his men.','Captain Higuchi shields an abandoned Chinese infant at Motianling, First Sino-Japanese War, 1894–95.')}
   <p>Japan would then go on to help Korea and China learn this lesson. It started with good intentions. A kind older brother who wants to protect the rest of Asia from rapacious Europeans. Of course, this generosity was ephemeral. In Korea, cultural genocide and comfort women. In China, Nanjing and Unit 731. But hey, at least it wasn't the damn Europeans doing it.</p>
-  <p> But of course Japan had become European in a way. The Eight-Nation Alliance was a collaboration between Japan and European powers to suppress the Boxers. Japan took concessions from China, just like the rest of the Europeans. They dressed like the Europeans and listened to European classical music. The Japanese had become equal to the Europeans and were recognized as such. Asia had been successfully “Thrown off”. When the boot is on your neck, what difference does its nationality make?</p>
+  <p> But of course Japan had become European in a way. The Eight-Nation Alliance was a collaboration between Japan and European powers to suppress the Boxers. Japan took concessions from China, just like the rest of the Europeans. They dressed like the Europeans and listened to European classical music. The Japanese had become equal to the Europeans and were recognized as such. Asia had been successfully “Thrown off.” When the boot is on your neck, what difference does its nationality make?</p>
   ${fig(IMG.courtesan,'A woodblock print of a Western man and Japanese woman sharing an interior scene.','A woodblock print of a Western man and Japanese woman sharing an interior scene. Madame Butterfly had a long history in Japan before Puccini wrote the opera.','plate--narrow')}
   ${p1Footer()}
   <div class="p1-page-nav">
@@ -1527,20 +1583,20 @@ p1_s5:`<div class="essay paper">
   <p>Spin the globe and zoom in on the Caribbean of the 1700s. The Atlantic Enlightenment is in full swing, fueled by coffee and sugar. Both become almost as valuable as gold. Not so valuable that free men are willing to do the back-breaking labor required to make plantations profitable.</p>
   <p>Luckily, the Portuguese had figured out a solution: import slaves from West Africa. Many of those rational Europeans who decried slavery had no qualms if the slaves were taken in “just wars” by and from African statelets up and down what would become known as the Slave Coast.${fnR('complicity')} Enslaving the defeated is what glorious Rome did, said Grotius. Thus, the Middle Passage is born.</p>
   ${fnB('complicity',"Of course, the African kingdoms were also complicit, but it was a rational complicity. They were making Judgments too. Those who did not participate in slave taking would become slaves of their neighbors who did.")}
-  <p>Although the English took pride in their opposition to slavery within England's borders, the siren call of profit proved too hard to ignore.${fnR('norman')} They staffed their initial Caribbean plantations with indentured servants from the British Isles. However, the transition to sugar cultivation created a near-endless need for labor that the supply of willing (or even unwilling) Europeans could never meet. Out of necessity, England too turned towards African Slavery. The African Company was formed and given Royal imprimatur. Soon Britain is fully enmeshed in the slave trade, eventually taking over the Asiento contract to supply the Spanish Empire with slaves.</p>
-  ${fnB('norman','Never mind that it was the Norman Conquest that finished off slavery. Perhaps the Norman Yoke was not all that much of a yoke. As much as I like Tolkien, I can\'t help but feel his romantic English Nationalism is a more palatable version of Heidegger\'s Black Forest Naziism.')}
-  <p>Journeys across the Atlantic remain difficult. The <em>Zong</em>, a British slave ship, misjudges the distance to Jamaica and spends a bit of extra time at sea. Suddenly, that pleasant 60 day journey instead becomes an unbearable 108. But these voyages are rationalized and economized: a ship only carries as much supply as it needs to complete the journey. Every ounce of water is one less pound of cargo and one less pound of profit. When supplies run low, the slaves are the ones who are not fed. Unfortunately for the owners of the <em>Zong</em>, slaves decrease in value if they are sick or weak. A slave's lifespan is “priced in”, as plantation foremen are unlikely to buy the unhealthy slaves when the ship finally docks at Black River.</p>
+  <p>Although the English took pride in their opposition to slavery within England's borders, the siren call of profit proved too hard to ignore.${fnR('norman')} They staffed their initial Caribbean plantations with indentured servants from the British Isles. However, the transition to sugar cultivation created a near-endless need for labor that the supply of willing (or even unwilling) Europeans could never meet. Out of necessity, England too turned towards African slavery. The African Company was formed and given Royal imprimatur. Soon Britain is fully enmeshed in the slave trade, eventually taking over the Asiento contract to supply the Spanish Empire with slaves.</p>
+  ${fnB('norman','Never mind that it was the Norman Conquest that finished off slavery. Perhaps the Norman Yoke was not all that much of a yoke. As much as I like Tolkien, I can\'t help but feel his romantic English nationalism is a more palatable version of Heidegger\'s Black Forest Naziism.')}
+  <p>Journeys across the Atlantic remain difficult. The <em>Zong</em>, a British slave ship, misjudges the distance to Jamaica and spends a bit of extra time at sea. Suddenly, that pleasant 60 day journey instead becomes an unbearable 108. But these voyages are rationalized and economized: a ship only carries as much supply as it needs to complete the journey. Every pound of water is one less pound of cargo and one less pound of profit. When supplies run low, the slaves are the ones who are not fed. Unfortunately for the owners of the <em>Zong</em>, slaves decrease in value if they are sick or weak. A slave's lifespan is “priced in,” as plantation foremen are unlikely to buy the unhealthy slaves when the ship finally docks at Black River.</p>
   ${fig(IMG.kingston,'A hillside view over hedged fields to the town of Kingston and its harbor, where ships lie at anchor and a long spit of land runs out to Port Royal, with mountains across the water. In the foreground a man in a black top hat points out over the view; beside him stands a woman in a long white dress and a striped shawl, next to a tall flowering agave.','A British plantation owner points to what makes the Empire grand: buildings, roads, ships loaded with sugar. Not a slave in sight.','plate--mid')}
   <p>All hope is not yet lost, as Rome comes to the rescue once again. In the coffeehouses of London, the underwriters at Lloyd's reach for the <em>Lex Rhodia de iactu</em>, an old rule holding that losses from jettisoned cargo are shared proportionally. They begin applying it to slaves.</p>
-  <p>The ancient rule, now known as the “Law of the General Average”, becomes an economic life vest for the shipowners. Insurers will compensate them for any cargo sacrificed to save the ship. Incentives are aligned: captains are pushed to save the ship when the vessel itself is at stake, as they no longer have to worry quite as much about explaining how they lost all the cargo to their patrons back in Liverpool.</p>
+  <p>The ancient rule, now known as the “Law of the General Average,” becomes an economic life vest for the shipowners. Insurers will compensate them for any cargo sacrificed to save the ship. Incentives are aligned: captains are pushed to save the ship when the vessel itself is at stake, as they no longer have to worry quite as much about explaining how they lost all the cargo to their patrons back in Liverpool.</p>
   <p>All this because some men have realized that slaves are, in fact, cargo.</p>
   <p>One hiccup in the fine print. Insurance will only cover accidents, not natural deaths. The captains of these expeditions are consummate businessmen, hired to protect the returns of the investors back in Britain. So, of course, they understand the law. The <em>Zong</em>'s Captain is thus left to face a time-bound decision: if slaves die natural deaths, insurance will not pay out.</p>
   <p>The Captain on the <em>Zong</em> judges. The rational solution is clear.</p>
   <p>He acts.</p>
-   ${fig(IMG.slaveShip,'A blazing orange sunset over a heaving sea; a ship with furled sails recedes into the coming storm while in the foreground a shackled leg juts up out of the water among converging fish.','Before sublime nature, both the <em>Zong</em> and the drowning slave are miniscule.','plate--mid')} 
+   ${fig(IMG.slaveShip,'A blazing orange sunset over a heaving sea; a ship with furled sails recedes into the coming storm while in the foreground a shackled leg juts up out of the water among converging fish.','Before sublime nature, both the <em>Zong</em> and the drowning slave are minuscule.','plate--mid')} 
   <p>Throw the still living slaves overboard, claim them as jettisoned cargo and demand insurance pay £30 a head. Problem solved. The Captain has done his duty. The investors will be made whole. The insurers are furious about this loophole and refuse to pay.</p>
   <p>The 130 slaves tossed overboard are dead, silent in the vast Atlantic waters.</p>
-  <p>When the ship returns to London, its owners sue. The trial concerns insurance money, not murder. That question is not even considered, as slaves are cargo in the eyes of the rational law. The jury, made up of the British elite, understands the stakes: dastardly France has perfected the slave economy on the hell colony of Saint-Domingue.${fnR('choiseul')} Thus, if the insurers win, the flow of slaves to Jamaica slows, the economy of the British West Indies sputters, and the French solidify their grip on the sugar trade. Of course, they find for the owners.</p>
+  <p>Back in England, its owners sue. The trial concerns insurance money, not murder. That question is not even considered, as slaves are cargo in the eyes of the rational law. The jury, made up of the British elite, understands the stakes: dastardly France has perfected the slave economy on the hell colony of Saint-Domingue.${fnR('choiseul')} Thus, if the insurers win, the flow of slaves to Jamaica slows, the economy of the British West Indies sputters, and the French solidify their grip on the sugar trade. Of course, they find for the owners.</p>
   ${fnB('choiseul','Britain’s choice to take Canada instead of the French sugar islands at the Treaty of Paris in 1763 looks worse every year. Voltaire’s few acres of snow are out-earned by Guadeloupe alone. Now the thirteen colonies Britain fought to protect have broken away with French help. Choiseul will live two more years — long enough to see his wager pay off. Saint-Domingue has eight years left.')}
   <p>${fnS('s9','Another win for rationality.')}</p>
   ${fnB('s9',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s9').txt,'fn-secret')}
@@ -1560,20 +1616,20 @@ p1_s6:`<div class="essay paper">
   <p>He fails.</p>
   <p>He does not cease his efforts. Four years later he co-founds the &ldquo;Society for Effecting the Abolition of the Slave Trade&rdquo;: a committee of twelve, nine of them Quakers. As an Anglican among Dissenters, he brings a name the British establishment cannot dismiss. He is chosen as chair.</p>
   <p>Josiah Wedgwood soon joins the twelve. He is a Unitarian &mdash; barred, like the Quakers around him, from the universities and the professions, and gone into trade instead. He does not make porcelain for the elite. He mass-produces jasperware.</p>
-  <p>So Wedgwood contributes in the way he knows how. He cuts a cameo of a kneeling slave, with the words &ldquo;Am I Not a Man And A Brother?&rdquo; raised above him. He manufactures them by the thousand, then gives them all away. The image spreads like a meme: to bracelets, snuffbox lids, brooches; women wear them in their hair, fanning the anti-slavery flames across Britain.</p>
+  <p>So Wedgwood contributes in the way he knows how. He cuts a cameo of a kneeling slave, with the words &ldquo;Am I Not a Man and a Brother?&rdquo; raised above him. He manufactures them by the thousand, then gives them all away. The image spreads like a meme: to bracelets, snuffbox lids, brooches; women wear them in their hair, fanning the anti-slavery flames across Britain.</p>
   <p>An idea has become embodied in physical reality.</p>
-  ${fig(IMG.cameo,'The Wedgwood anti-slavery cameo: a kneeling enslaved man in profile with the inscription \u201cAm I Not a Man And A Brother?\u201d','Although it is sometimes seen as problematic in its depiction of a supplicant African, I think it represents the reality of the situation accurately. Sometimes the truth is painful.','plate--narrow')}
+  ${fig(IMG.cameo,'The Wedgwood anti-slavery cameo: a kneeling enslaved man in profile with the inscription “Am I Not a Man and a Brother?”','Although it is sometimes seen as problematic in its depiction of a supplicant African, I think it represents the reality of the situation accurately. Sometimes the truth is painful.','plate--narrow')}
   <p>Eventually, Parliament abolished the slave trade. Twenty-six years later, slavery itself was outlawed.${fnR('recompense')} Wedgwood, Equiano, and Sharp were long dead. The Judgment that allowed the <em>Zong</em> never died; it simply stopped having anything to apply to.</p>
   ${fnB('recompense','Don\'t feel too bad for the slaveowners: they received a healthy recompense from the British treasury. The freed slaves got nothing.')}
-  <p>What replaced it was a global campaign, led by Britain, to suppress the slave trade wherever it still ran. Empire and Abolition went hand in hand: as the British empire expanded, so did the campaign against slavery. Slavery\u2019s survival justified reaching back into the very regions where Britain had once trafficked in bodies \u2014 to destroy that same trade, and administer the land. The other European states followed suit.${fnR('indigenat')}</p>
-  ${fnB('indigenat','France abolished slavery in its colonies in 1848 and made the former slaves citizens outright. Two of France\u2019s remaining Caribbean colonies, Martinique and Guadeloupe, sent deputies to Paris that same year. They were lucky: the people of every territory France took afterward were granted subjecthood at gunpoint. Classed as <em>indig\u00e8nes</em> under the Code de l\u2019indig\u00e9nat, they could be punished without trial and conscripted to labor. France did not abolish the practice until 1946, ninety-eight years after emancipation.')}
+  <p>What replaced it was a global campaign, led by Britain, to suppress the slave trade wherever it still ran. Empire and Abolition went hand in hand: as the British empire expanded, so did the campaign against slavery. Slavery’s survival justified reaching back into the very regions where Britain had once trafficked in bodies — to destroy that same trade, and administer the land. The other European states followed suit.${fnR('indigenat')}</p>
+  ${fnB('indigenat','France abolished slavery in its colonies in 1848 and made the former slaves citizens outright. Two of France’s remaining Caribbean colonies, Martinique and Guadeloupe, sent deputies to Paris that same year. They were lucky: the people of every territory France took afterward were granted subjecthood at gunpoint. Classed as <em>indig\u00e8nes</em> under the Code de l’indig\u00e9nat, they could be punished without trial and conscripted to labor. France did not abolish the practice until 1946, ninety-eight years after emancipation.')}
   <p>At the Berlin Conference of 1884, the European powers entrusted Belgian King Leopold II with a huge swath of Central Africa. It was wracked by slavery, as the Sultans of Zanzibar made great profit from the trade east to their island. Leopold promised he would end the trade and bring civilization to the Congo Basin.</p>
   <p>To educate the Africans, he established the Congo Free State. He brought modern Christianity and European science to these deprived people. Of course, Leopold knew the right man to govern darkest Africa. He appointed Tippu Tip, an active Zanzibari slave trader, as governor of Stanley Falls. The man had experience, after all. Rationality unfolded; freedom triumphed.</p>
   <p>Everyone clapped.${fnR('hands')}</p>
-  ${fnB('hands','Except the Congolese whose hands had been chopped off by Leopold\'s Force Publique. Plus \u00e7a change\u2026')}
-  ${fig(IMG.diagram,'A schematic drawing of the slaveship Brooks demonstrating the cramped conditions of a Middle Passage journey.','The stowage plan of the <em>Brooks</em>, a slave ship. Abolition took many years to unfold, and the Slave Trade Act of 1788 was one step along the way: it limited how many slaves a ship could carry, and aboard the <em>Brooks</em> the number allowed fell from 609 to 454. Planters and abolitionists supported it together, for different reasons. Another great humanitarian victory born of compromise.','plate--mid')}
-  <p>Hegel and his disciples \u2014 Marx among them \u2014 have noticed a pattern. Horror is necessary for the world to progress. The <em>Zong</em>? A textbook demonstration. Reason demanded that hundreds of people be thrown overboard; luckily, it learned an important lesson. Life exists outside the ledger. A profound development!</p>
-  <p>I\u2019ve always found this argument unsatisfying. In form, it resembles theodicy to an uncomfortable degree: evil exists so that good can vanquish it. Will it? Eventually. Nothing guarantees it. ${fnS('s11','It could be a story we tell ourselves to make sense of it all.')} The Dialectic doesn\u2019t care. It continues no matter how much we want it to stop.</p>
+  ${fnB('hands','Except the Congolese whose hands had been chopped off by Leopold\'s Force Publique. Plus \u00e7a change…')}
+  ${fig(IMG.diagram,'A schematic drawing of the slave ship Brooks demonstrating the cramped conditions of a Middle Passage journey.','The stowage plan of the <em>Brooks</em>, a slave ship. Abolition took many years to unfold, and the Slave Trade Act of 1788 was one step along the way: it limited how many slaves a ship could carry, and aboard the <em>Brooks</em> the number allowed fell from 609 to 454. Planters and abolitionists supported it together, for different reasons. Another great humanitarian victory born of compromise.','plate--mid')}
+  <p>Hegel and his disciples — Marx among them — have noticed a pattern. Horror is necessary for the world to progress. The <em>Zong</em>? A textbook demonstration. Reason demanded that more than a hundred people be thrown overboard; luckily, it learned an important lesson. Life exists outside the ledger. A profound development!</p>
+  <p>I’ve always found this argument unsatisfying. In form, it resembles theodicy to an uncomfortable degree: evil exists so that good can vanquish it. Will it? Eventually. Nothing guarantees it. ${fnS('s11','It could be a story we tell ourselves to make sense of it all.')} The Dialectic doesn’t care. It continues no matter how much we want it to stop.</p>
   ${fnB('s11',PART_ONE_SECRET_FOOTNOTES.find(f=>f.id==='s11').txt,'fn-secret')}
   <p>I worry, as Hegel did, that even the noblest intentions can be subordinate to rational ends. Unlike Hegel, I am not able to abstract away the sacrifices. The slaughter-bench consumes more than happiness, wisdom, virtue.</p>
   <p>It consumes men.</p>
@@ -1588,19 +1644,19 @@ p1_s6:`<div class="essay paper">
 p1_s7:`<div class="essay paper">
   <p class="section-label">VIII.</p>
   <p>A nerve cell cannot see what the whole is building. Take the samurai. I did not tell you the full story. The pattern is fractal, after all.</p>
-  <p>Satsuma and Choshu had fought on the losing side at Sekigahara back in 1600. Both submitted when Tokugawa victory became inevitable and were spared, but thereafter remained stigmatized as Tozama \u2014 \u201cOutsider Lords&rdquo;. The Shogunate kept potentially disloyal domains weak and under watch through costly public works and <em>sankin-k\u014dtai</em>. It bought more than two centuries of peace. It also ensured that the defeated never forgot who had defeated them.${fnR('mori')}</p>
+  <p>Satsuma and Choshu had fought on the losing side at Sekigahara back in 1600. Both submitted when Tokugawa victory became inevitable and were spared, but thereafter remained stigmatized as Tozama — “Outsider Lords.&rdquo; The Shogunate kept potentially disloyal Domains weak and under watch through costly public works and <em>sankin-k\u014dtai</em>. It bought more than two centuries of peace. It also ensured that the defeated never forgot who had defeated them.${fnR('mori')}</p>
   ${fnB('mori','Mori Terumoto, lord of the territory that became Choshu, had been one of Hideyoshi\'s Council of Five Elders. After Sekigahara, the Mori lost nearly three-quarters of their lands and were confined to two comparatively poor provinces. Satsuma retained its territory but remained burdened by its unusually large samurai class.')}
-  <p class="pullquote">Every New Year's Day for 250 years, Choshu samurai would approach the Daimyo and ask:<br><br>\u201cHas the time come to begin the subjugation of the Shogunate?&rdquo;<br><br>And for 250 years, the Daimyo would reply:<br><br>\u201cNo. The time is not yet ripe.&rdquo;</p>
+  <p class="pullquote">Every New Year's Day for 250 years, Choshu samurai would approach the Daimyo and ask:<br><br>“Has the time come to begin the subjugation of the Shogunate?&rdquo;<br><br>And for 250 years, the Daimyo would reply:<br><br>“No. The time is not yet ripe.&rdquo;</p>
   <p>When the Black Ships showed up in Tokyo Bay, the Tozama and their samurai were itching to strike. These men were competent, driven, and angry. Many leaders of what was later called a Restoration came from the samurai class, including Saigo Takamori, instrumental in Satsuma's rise.</p>
   <p>However, most samurai were rendered antiquated by European modernity. The literati virtues that had sustained the samurai as a class during the Shogunate were useful, but no longer unique. A modern bureaucratic state does not need a bunch of warrior-poet wannabes, as clerks and conscripts are much more useful. Shorn of purpose, the unfortunate samurai fell into penury.</p>
-  <p>In the end, the Meiji oligarchy only fulfilled half the promise of sonno-joi: they restored the emperor but invited the barbarians directly into the house for tea. And as a final twist of the knife, the Meiji elite stripped sword rights from the samurai, effectively abolishing the traditional symbol of samurai class distinction.${fnR('haitorei')} The new state asserted its monopoly of violence.</p>
-  ${fnB('haitorei','This was known as the Hait\u014drei. Of course, the Daimyos were allowed to keep their swords. No proper European Aristocrat would be caught dead without one.')}
+  <p>In the end, the Meiji oligarchy only fulfilled half the promise of Sonno-Joi: they restored the Emperor but invited the barbarians directly into the house for tea. And as a final twist of the knife, the Meiji elite stripped sword rights from the samurai, effectively abolishing the traditional symbol of samurai class distinction.${fnR('haitorei')} The new state asserted its monopoly of violence.</p>
+  ${fnB('haitorei','This was known as the Hait\u014drei. Of course, the Daimyos were allowed to keep their swords. No proper European aristocrat would be caught dead without one.')}
   ${fig(IMG.shiroyama,'A woodblock print of the Battle of Shiroyama.','The Battle of Shiroyama, 1877. The last stand of the samurai. Krupp artillery against katanas.','plate--mid')}
   <p>It could not have come as a surprise to the Meiji leadership that these now dispossessed samurai would rise in revolt. Luckily, they had just the right tools to suppress the uprising. The conscript army introduced by Choshu was primed to destroy their former betters.${fnR('transcended')} The Imperial Navy forged by Satsuma blockaded the coast and penned the samurai in. In command stood many of the very men who had led the samurai to war against the Shogun.</p>
   ${fnB('transcended','The peasants transcended their footnote status. Now the turn of the samurai.')}
-  <p>Bushido proved no match for the new order. The rebellion ground on for eight months, and what was left of it \u2014 400 men \u2014 dug in on the hill at Shiroyama, surrounded by 30,000 imperial conscripts. The army spent days walling them in and shelling the hillside from land and sea. When the assault came before dawn, the survivors charged down into it, and Gatling guns cut them apart. Saigo Takamori killed himself.${fnR('takamori')}</p>
+  <p>Bushido proved no match for the new order. The rebellion ground on for eight months, and what was left of it — 400 men — dug in on the hill at Shiroyama, surrounded by 30,000 imperial conscripts. The army spent days walling them in and shelling the hillside from land and sea. When the assault came before dawn, the survivors charged down into it, and Gatling guns cut them apart. Saigo Takamori killed himself.${fnR('takamori')}</p>
   ${fnB('takamori','And then the Meiji oligarchs used him as a great example of Japanese honor and determination.')}
-  <p>Popular history fixates on the arquebus ending European honor culture, but the Krupp cannons manned by former peasants cut down the flowers of Japanese chivalry more effectively. The samurai who had restored the emperor to power were liquidated in his name.</p>
+  <p>Popular history fixates on the arquebus ending European honor culture, but the Krupp cannons manned by former peasants cut down the flowers of Japanese chivalry more effectively. The samurai who had restored the Emperor to power were liquidated in his name.</p>
   <p>Every one of them was a nerve cell in the greater whole, and Geist (as Hegel calls Spirit) does not feel a nerve cell. You may be the one offered up. The samurai made the right Judgments. Where did they end up? Charging Gatling guns at dawn. Today they are a symbol of honor, of futility, of a past no longer accessible.</p>
   ${fig(IMG.armies,'A triptych showing Japanese and foreign military uniforms assembled in comparative display.','A triptych showing Japanese and foreign military uniforms assembled in comparative display. The Japanese portray themselves as indistinguishable from their Russian opponents outside of their uniforms.')}
   <p>The Owl of Minerva only appears at dusk: ${fnS('s10','we can only see the pattern in retrospect.')} The samurai built the very boot that would snap their necks. Would they have destroyed the Shogunate if they had known the result?${fnR('unfolding')}</p>
@@ -1652,7 +1708,7 @@ p2_bar2:`<div class="essay part2">
   <p>He had been in South America, visiting an abandoned government building. It was carved into the foothills of a mountain down there.${fnR('b2')}</p>
   ${fnB('b2','I admit that I was too drunk (or crossed) to remember which specifically.')}
   <p>Paranoid as always, my friend had told no one of this trip. He abandoned his electronics stateside.${fnR('bghost')}</p>
-  ${fnB('bghost','He explained that he needed to be a “digital ghost”. No evidence of his journey.')}
+  ${fnB('bghost','He explained that he needed to be a “digital ghost.” No evidence of his journey.')}
   ${nav('p2_descent1')}
 </div>`,
 
@@ -1677,7 +1733,7 @@ p2_descent1b:`<div class="essay part2">
 
 p2_descent1c:`<div class="essay part2">
   <p>The air shifted the instant his body crossed the threshold.${fnR('b5')} Heavier. Drier.</p>
-  ${fnB('b5','He also described an accompanying sensation: “forward movement while standing completely still”. I still can\'t parse what he meant by that.')}
+  ${fnB('b5','He also described an accompanying sensation: “forward movement while standing completely still.” I still can\'t parse what he meant by that.')}
   <p>Inside, the room appeared untouched by whatever had unfolded above.</p>
   <p>Pale fluorescent lights. Vibrant green carpets. Wood-paneled walls. Blinking terminals with faint text. No furniture but a circle of white fiberglass chairs.</p>
   <p>The only evidence of its advanced age was a thin layer of dust that coated everything.</p>
@@ -1860,7 +1916,7 @@ p3_timepasses1:()=>{
   ${p('Another scream.')}
   ${phl('Another level.')} 
   ${ph('Another sip.')}
-  ${ph('It has been 5 hours. Or maybe 6. You have gained 3 levels and put four points into strength. The chimeras once survived 3 hits. Now only 2. Soon 2 will feel like 3.')}
+  ${ph('It has been 5 hours. Or maybe 6. You have gained 3 levels and put 4 points into strength. The chimeras once survived 3 hits. Now only 2. Soon 2 will feel like 3.')}
   <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Swing</button>
   </div>
@@ -2027,7 +2083,7 @@ p3_bonfire1:()=>{
   ${nav('p3_daybreak','→ Save the Game')}</div>`;},
 
 p3_daybreak:`<div class="game out-game">
-  <p> The workday passes in a blink of an eye.</p> 
+  <p> The workday passes in the blink of an eye.</p> 
    <p> Subway. Work. Work. Work. Subway. Home.</p>
   ${nav('p3_boot2','→ Boot up your save')}
 </div>`,
