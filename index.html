@@ -45,6 +45,7 @@ body{
   font-size:17px;
   line-height:1.8;
   min-height:100vh;
+  min-height:100dvh;   /* phones: the screen actually visible, not the height behind the browser's toolbars */
 }
 #main{transition:opacity 0.32s ease}
 
@@ -209,8 +210,13 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
   font-size:.78em;color:#aaa;
   border-bottom:1px solid #e8e4dc;
   padding-bottom:.7em;margin-bottom:2em;
+  flex-wrap:wrap;column-gap:.5em;   /* too narrow for one line: the level meter drops to its own line in one piece */
 }
-.game{display:flex;flex-direction:column;height:100vh;box-sizing:border-box;padding-bottom:0}
+.hud > span{white-space:nowrap}
+.hud > span:last-child{margin-left:auto}
+/* 100dvh, not 100vh: on phones 100vh reaches behind the browser's toolbars, which hid the buttons and let the page scroll the top bar away */
+.game{display:flex;flex-direction:column;height:100vh;height:100dvh;box-sizing:border-box;padding-bottom:0}
+@media (max-width:600px){.game{padding-top:44px;padding-left:24px;padding-right:24px}}   /* still clears the menu button; the top bar fits on one line */
 .game-content{flex:1;overflow-y:auto;padding-bottom:1em}
 .game-footer{flex-shrink:0;padding:1em 0 1.5em}
 .in-game .game-footer{background:#2a2219}
@@ -293,7 +299,7 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
 /* ── TABLE OF CONTENTS ── */
 .toc{
   max-width:660px;margin:0 auto;padding:70px 40px 120px;
-  display:flex;flex-direction:column;justify-content:center;min-height:100vh;
+  display:flex;flex-direction:column;justify-content:center;min-height:100vh;min-height:100dvh;
 }
 .toc h1{
   font-family:'Courier New',Courier,monospace;
@@ -360,7 +366,7 @@ hr.sect{border:none;border-top:1px solid #ccc;margin:3em 0}
 
 /* ── END / QUIT SCREENS ── */
 .quit-screen{
-  min-height:100vh;background:#000;
+  min-height:100vh;min-height:100dvh;background:#000;
   display:flex;align-items:center;justify-content:center;
   animation:fadeInQuit 1.5s ease forwards;
 }
@@ -1106,6 +1112,8 @@ const PART_ONE_INDEX_TERMS=[
   'Sino-Japanese War','Shinto','Buddhism',
   'Jyggalag'
 ];
+// Other forms of a term that count as the term itself (matched as whole words, like the term)
+const PART_ONE_INDEX_FORMS={Judgment:['Judgments','judged','judges'],Law:['laws']};
 
 const stripTags=(html)=>html.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
 const escRe=(s)=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
@@ -1408,7 +1416,7 @@ p1_index:()=>{
   const entries=PART_ONE_INDEX_TERMS
     .map(term=>({
       term,
-      refs:PART_ONE_PASSAGES.filter(pid=>hasTerm(textByPassage[pid],term))
+      refs:PART_ONE_PASSAGES.filter(pid=>[term,...(PART_ONE_INDEX_FORMS[term]||[])].some(t=>hasTerm(textByPassage[pid],t)))
     }))
     .filter(e=>e.refs.length)
     .sort((a,b)=>a.term.localeCompare(b.term));
@@ -1530,7 +1538,7 @@ p1_s4:`<div class="essay paper">
   ${fig(IMG.perry,'A Japanese painted portrait of Commodore Perry in dark naval uniform.','A Japanese painted portrait of Commodore Perry in dark naval uniform. This is more respectful than some of the portraits made during his visit.','plate--narrow')}
   <p>Japan wasn't blind to the changing outside reality. Far from it: it felt the storm coming. It saw what happened to China: its craftsmen depicted the Opium Wars in woodblock prints of battle and death. It knew the Europeans were about to arrive: the Shogun had received warnings from the Dutch King himself.${fnR('dutch')} Japan and its people began to understand the world had changed. The heat was building. When Commodore Perry and his Black Ships appeared in Tokyo Bay, the Shogun and many Daimyos deduced Japan would burn next. That deduction bred fear. And that fear bred action.</p>
   ${fnB('dutch','Of course, the Dutch King\'s letter wasn\'t some sort of generous gift: it was a rational act to try and resolve the tension brewing between Japan\'s isolationism and Britain\'s gunboat free trade in Asia.')}
-  <p>Japan was thus confronted by a contradiction the existing system could not solve: its old rational way of structuring life turned out to be just a moment, not eternity. Japan made a new Judgment.</p>
+  <p>Japan was thus confronted by a contradiction the existing system could not solve: its old rational way of structuring life turned out to be just a moment, not eternity. Japan judged.</p>
   <p>The result was something novel. Japan was modern <em>but on its own terms</em>. By maintaining a form of their own culture while adopting European ideas, they became different from both their past and contemporary Europeans.${fnR('tsushima')}</p>
   ${fnB('tsushima','Japan was recognized as “Western” when it defeated Russia at Tsushima and Mukden in 1905. But then it was different again in 1945. You get my drift. All this just because they saw Perry come across the horizon with a few black ships.')}
   <p>This isn't the full story, however. Zoom in for a second and you'll notice something uncanny: the same dynamic that happened <em>to</em> Japan happened <em>within</em> Japan. The actors in Japan had the experience of Japan, miniaturized. The pattern is fractal.</p>
@@ -1558,7 +1566,7 @@ p1_s4b:`<div class="essay paper">
   ${fig(IMG.drill,'A woodblock print of soldiers drilling and charging through smoke and open ground.','A woodblock print of soldiers drilling and charging through smoke and open ground. What space is there for the samurai in this new world?')}
   <p>Sat-Cho did not abandon the past but instead recontextualized it. They said, “Shogun, you are illegitimate because you cannot expel the barbarians. Thus, we must return to tradition and get the Emperor back in power to expel the barbarians.” Sonno-Joi.${fnR('emperor')}</p>
   ${fnB('emperor','Never mind that the Emperor had been sidelined by the Shogun during the great period of peace when the foreigners were completely restricted.')}
-  <p>Do you see it? The Contradiction? To restore tradition, they had to become modern. To become modern, they had to restore tradition. The premise required the conclusion that required the premise. Inductively and deductively, this chain of reasoning makes sense as a pattern, but there is an uncomfortable circularity. The founding document of the Meiji order itself makes this tension explicit:</p>
+  <p>Do you see it? The contradiction? To restore tradition, they had to become modern. To become modern, they had to restore tradition. The premise required the conclusion that required the premise. Inductively and deductively, this chain of reasoning makes sense as a pattern, but there is an uncomfortable circularity. The founding document of the Meiji order itself makes this tension explicit:</p>
   <p class="pullquote">Knowledge shall be sought throughout the world so as to strengthen the foundations of imperial rule.${fnR('charter')}</p>
   ${fnB('charter','The Charter Oath of 1868 was a self-conscious attempt to become modern. It promised: democracy, equality, progress. In reality: oligarchy, stratification, progress.')}
   <p>The Satsuma-Choshu Alliance came out on top of what became known as the Boshin War. In victory, the two Domains remade Japan in their own image: a modernized traditionalism.${fnR('trad')} Railways, Zaibatsu megacorporations, and imperial conquests, all with an “Eternal Emperor” who had reigned uninterrupted for thousands of years at its head. Today, those years are measured on the Gregorian calendar. Things changed but they also stayed the same.</p>
@@ -1590,8 +1598,8 @@ p1_s5:`<div class="essay paper">
   <p>All hope is not yet lost, as Rome comes to the rescue once again. In the coffeehouses of London, the underwriters at Lloyd's reach for the <em>Lex Rhodia de iactu</em>, an old rule holding that losses from jettisoned cargo are shared proportionally. They begin applying it to slaves.</p>
   <p>The ancient rule, now known as the “Law of the General Average,” becomes an economic life vest for the shipowners. Insurers will compensate them for any cargo sacrificed to save the ship. Incentives are aligned: captains are pushed to save the ship when the vessel itself is at stake, as they no longer have to worry quite as much about explaining how they lost all the cargo to their patrons back in Liverpool.</p>
   <p>All this because some men have realized that slaves are, in fact, cargo.</p>
-  <p>One hiccup in the fine print. Insurance will only cover accidents, not natural deaths. The captains of these expeditions are consummate businessmen, hired to protect the returns of the investors back in Britain. So, of course, they understand the law. The <em>Zong</em>'s Captain is thus left to face a time-bound decision: if slaves die natural deaths, insurance will not pay out.</p>
-  <p>The Captain on the <em>Zong</em> judges. The rational solution is clear.</p>
+  <p>One hiccup in the fine print. Insurance will only cover accidents, not natural deaths. The captains of these expeditions are consummate businessmen, hired to protect the returns of the investors back in Britain. So, of course, they understand the law.</p>
+  <p>The <em>Zong</em>'s Captain is thus left to face a time-bound decision: if slaves die natural deaths, insurance will not pay out. The Captain on the <em>Zong</em> judges. The rational solution is clear.</p>
   <p>He acts.</p>
    ${fig(IMG.slaveShip,'A blazing orange sunset over a heaving sea; a ship with furled sails recedes into the coming storm while in the foreground a shackled leg juts up out of the water among converging fish.','Before sublime nature, both the <em>Zong</em> and the drowning slave are minuscule.','plate--mid')} 
   <p>Throw the still living slaves overboard, claim them as jettisoned cargo and demand insurance pay £30 a head. Problem solved. The Captain has done his duty. The investors will be made whole. The insurers are furious about this loophole and refuse to pay.</p>
@@ -1695,7 +1703,7 @@ p2_intro:`<div class="essay part2">
 </div>`,
 
 p2_bar:`<div class="essay part2">
-  <p>Whenever I end up in New York, I try to get drinks with a close buddy of mine from college. Right after graduation, we were both working crappy jobs while living in whatever we could afford in East Harlem. We decompressed on Fridays by drinking at some dingy neighborhood bar.${fnR('b1')} We spent hours drunkenly exchanging the stories that anchor our lives.</p>
+  <p>Whenever I end up in New York, I try to get drinks with a close buddy of mine from college. Right after graduation, we were both working crappy jobs while living wherever we could afford in East Harlem. We decompressed on Fridays by drinking at some dingy neighborhood bar.${fnR('b1')} We spent hours drunkenly exchanging the stories that anchor our lives.</p>
   ${fnB('b1','We did not have the glamorous Manhattan experience. That is probably why we stayed friends.')}
   ${figP2(IMG.p2Bar,'A bar entrance at night, neon signs and a lit doorway, photographed from the sidewalk.',1300,974)}
   <p>He loves to call himself an “archaeologist of the present.” His hobby is journeying into the forgotten basements of the primitive digital age, rebooting long-dormant computers and fixing corrupted hard drives.${fnR('barch')}</p>
@@ -1889,23 +1897,36 @@ p3_boot1:()=>{
 p3_grind1:()=>{
   S.playerLevel=2;
   return `<div class="game in-game reveal-click" 
-  data-labels="→ Swing|→ Swing|→ Swing|→ Swing|→ Swing|→ Sip|→ Swing|→ Swing">
+  data-labels="→ Swing|→ Swing|→ Swing">
     ${hud('SAVE FILE 1 &nbsp;|&nbsp; Chimera Grotto')}
   ${p('You see a chimera.')}
   ${ph('You swing.')}
   ${ph('You enter a rhythm. You become the game.')}
   ${ph('Every button press is a slash with your greatsword. A roll. A swing. Experience.')}
-  ${ph('A shriek.')}
+  <div class="choices">
+    <button class="choice-btn" data-action="revealNext">→ Swing</button>
+      </div>
+  <div class="after-reveal">
+    ${nav('p3_grind1b','→ Swing')}
+</div>
+</div>`;},
+
+p3_grind1b:()=>{
+  S.playerLevel=2;
+  return `<div class="game in-game reveal-click"
+  data-labels="→ Swing|→ Sip|→ Swing|→ Swing">
+  ${hud('SAVE FILE 1 &nbsp;|&nbsp; Chimera Grotto')}
+  ${p('A shriek.')}
   ${ph('Which is drowned out by the soundtrack. Which is drowned out by your music. Which is drowned out by the podcast you are watching on your second monitor. Something about looksmaxxing? You barely notice it. You are lost in the game.')}
   ${ph('You take a sip of Mountain Dew.')}
   ${ph('You kill another enemy.')}
   ${phl('You gain another level.')}
   <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Swing</button>
-      </div>
+  </div>
   <div class="after-reveal">
     ${nav('p3_timepasses1','→ Swing')}
-</div>
+  </div>
 </div>`;},
 
 p3_timepasses1:()=>{ 
@@ -2002,16 +2023,29 @@ p3_boot_game1:()=>{
 p3_feasthall1:()=>{
   S.playerLevel=10;
   return `<div class="game in-game reveal-click"
-  data-labels="→ Gaze|→ Swing|→ Die|→ Die|→ Die">
+  data-labels="→ Gaze|→ Swing">
   ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
   ${p('Inside, you see tables overturned, food scattered, drinks spilled. Remnants of a hedonistic night you are left to imagine.')}
   ${ph('At the center, the Countless Count stands waiting for someone to approach.')}
   ${ph('You swing.')}
-  ${ph('You respawn. You don\'t know the Count\'s attack pattern. You hope you are progressing.')}
+  <div class="choices">
+    <button class="choice-btn" data-action="revealNext">→ Gaze</button>
+  </div>
+  <div class="after-reveal">
+    ${nav('p3_feasthalldeaths1','→ Die')}
+  </div>
+</div>`;},
+
+p3_feasthalldeaths1:()=>{
+  S.playerLevel=10;
+  return `<div class="game in-game reveal-click"
+  data-labels="→ Die|→ Die">
+  ${hud('SAVE FILE 1 &nbsp;|&nbsp; Feast Hall')}
+  ${p('You respawn. You don\'t know the Count\'s attack pattern. You hope you are progressing.')}
   ${ph('You respawn. You don\'t understand the Count\'s attack pattern. You feel you are progressing.')}
   ${ph('You respawn. At least you got to see the Count\'s second phase. You know you are progressing.')}
   <div class="choices">
-    <button class="choice-btn" data-action="revealNext">→ Gaze</button>
+    <button class="choice-btn" data-action="revealNext">→ Die</button>
   </div>
   <div class="after-reveal">
     ${nav('p3_feasthallfight1','→ Roll')}
@@ -2145,7 +2179,7 @@ p3_wait1:()=>{
   data-labels="→ Wait|→ Wait|→ Interact">
   ${hud('SAVE FILE 1 &nbsp;|&nbsp; Courtyard (Day)')}
   ${p('You return to the Courtyard. This time you don\'t do anything. You just sit there. Before her.')}
-  ${ph('You watch — you turn your attention from your character\'s idle animations and towards the podcast. You can wait. You\'ve been trained for it.')}
+  ${ph('You turn to your second monitor. You can wait. You\'ve been trained to wait.')}
   <div class="hidden">${p('You wait. The knight has not moved.')}${p('Eventually he speaks. Text scrolls along the bottom of the screen.')}<span class="knight-quote">Is this what you wanted? Freedom?</span></div>
   <p class="hidden feedback-line">Nothing happens. No text box appears. She does not react.</p>
   <div class="choices">
@@ -2298,13 +2332,26 @@ p3_fresh_save2:()=>{
 p3_grind3:()=>{
   S.playerLevel=1;
   return `<div class="game in-game reveal-click"
-  data-labels="→ Swing|→ Swing|→ Swing|→ Swing|→ Swing|→ Sip|→ Swing|→ Swing">
+  data-labels="→ Swing|→ Swing|→ Swing">
   ${hud('SAVE FILE 2 &nbsp;|&nbsp; Chimera Grotto')}
   ${p('You see a chimera.')}
   ${ph('You swing.')}
   ${ph('You enter a rhythm. You become the game.')}
   ${ph('Every button press is a swipe with your greatmace. A roll. A swing. Experience.')}
-  ${ph('A shriek.')}
+  <div class="choices">
+    <button class="choice-btn" data-action="revealNext">→ Swing</button>
+  </div>
+  <div class="after-reveal">
+    ${nav('p3_grind3b','→ Swing')}
+  </div>
+</div>`;},
+
+p3_grind3b:()=>{
+  S.playerLevel=1;
+  return `<div class="game in-game reveal-click"
+  data-labels="→ Swing|→ Sip|→ Swing|→ Swing">
+  ${hud('SAVE FILE 2 &nbsp;|&nbsp; Chimera Grotto')}
+  ${p('A shriek.')}
   ${ph('Which is drowned out by the soundtrack. Which is drowned out by your music. Which is drowned out by the video essay you are watching on your second monitor. Something about looksmaxxing? You barely notice it. You wonder where she is.')}
   ${ph('You take a sip of Mountain Dew.')}
   ${ph('You kill another enemy.')}
@@ -2396,6 +2443,7 @@ p3_return:()=>{
   return `<div class="game in-game reveal-click"
    data-labels="→ Think|→ Remember">
     ${hud('SAVE FILE 2 &nbsp;|&nbsp; Feast Hall')}
+${p('You suddenly feel compelled to open the game. You load your save.')}
 ${p('You try to remember where you left off. You need experience. To win? To enjoy? To escape? To be satisfied?')} 
 ${ph('You try to remember the last thing you did in game.')}  
 ${ph('You can\'t. It has been too long.')}
