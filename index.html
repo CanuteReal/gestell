@@ -1123,17 +1123,17 @@ function secretNeeds(){
 }
 
 const PART_ONE_SECRET_FOOTNOTES=[
-  {id:'s1',txt:`I wish I had understood the value of her creative mindset during our time together. I only realized how rare it was when she had finally left. Spending so much time with her made it seem so natural, almost quotidian. I took it for granted. I've been paying for this mistake for years.`},
-  {id:'s2',txt:`A classic meme from a more innocent time. I try to slip this into most of the things I write. It's also generally true, which makes it better. We really do live in a society!`},
-  {id:'s3',txt:`The realization that people in the past likely experienced the world in ways that we cannot comprehend stuck with me for years. It made me a lot more humble about my place in the world. That should be what college gives you: the ability to see beyond your time and place. Maybe that perspective is Geist.`},
-  {id:'s4',txt:`I found the MIT Visualizing Cultures website while living with my parents during the covid years. By that point, the website was more than 10 years old. In many ways, it was deprecated: the web design was primitive and didn't always work great. But the content was unparalleled. The essays were clear and cogent. The accompanying images grounded the claims in real art history. It proved its point intellectually and visually. History at its best.`},
-  {id:'s5',txt:`My friends and I played a lot of <em>Victoria II</em> in college. Mostly modded with HPM or PDM. No game has captured the rational trap of the 19th century better. You need to become stronger to survive against rival countries. But the cost is not just abstract: your troops and pops actually die in battle and are removed from the game. When the world wars start up, Piketty's point becomes clear: the welfare states of Europe were paid for in blood.`},
-  {id:'s6',txt:`I have to believe that I am learning. Considering how things have gone, I'm not sure I should. But that doesn't make the burden any lighter.`},
+  {id:'s1',txt:`I wish I had understood the value of her creative mindset while we were together. I only realized how rare it was once she left. Spending so much time with her made it seem natural, almost quotidian. I took it for granted. I've been paying for that mistake ever since.`},
+  {id:'s2',txt:`A classic meme from a more innocent time. I try to slip it into most things I write, silly as it is. Helps that we really do live in a society!`},
+  {id:'s3',txt:`The realization that people in the past likely experienced the world in ways we cannot comprehend stuck with me for years. It made me a lot more humble about my place in the world. That's what college should give you: the ability to see beyond your own time and place. Maybe that perspective is Geist.`},
+  {id:'s4',txt:`I found MIT's Visualizing Cultures website while living with my parents during the COVID years. By then, the site was more than ten years old, and in many ways it was dated: the web design was primitive and didn't always work. But the content was unparalleled. The essays were clear and cogent. The images grounded the claims in real art history. It proved its point intellectually and visually. History at its best.`},
+  {id:'s5',txt:`My friends and I played a lot of <em>Victoria II</em> in college, mostly modded with HPM or PDM. No game has captured the rational trap of the 19th century better. You need to become stronger to survive against rival countries. But the cost isn't abstract: your troops and pops actually die in battle and are removed from the game. When the world wars start, Piketty's point becomes clear: the welfare states of Europe were paid for in blood.`},
+  {id:'s6',txt:`I have to believe that I am learning. Given how things have gone, I'm not sure I should. But that doesn't make the burden any lighter.`},
   {id:'s7',txt:`The hardest thing about life is looking forward and realizing that every future day is likely more of the same boring grind. At a certain point it feels pointless. A pie-eating contest where the prize is more pie. And I've eaten a lot of pie.`},
   {id:'s8',txt:`[Weil quote TBD + link]`},
-  {id:'s9',txt:`Reason is unnerving because it can justify almost anything as long as the priors are set up right. And humans are very good at setting up the board. I still eat meat despite knowing the actual moral cost. What is your tolerance for hypocrisy?`},
-  {id:'s10',txt:`Prophecy, modeling, hyperstition. All are ways to try and make the pattern legible and impose it on reality. But we don't know what we don't know. Unknown unknowns and black swans. It's why I feel the need to verify everything for myself. I feel like I'm the only person I can really trust.`},
-  {id:'s11',txt:`We try to avoid the fact that the world is fundamentally unstructured chaos. We try to organize our lives to make it bearable. If we fail, we are forced to confront our own mortality and how little control we have. I always end up thinking back to Snowden's secret in <em>Catch-22</em>. Man is just matter. Push him off a bridge and he will fall. Light him on fire and he will burn. There is nothing sacred about meat. We can die at any moment for any reason. But sometimes you just need to hang out with friends and play some backgammon.`},
+  {id:'s9',txt:`Reason is unnerving because it can justify almost anything as long as the priors are set up right. And humans are very good at setting up the board. I still eat meat despite knowing the moral cost. What is your tolerance for hypocrisy?`},
+  {id:'s10',txt:`Prophecy, modeling, hyperstition. All are ways to make the pattern legible and impose it on reality. But we don't know what we don't know. Unknown unknowns and black swans. It's why I feel the need to verify everything for myself. I feel like I'm the only person I can really trust.`},
+  {id:'s11',txt:`We try to avoid facing the fact that the world is fundamentally unstructured chaos. We organize our lives to make it bearable. If we fail, we're forced to confront our own mortality and how little control we have. I always end up thinking back to Snowden's secret in <em>Catch-22</em>. Man is just matter. Push him off a bridge and he will fall. Light him on fire and he will burn. There is nothing sacred about meat. We can die at any moment for any reason. But sometimes you just need to hang out with friends and play some backgammon.`},
 ];
 
 const PART_ONE_PASSAGES=['p1_s1','p1_s2','p1_s3','p1_s4','p1_s4b','p1_s5','p1_s6','p1_s7','p1_s8'];
@@ -1384,7 +1384,7 @@ title:()=>`<div class="toc">
       <span class="toc-label">Part Three</span>
       <a class="toc-link" data-go="p3_title">The Game</a>
       <span class="toc-desc">A game within a game${S.quit?'<sup class="fn-ref fn-mark toc-dagger" data-fn="spost">&dagger;</sup>':''}</span>
-      ${S.quit?fnB('spost','History is monstrous. The Dialectic is monstrous. The world is monstrous.<br><br>Resist anyway'):''}
+      ${S.quit?fnB('spost','History is monstrous. The Dialectic is monstrous. The world is monstrous.<br><br>Resist anyway.'):''}
     </li>
   </ul>
 </div>`,
@@ -1489,7 +1489,7 @@ p1_index:()=>{
   return `<div class="essay paper">
     <p class="part-label">Part One</p>
     <p class="section-label">Index</p>
-    <p class="index-note">Links jump to the section(s) where the term appears (I–VIII).</p>
+    <p class="index-note">Links jump to the section(s) where the term appears (I–IX).</p>
     <div class="index-list">${items}</div>
     <div class="p1-end-tools">
       ${nav('p1_intro','← Part One')}
@@ -1646,7 +1646,7 @@ p1_s5:`<div class="essay paper">
   ${fnB('complicity',"Of course, the African kingdoms were also complicit, but it was a rational complicity. They were making Judgments too. Those who did not participate in slave taking would become slaves of their neighbors who did.")}
   <p>Although the English took pride in their opposition to slavery within England's borders, the siren call of profit proved too hard to ignore.${fnR('norman')} They staffed their initial Caribbean plantations with indentured servants from the British Isles. However, the transition to sugar cultivation created a near-endless need for labor that the supply of willing (or even unwilling) Europeans could never meet. Out of necessity, England too turned towards African slavery. The African Company was formed and given Royal imprimatur. Soon Britain is fully enmeshed in the slave trade, eventually taking over the Asiento contract to supply the Spanish Empire with slaves.</p>
   ${fnB('norman','Never mind that it was the Norman Conquest that finished off slavery. Perhaps the Norman Yoke was not all that much of a yoke. As much as I like Tolkien, I can\'t help but feel his romantic English nationalism is a more palatable version of Heidegger\'s Black Forest Naziism.')}
-  <p>Journeys across the Atlantic remain difficult. The <em>Zong</em>, a British slave ship, misjudges the distance to Jamaica and spends a bit of extra time at sea. Suddenly, that pleasant 60 day journey instead becomes an unbearable 108. But these voyages are rationalized and economized: a ship only carries as much supply as it needs to complete the journey. Every pound of water is one less pound of cargo and one less pound of profit. When supplies run low, the slaves are the ones who are not fed. Unfortunately for the owners of the <em>Zong</em>, slaves decrease in value if they are sick or weak. A slave's lifespan is “priced in,” as plantation foremen are unlikely to buy the unhealthy slaves when the ship finally docks at Black River.</p>
+  <p>Journeys across the Atlantic remain difficult. The <em>Zong</em>, a British slave ship, misjudges the distance to Jamaica and spends a bit of extra time at sea. Suddenly, that pleasant sixty day journey instead becomes an unbearable 108. But these voyages are rationalized and economized: a ship only carries as much supply as it needs to complete the journey. Every pound of water is one less pound of cargo and one less pound of profit. When supplies run low, the slaves are the ones who are not fed. Unfortunately for the owners of the <em>Zong</em>, slaves decrease in value if they are sick or weak. A slave's lifespan is “priced in,” as plantation foremen are unlikely to buy the unhealthy slaves when the ship finally docks at Black River.</p>
   ${fig(IMG.kingston,'A hillside view over hedged fields to the town of Kingston and its harbor, where ships lie at anchor and a long spit of land runs out to Port Royal, with mountains across the water. In the foreground a man in a black top hat points out over the view; beside him stands a woman in a long white dress and a striped shawl, next to a tall flowering agave.','A British plantation owner points to what makes the Empire grand: buildings, roads, ships loaded with sugar. Not a slave in sight.','plate--mid')}
   <p>All hope is not yet lost, as Rome comes to the rescue once again. In the coffeehouses of London, the underwriters at Lloyd's reach for the <em>Lex Rhodia de iactu</em>, an old rule holding that losses from jettisoned cargo are shared proportionally. They begin applying it to slaves.</p>
   <p>The ancient rule, now known as the “Law of the General Average,” becomes an economic life vest for the shipowners. Insurers will compensate them for any cargo sacrificed to save the ship. Incentives are aligned: captains are pushed to save the ship when the vessel itself is at stake, as they no longer have to worry quite as much about explaining how they lost all the cargo to their patrons back in Liverpool.</p>
@@ -1867,7 +1867,7 @@ p2_aftermath2:`<div class="essay part2">
   ${fnB('blaugh','I finally understood he was deathly serious: he did not see this as a joke.')}
   <p>I had nothing to say. It was all too melodramatic.${fnR('b9')}</p>
   ${fnB('b9','I just thought we were gonna catch up over a few beers. I wasn\'t expecting a story about a haunted computer lab.')}
-  <p>An immense silence grew between us. Finally, I asked</p>
+  <p>An immense silence grew between us. Finally, :</p>
   <p class="pullquote">Why not smash the terminal?</p>
   ${figP2(IMG.p2Towers,'High-rise apartment buildings at night, lit windows against a dark sky.',1300,867)}
   <p>My friend looked at me, confusion plastered on his face.</p>
@@ -1876,7 +1876,7 @@ p2_aftermath2:`<div class="essay part2">
 </div>`,
 
 p2_leaving:`<div class="essay part2">
-  <p>Eventually, he stood up from the bar and walked to the door. Before he stepped outside into the dark November night, he said</p>
+  <p>Eventually, he stood up from the bar and walked to the door. Before he stepped outside into the dark November night, he said:</p>
   <p class="pullquote" style="color:var(--red);font-family:'Fjord One',Georgia,serif;">It is already too late for me. I cannot unlearn what I learned. Cannot unthink what I thought. <br>It continues. Whether we want it to or not.</p>
   <p>He was out the door. He left his notes on the table.</p>
   <p>I still have them.${fnR('bessay')}</p>
@@ -2355,7 +2355,7 @@ p3_fresh_save:()=>{
   ${hud('SAVE FILE 2 &nbsp;|&nbsp; Tutorial Island')}
   ${p('You start a fresh save.')}
   <div class="hidden">${p('You replay the introduction a second time. You have seen this all before.')}${p('It is rote and comforting.')}</div>
-  ${ph('You\'re barely paying attention to the game your focus is on the second screen.')}
+  ${ph('You\'re barely paying attention to the gamel; your focus is on the second screen.')}
   <div class="choices">
     <button class="choice-btn" data-action="revealNext">→ Replay</button>
   </div>
